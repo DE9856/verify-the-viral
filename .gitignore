@@ -33,3 +33,6 @@ research/real-audio/
 
 # design review captures (regenerated)
 .impeccable/review/
+
+# design-tool cache
+.impeccable/hook.cache.json

@@ -1,8 +1,9 @@
 # Check Before Share — hackathon repo (CMRIT × DetectifAI, Track 4)
 
 - Plan: `PLAN.md`. Interface: `CONTRACT.md`.
-- No more lanes (Lane A / Lane B ended 2026-11-25): all code changes happen on this Windows laptop;
-  any file may be edited. The Fedora laptop is now the server (runs the bot + API).
+- No more lanes (Lane A / Lane B ended 2026-11-25): all code changes happen on the dev laptop (the
+  Windows laptop until 2026-11-26; new laptop after that, see `HANDOFF.md`); any file may be edited.
+  The Fedora laptop is the server (runs the bot + API).
 - Commit and push to branch `testing`; merge `testing` into `master` only once it works
   (tests pass and it runs on the server).
 - Develop with `MOCK_ALETHEIA` set (no credits). Use the real API only for a step's "done when" check.
