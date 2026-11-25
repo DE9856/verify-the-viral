@@ -90,6 +90,16 @@ def variant_note(cache: dict, lang: str) -> str | None:
     return None
 
 
+def edited_note(result: dict, lang: str) -> str | None:
+    """'Parts of this clip match one we checked before, but 10–13 s are different…' (fpdiff.py)."""
+    e = result.get("edited_copy_of") or {}
+    if e.get("changed"):
+        return t("edited_copy", lang, regions=format_regions([[round(a), round(b)] for a, b in e["changed"]], lang))
+    if e.get("removed"):
+        return t("edited_copy_cut", lang)
+    return None
+
+
 def format_reply(result: dict, lang: str) -> str:
     """The chat reply for one check() result (also the card caption later)."""
     if result["band"] == "error":
@@ -98,6 +108,8 @@ def format_reply(result: dict, lang: str) -> str:
     lines = [t(result["band"], lang, regions=format_regions(result.get("core_regions", []), lang))]
     if result.get("trimmed"):
         lines.append(t("trimmed", lang))
+    if note := edited_note(result, lang):
+        lines.append(note)
     cache = result.get("cache") or {}
     if cache.get("hit"):
         lines.append(t("cache_hit", lang, n=cache.get("times_checked", 2)))
@@ -130,8 +142,9 @@ def is_group(msg: Message) -> bool:
 
 
 def short_reply(result: dict, msg: Message) -> bool:
-    """In groups, a clean result gets one quiet line instead of the full card."""
-    return result["band"] == "no_signs" and is_group(msg)
+    """In groups, a clean result gets one quiet line instead of the full card (not an edited copy of
+    a known clip: that is worth saying even when no AI voice was found)."""
+    return result["band"] == "no_signs" and is_group(msg) and not result.get("edited_copy_of")
 
 
 def public_link(url: str) -> bool:

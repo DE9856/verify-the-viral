@@ -129,6 +129,9 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
   result for free (tested offline: speed copies ≥ 0.84, pitch copies ≥ 0.86, different clips
   ≤ 0.67). Not recognised: a copy that is both pitch-changed and trimmed, or changed beyond
   0.5–2× / ±6 semitones. See `research/speed-test.md`.
+- **Edited copies of a clip we already checked** are caught when the edit is about 2 s or longer
+  (128 true copies and 69 such edits tested, 0 wrong). A swap of ~1 s or less, like one word, can
+  still pass as the same clip and get its stored result. See `research/fp_diff.md`.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).
@@ -192,6 +195,11 @@ re-tagged file, a voice note inside a video; works without `fpcalc`) → an audi
 another speed or pitch (0.5–2× with the pitch kept or changed with it, or the voice made higher or
 deeper at the same length: the change is undone with ffmpeg and the clip fingerprinted again;
 about 1 s, only when everything before it missed). Only then is Aletheia called.
+
+Every fuzzy match (fingerprint, speed/pitch) must also pass a **fingerprint diff** that lines the
+clips up piece by piece: if any stretch of about 2 s or more differs, it is not a repeat but an
+**edited copy of a known clip**. It is checked by Aletheia like a new clip, and the reply says which
+seconds differ ("Parts of this clip match one we checked before, but 8–11 s are different").
 
 ## Team and how we built it
 

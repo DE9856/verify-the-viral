@@ -55,6 +55,16 @@
   "hi": "यह पहले जाँची गई क्लिप की {speed}× स्पीड वाली कॉपी है। समय मूल क्लिप के हिसाब से हैं।",
   "kn": "ಇದು ಈಗಾಗಲೇ ಪರಿಶೀಲಿಸಿದ ಕ್ಲಿಪ್‌ನ {speed}× ವೇಗದ ಪ್ರತಿ. ಸಮಯಗಳು ಮೂಲ ಕ್ಲಿಪ್‌ನವು."
  },
+ "edited_copy": {
+  "en": "Parts of this clip match one we checked before, but {regions} are different: this looks like an edited copy.",
+  "hi": "इस क्लिप के हिस्से पहले जाँची गई एक क्लिप से मिलते हैं, लेकिन {regions} अलग हैं: यह एक बदली हुई कॉपी लगती है।",
+  "kn": "ಈ ಕ್ಲಿಪ್‌ನ ಭಾಗಗಳು ಹಿಂದೆ ಪರಿಶೀಲಿಸಿದ ಒಂದು ಕ್ಲಿಪ್‌ಗೆ ಹೊಂದುತ್ತವೆ, ಆದರೆ {regions} ಬೇರೆಯಾಗಿವೆ: ಇದು ಬದಲಾಯಿಸಿದ ಪ್ರತಿಯಂತೆ ಕಾಣುತ್ತದೆ."
+ },
+ "edited_copy_cut": {
+  "en": "Parts of this clip match one we checked before, but some seconds were cut out: this looks like an edited copy.",
+  "hi": "इस क्लिप के हिस्से पहले जाँची गई एक क्लिप से मिलते हैं, लेकिन कुछ सेकंड काटे गए हैं: यह एक बदली हुई कॉपी लगती है।",
+  "kn": "ಈ ಕ್ಲಿಪ್‌ನ ಭಾಗಗಳು ಹಿಂದೆ ಪರಿಶೀಲಿಸಿದ ಒಂದು ಕ್ಲಿಪ್‌ಗೆ ಹೊಂದುತ್ತವೆ, ಆದರೆ ಕೆಲವು ಸೆಕೆಂಡುಗಳನ್ನು ಕತ್ತರಿಸಲಾಗಿದೆ: ಇದು ಬದಲಾಯಿಸಿದ ಪ್ರತಿಯಂತೆ ಕಾಣುತ್ತದೆ."
+ },
  "cache_variant_pitch": {
   "en": "This is a copy of a clip we already checked, with the voice made higher or deeper.",
   "hi": "यह पहले जाँची गई क्लिप की कॉपी है, जिसमें आवाज़ ऊँची या भारी की गई है।",

@@ -1,0 +1,238 @@
+ok  clone_en mp3 64k                           expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_en aac 64k                           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clone_en opus 16k                          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clone_en -6 dB                             expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_en trim start 1.5 s                  expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clone_en trim end 2 s                      expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_hi mp3 64k                           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clone_hi aac 64k                           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clone_hi opus 16k                          expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  clone_hi -6 dB                             expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_hi trim start 1.5 s                  expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clone_hi trim end 2 s                      expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_kn mp3 64k                           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clone_kn aac 64k                           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clone_kn opus 16k                          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clone_kn -6 dB                             expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clone_kn trim start 1.5 s                  expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clone_kn trim end 2 s                      expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_en mp3 64k                          expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  notice_en aac 64k                          expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  notice_en opus 16k                         expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  notice_en -6 dB                            expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_en trim start 1.5 s                 expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  notice_en trim end 2 s                     expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_hi mp3 64k                          expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  notice_hi aac 64k                          expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  notice_hi opus 16k                         expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  notice_hi -6 dB                            expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_hi trim start 1.5 s                 expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  notice_hi trim end 2 s                     expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_kn mp3 64k                          expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  notice_kn aac 64k                          expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  notice_kn opus 16k                         expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  notice_kn -6 dB                            expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  notice_kn trim start 1.5 s                 expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  notice_kn trim end 2 s                     expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_en mp3 64k                            expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_en aac 64k                            expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  real_en opus 16k                           expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  real_en -6 dB                              expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_en trim start 1.5 s                   expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  real_en trim end 2 s                       expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_hi mp3 64k                            expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  real_hi aac 64k                            expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  real_hi opus 16k                           expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  real_hi -6 dB                              expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_hi trim start 1.5 s                   expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  real_hi trim end 2 s                       expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_kn mp3 64k                            expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  real_kn aac 64k                            expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  real_kn opus 16k                           expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  real_kn -6 dB                              expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  real_kn trim start 1.5 s                   expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  real_kn trim end 2 s                       expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_en mp3 64k                         expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_en aac 64k                         expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  spliced_en opus 16k                        expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  spliced_en -6 dB                           expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_en trim start 1.5 s                expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  spliced_en trim end 2 s                    expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_hi mp3 64k                         expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  spliced_hi aac 64k                         expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  spliced_hi opus 16k                        expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  spliced_hi -6 dB                           expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_hi trim start 1.5 s                expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  spliced_hi trim end 2 s                    expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_kn mp3 64k                         expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  spliced_kn aac 64k                         expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  spliced_kn opus 16k                        expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  spliced_kn -6 dB                           expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  spliced_kn trim start 1.5 s                expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  spliced_kn trim end 2 s                    expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clean Script 1 - Hindi opus 12k            expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  clean Script 1 - Hindi opus 16k            expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script 1 - Hindi opus 24k            expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script 1 - Hindi mp3 32k             expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean Script 1 - Hindi aac 32k             expect same   got same      shared 1.00 typical 0.93 changed [] removed []
+ok  clean Script 1 - Kannada opus 12k          expect same   got same      shared 1.00 typical 0.95 changed [] removed []
+ok  clean Script 1 - Kannada opus 16k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script 1 - Kannada opus 24k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script 1 - Kannada mp3 32k           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean Script 1 - Kannada aac 32k           expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  clean Script 2 - Kannada opus 12k          expect same   got same      shared 1.00 typical 0.95 changed [] removed []
+ok  clean Script 2 - Kannada opus 16k          expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  clean Script 2 - Kannada opus 24k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script 2 - Kannada mp3 32k           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean Script 2 - Kannada aac 32k           expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  clean Script A - English opus 12k          expect same   got same      shared 1.00 typical 0.95 changed [] removed []
+ok  clean Script A - English opus 16k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script A - English opus 24k          expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clean Script A - English mp3 32k           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean Script A - English aac 32k           expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - English opus 12k          expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  clean Script B - English opus 16k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - English opus 24k          expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - English mp3 32k           expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean Script B - English aac 32k           expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - Hindi opus 12k            expect same   got same      shared 1.00 typical 0.95 changed [] removed []
+ok  clean Script B - Hindi opus 16k            expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - Hindi opus 24k            expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean Script B - Hindi mp3 32k             expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clean Script B - Hindi aac 32k             expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  clean spliced_en opus 12k                  expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean spliced_en opus 16k                  expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clean spliced_en opus 24k                  expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean spliced_en mp3 32k                   expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clean spliced_en aac 32k                   expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean real_en opus 12k                     expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  clean real_en opus 16k                     expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clean real_en opus 24k                     expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean real_en mp3 32k                      expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  clean real_en aac 32k                      expect same   got same      shared 1.00 typical 0.99 changed [] removed []
+ok  clean spliced_en vs spliced_whatsapp.ogg   expect same   got same      shared 1.00 typical 0.92 changed [] removed []
+ok  clean spliced_en vs spliced_whatsapp.m4a   expect same   got same      shared 1.00 typical 0.92 changed [] removed []
+ok  notice_en real WhatsApp copy               expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  spliced_en real WhatsApp copy              expect same   got same      shared 1.00 typical 0.98 changed [] removed []
+ok  clone_en real WhatsApp copy                expect same   got same      shared 1.00 typical 0.97 changed [] removed []
+ok  undone speed-test-2/speed_0.6x             expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  undone speed-test-2/speed_0.9x             expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  undone speed-test-2/speed_1.1x             expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  undone speed-test-2/speed_1.4x             expect same   got same      shared 1.00 typical 0.91 changed [] removed []
+ok  undone speed-test-2/speed_1.8x             expect same   got same      shared 1.00 typical 0.89 changed [] removed []
+ok  undone speed-test-2/tape_0.8x              expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  undone speed-test-2/tape_1.3x              expect same   got same      shared 1.00 typical 1.00 changed [] removed []
+ok  undone speed-test-2/pitch_2semitones       expect same   got same      shared 1.00 typical 0.96 changed [] removed []
+ok  undone speed-test-2/pitch_-3semitones      expect same   got same      shared 1.00 typical 0.94 changed [] removed []
+ok  undone speed-test/spliced_whatsapp_0.5x    expect same   got same      shared 1.00 typical 0.93 changed [] removed []
+ok  undone speed-test/spliced_whatsapp_2.0x    expect same   got same      shared 1.00 typical 0.87 changed [] removed []
+ok  notice_en replace 0.5s at 4.93             below resolution, got edited
+ok  notice_en replace 0.5s at 10.68            below resolution, got edited
+ok  notice_en replace 1s at 4.93               below resolution, got edited
+ok  notice_en replace 1s at 10.68              below resolution, got edited
+ok  notice_en replace 2s at 4.93               expect edited got edited    shared 0.80 typical 0.97 changed [[np.float64(3.34), np.float64(6.07)]] removed [[np.float64(3.47), np.float64(5.94)]] at the right place
+ok  notice_en replace 2s at 10.68              expect edited got edited    shared 0.86 typical 0.98 changed [[np.float64(10.03), np.float64(12.01)]] removed [[np.float64(10.03), np.float64(11.89)]] at the right place
+ok  notice_en replace 3s at 4.93               expect edited got edited    shared 0.69 typical 0.98 changed [[np.float64(3.34), np.float64(7.55)]] removed [[np.float64(3.47), np.float64(7.43)]] at the right place
+ok  notice_en replace 3s at 10.68              expect edited got edited    shared 0.80 typical 0.97 changed [[np.float64(10.03), np.float64(12.76)]] removed [[np.float64(10.03), np.float64(12.51)]] at the right place
+ok  notice_en replace 5s at 4.93               expect edited got edited    shared 0.69 typical 0.91 changed [[np.float64(3.59), np.float64(7.93)]] removed [[np.float64(3.72), np.float64(7.8)]] at the right place
+ok  notice_en replace 5s at 10.68              expect edited got edited    shared 0.73 typical 0.97 changed [[np.float64(10.03), np.float64(13.75)]] removed [] at the right place
+ok  notice_en insert 1s at 8.21                below resolution, got edited
+ok  notice_en delete 1s at 8.21                below resolution, got edited
+ok  notice_en insert 2s at 8.21                expect edited got edited    shared 0.87 typical 0.97 changed [[np.float64(7.06), np.float64(9.16)]] removed [] at the right place
+ok  notice_en delete 2s at 8.21                expect edited got edited    shared 0.95 typical 0.97 changed [[np.float64(6.81), np.float64(7.43)]] removed [[np.float64(6.94), np.float64(9.41)]]
+ok  notice_en fake 3 s intro                   expect edited got edited    shared 0.82 typical 0.95 changed [[np.float64(0.0), np.float64(2.97)]] removed [] at the right place
+--  real_en replace 0.5s at 6.39               below resolution, got same
+--  real_en replace 0.5s at 13.85              below resolution, got same
+ok  real_en replace 1s at 6.39                 below resolution, got edited
+ok  real_en replace 1s at 13.85                below resolution, got edited
+ok  real_en replace 2s at 6.39                 expect edited got edited    shared 0.85 typical 0.99 changed [[np.float64(5.08), np.float64(7.8)]] removed [[np.float64(5.2), np.float64(7.68)]] at the right place
+ok  real_en replace 2s at 13.85                expect edited got edited    shared 0.88 typical 0.99 changed [[np.float64(12.88), np.float64(15.11)]] removed [[np.float64(13.0), np.float64(14.98)]] at the right place
+ok  real_en replace 3s at 6.39                 expect edited got edited    shared 0.80 typical 0.98 changed [[np.float64(5.08), np.float64(8.79)]] removed [[np.float64(5.2), np.float64(8.79)]] at the right place
+ok  real_en replace 3s at 13.85                expect edited got edited    shared 0.81 typical 0.98 changed [[np.float64(12.88), np.float64(16.35)]] removed [[np.float64(13.0), np.float64(16.22)]] at the right place
+ok  real_en replace 5s at 6.39                 expect edited got edited    shared 0.69 typical 0.98 changed [[np.float64(5.08), np.float64(10.77)]] removed [[np.float64(5.2), np.float64(10.9)]] at the right place
+ok  real_en replace 5s at 13.85                expect edited got edited    shared 0.69 typical 0.98 changed [[np.float64(12.88), np.float64(18.58)]] removed [] at the right place
+ok  real_en insert 1s at 10.65                 below resolution, got edited
+ok  real_en delete 1s at 10.65                 below resolution, got edited
+ok  real_en insert 2s at 10.65                 expect edited got edited    shared 0.92 typical 0.97 changed [[np.float64(9.91), np.float64(11.52)]] removed [] at the right place
+ok  real_en delete 2s at 10.65                 expect edited got edited    shared 0.95 typical 0.97 changed [[np.float64(9.29), np.float64(10.15)]] removed [[np.float64(9.41), np.float64(12.14)]]
+ok  real_en fake 3 s intro                     expect edited got edited    shared 0.86 typical 0.95 changed [[np.float64(0.0), np.float64(3.1)]] removed [] at the right place
+--  notice_hi replace 0.5s at 10.02            below resolution, got same
+--  notice_hi replace 0.5s at 21.72            below resolution, got same
+ok  notice_hi replace 1s at 10.02              below resolution, got edited
+ok  notice_hi replace 1s at 21.72              below resolution, got edited
+ok  notice_hi replace 2s at 10.02              expect edited got edited    shared 0.93 typical 0.98 changed [[np.float64(8.92), np.float64(11.02)]] removed [[np.float64(9.04), np.float64(11.02)]] at the right place
+ok  notice_hi replace 2s at 21.72              expect edited got edited    shared 0.96 typical 0.98 changed [[np.float64(21.18), np.float64(22.29)]] removed [[np.float64(21.3), np.float64(22.41)]] at the right place
+ok  notice_hi replace 3s at 10.02              expect edited got edited    shared 0.92 typical 0.97 changed [[np.float64(8.92), np.float64(11.15)]] removed [[np.float64(9.04), np.float64(11.76)]] at the right place
+ok  notice_hi replace 3s at 21.72              expect edited got edited    shared 0.91 typical 0.98 changed [[np.float64(21.18), np.float64(23.9)]] removed [[np.float64(21.3), np.float64(23.9)]] at the right place
+ok  notice_hi replace 5s at 10.02              expect edited got edited    shared 0.85 typical 0.98 changed [[np.float64(8.92), np.float64(13.37)]] removed [[np.float64(9.04), np.float64(13.87)]] at the right place
+ok  notice_hi replace 5s at 21.72              expect edited got edited    shared 0.84 typical 0.97 changed [[np.float64(21.18), np.float64(26.01)]] removed [[np.float64(21.3), np.float64(26.01)]] at the right place
+ok  notice_hi insert 1s at 16.7                below resolution, got edited
+--  notice_hi delete 1s at 16.7                below resolution, got same
+ok  notice_hi insert 2s at 16.7                expect edited got edited    shared 0.93 typical 0.97 changed [[np.float64(15.48), np.float64(17.71)]] removed [[np.float64(15.6), np.float64(16.35)]] at the right place
+ok  notice_hi delete 2s at 16.7                expect edited got edited    shared 0.99 typical 0.97 changed [[np.float64(15.11), np.float64(15.48)]] removed [[np.float64(15.23), np.float64(17.34)]]
+ok  notice_hi fake 3 s intro                   expect edited got edited    shared 0.91 typical 0.96 changed [[np.float64(0.0), np.float64(2.97)]] removed [] at the right place
+ok  real_hi replace 0.5s at 15.21              below resolution, got edited
+ok  real_hi replace 0.5s at 32.95              below resolution, got edited
+ok  real_hi replace 1s at 15.21                below resolution, got edited
+ok  real_hi replace 1s at 32.95                below resolution, got edited
+ok  real_hi replace 2s at 15.21                expect edited got edited    shared 0.95 typical 0.98 changed [[np.float64(14.12), np.float64(16.22)]] removed [[np.float64(14.24), np.float64(16.1)]] at the right place
+ok  real_hi replace 2s at 32.95                expect edited got edited    shared 0.96 typical 0.98 changed [[np.float64(31.83), np.float64(33.81)]] removed [[np.float64(31.95), np.float64(33.93)]] at the right place
+ok  real_hi replace 3s at 15.21                expect edited got edited    shared 0.93 typical 0.98 changed [[np.float64(14.12), np.float64(17.59)]] removed [[np.float64(14.24), np.float64(17.59)]] at the right place
+ok  real_hi replace 3s at 32.95                expect edited got edited    shared 0.93 typical 0.98 changed [[np.float64(31.83), np.float64(35.29)]] removed [[np.float64(31.95), np.float64(35.29)]] at the right place
+ok  real_hi replace 5s at 15.21                expect edited got edited    shared 0.89 typical 0.98 changed [[np.float64(14.12), np.float64(19.57)]] removed [[np.float64(14.24), np.float64(19.32)]] at the right place
+ok  real_hi replace 5s at 32.95                expect edited got edited    shared 0.88 typical 0.97 changed [[np.float64(31.83), np.float64(37.52)]] removed [[np.float64(31.95), np.float64(37.4)]] at the right place
+ok  real_hi insert 1s at 25.34                 below resolution, got edited
+ok  real_hi delete 1s at 25.34                 below resolution, got edited
+ok  real_hi insert 2s at 25.34                 expect edited got edited    shared 0.96 typical 0.97 changed [[np.float64(24.27), np.float64(26.01)]] removed [] at the right place
+ok  real_hi delete 2s at 25.34                 expect edited got edited    shared 0.99 typical 0.97 changed [[np.float64(24.15), np.float64(24.64)]] removed [[np.float64(24.02), np.float64(26.01)]]
+ok  real_hi fake 3 s intro                     expect edited got edited    shared 0.94 typical 0.95 changed [[np.float64(0.0), np.float64(2.97)]] removed [] at the right place
+--  notice_kn replace 0.5s at 7.64             below resolution, got same
+ok  notice_kn replace 0.5s at 16.56            below resolution, got edited
+--  notice_kn replace 1s at 7.64               below resolution, got same
+ok  notice_kn replace 1s at 16.56              below resolution, got edited
+ok  notice_kn replace 2s at 7.64               expect edited got edited    shared 0.93 typical 0.97 changed [[np.float64(7.18), np.float64(8.79)]] removed [[np.float64(7.31), np.float64(8.79)]] at the right place
+ok  notice_kn replace 2s at 16.56              expect edited got edited    shared 0.89 typical 0.97 changed [[np.float64(15.6), np.float64(18.08)]] removed [[np.float64(15.73), np.float64(17.96)]] at the right place
+ok  notice_kn replace 3s at 7.64               expect edited got edited    shared 0.90 typical 0.97 changed [[np.float64(7.31), np.float64(9.54)]] removed [[np.float64(7.55), np.float64(9.29)]] at the right place
+ok  notice_kn replace 3s at 16.56              expect edited got edited    shared 0.88 typical 0.97 changed [[np.float64(15.6), np.float64(18.33)]] removed [[np.float64(15.73), np.float64(18.45)]] at the right place
+ok  notice_kn replace 5s at 7.64               expect edited got edited    shared 0.78 typical 0.97 changed [[np.float64(7.31), np.float64(12.26)]] removed [[np.float64(7.55), np.float64(12.14)]] at the right place
+ok  notice_kn replace 5s at 16.56              expect edited got edited    shared 0.76 typical 0.97 changed [[np.float64(15.6), np.float64(21.18)]] removed [[np.float64(15.73), np.float64(21.18)]] at the right place
+ok  notice_kn insert 1s at 12.74               below resolution, got edited
+ok  notice_kn delete 1s at 12.74               below resolution, got edited
+ok  notice_kn insert 2s at 12.74               expect edited got edited    shared 0.92 typical 0.97 changed [[np.float64(11.39), np.float64(13.5)]] removed [[np.float64(11.52), np.float64(12.26)]] at the right place
+ok  notice_kn delete 2s at 12.74               expect edited got edited    shared 0.98 typical 0.97 changed [[np.float64(11.64), np.float64(12.01)]] removed [[np.float64(11.76), np.float64(14.12)]]
+ok  notice_kn fake 3 s intro                   expect edited got edited    shared 0.88 typical 0.96 changed [[np.float64(0.0), np.float64(3.1)]] removed [] at the right place
+--  real_kn replace 0.5s at 10.63              below resolution, got same
+ok  real_kn replace 0.5s at 23.02              below resolution, got edited
+--  real_kn replace 1s at 10.63                below resolution, got same
+ok  real_kn replace 1s at 23.02                below resolution, got edited
+ok  real_kn replace 2s at 10.63                expect edited got edited    shared 0.94 typical 0.98 changed [[np.float64(9.78), np.float64(11.76)]] removed [[np.float64(9.91), np.float64(11.76)]] at the right place
+ok  real_kn replace 2s at 23.02                expect edited got edited    shared 0.93 typical 0.99 changed [[np.float64(22.17), np.float64(22.79)], [np.float64(23.03), np.float64(24.64)]] removed [[np.float64(22.91), np.float64(24.52)]] at the right place
+ok  real_kn replace 3s at 10.63                expect edited got edited    shared 0.91 typical 0.98 changed [[np.float64(9.78), np.float64(12.63)]] removed [[np.float64(9.91), np.float64(12.51)]] at the right place
+ok  real_kn replace 3s at 23.02                expect edited got edited    shared 0.92 typical 0.98 changed [[np.float64(22.17), np.float64(23.28)], [np.float64(23.78), np.float64(24.4)], [np.float64(24.64), np.float64(25.51)]] removed [[np.float64(22.29), np.float64(25.39)]] at the right place
+ok  real_kn replace 5s at 10.63                expect edited got edited    shared 0.84 typical 0.98 changed [[np.float64(9.78), np.float64(15.11)]] removed [[np.float64(9.91), np.float64(15.11)]] at the right place
+ok  real_kn replace 5s at 23.02                expect edited got edited    shared 0.83 typical 0.98 changed [[np.float64(22.17), np.float64(27.74)]] removed [[np.float64(22.29), np.float64(27.62)]] at the right place
+ok  real_kn insert 1s at 17.71                 below resolution, got edited
+ok  real_kn delete 1s at 17.71                 below resolution, got edited
+ok  real_kn insert 2s at 17.71                 expect edited got edited    shared 0.93 typical 0.98 changed [[np.float64(16.72), np.float64(19.07)]] removed [] at the right place
+ok  real_kn delete 2s at 17.71                 expect edited got edited    shared 1.00 typical 0.97 changed [] removed [[np.float64(16.84), np.float64(18.58)]]
+ok  real_kn fake 3 s intro                     expect edited got edited    shared 0.96 typical 0.96 changed [[np.float64(1.86), np.float64(3.1)]] removed [] at the right place
+ok  undone-edit notice_en replace 2s at 6.57 (1.25x) expect edited got edited    shared 0.83 typical 0.91 changed [[np.float64(5.45), np.float64(7.8)]] removed [[np.float64(5.57), np.float64(7.55)]] at the right place
+ok  undone-edit notice_en replace 3s at 6.57 (1.25x) expect edited got edited    shared 0.78 typical 0.88 changed [[np.float64(5.82), np.float64(8.92)]] removed [[np.float64(5.82), np.float64(8.79)]] at the right place
+ok  undone-edit notice_en replace 5s at 6.57 (1.25x) expect edited got edited    shared 0.78 typical 0.83 changed [[np.float64(6.07), np.float64(8.79)], [np.float64(9.16), np.float64(9.54)]] removed [[np.float64(6.07), np.float64(8.92)]] at the right place
+ok  undone-edit notice_en replace 8s at 6.57 (1.25x) expect edited got edited    shared 1.00 typical 0.59 changed [[0.0, 13.75]] removed [] at the right place
+ok  undone-edit notice_hi replace 2s at 13.36 (1.25x) expect edited got edited    shared 0.94 typical 0.91 changed [[np.float64(12.51), np.float64(13.87)], [np.float64(14.12), np.float64(14.49)]] removed [[np.float64(12.63), np.float64(13.75)]] at the right place
+ok  undone-edit notice_hi replace 3s at 13.36 (1.25x) expect edited got edited    shared 0.93 typical 0.91 changed [[np.float64(12.51), np.float64(13.75)], [np.float64(13.99), np.float64(14.49)], [np.float64(15.11), np.float64(15.6)]] removed [[np.float64(12.63), np.float64(13.62)]] at the right place
+ok  undone-edit notice_hi replace 5s at 13.36 (1.25x) expect edited got edited    shared 0.85 typical 0.90 changed [[np.float64(12.51), np.float64(13.75)], [np.float64(13.99), np.float64(17.34)]] removed [[np.float64(12.63), np.float64(13.62)], [np.float64(14.24), np.float64(17.46)]] at the right place
+ok  undone-edit notice_hi replace 8s at 13.36 (1.25x) expect edited got edited    shared 0.77 typical 0.88 changed [[np.float64(12.51), np.float64(13.75)], [np.float64(14.12), np.float64(14.74)], [np.float64(14.98), np.float64(18.45)], [np.float64(18.82), np.float64(20.68)]] removed [[np.float64(12.63), np.float64(13.62)], [np.float64(14.24), np.float64(14.86)], [np.float64(15.23), np.float64(18.08)], [np.float64(18.7), np.float64(20.56)]] at the right place
+ok  undone-edit notice_kn replace 2s at 10.19 (1.25x) expect edited got edited    shared 0.97 typical 0.93 changed [[np.float64(10.65), np.float64(11.15)]] removed [[np.float64(9.66), np.float64(10.65)]] at the right place
+ok  undone-edit notice_kn replace 3s at 10.19 (1.25x) expect edited got edited    shared 0.95 typical 0.92 changed [[np.float64(10.53), np.float64(11.02)], [np.float64(11.39), np.float64(11.89)]] removed [[np.float64(9.66), np.float64(10.53)], [np.float64(11.15), np.float64(12.01)]] at the right place
+ok  undone-edit notice_kn replace 5s at 10.19 (1.25x) expect edited got edited    shared 0.81 typical 0.92 changed [[np.float64(9.54), np.float64(13.87)]] removed [[np.float64(9.66), np.float64(13.75)]] at the right place
+ok  undone-edit notice_kn replace 8s at 10.19 (1.25x) expect edited got edited    shared 0.71 typical 0.89 changed [[np.float64(10.03), np.float64(10.65)], [np.float64(11.27), np.float64(15.11)], [np.float64(15.23), np.float64(15.73)], [np.float64(15.85), np.float64(17.34)]] removed [[np.float64(11.15), np.float64(14.61)], [np.float64(14.98), np.float64(15.73)], [np.float64(16.1), np.float64(17.21)]] at the right place
+ok  spliced_en vs notice_en (insert)           expect edited got edited    shared 0.83 typical 0.93 changed [[np.float64(8.92), np.float64(11.89)]] removed []
+ok  spliced_hi vs notice_hi (insert)           expect edited got edited    shared 0.81 typical 0.94 changed [[np.float64(16.84), np.float64(23.78)]] removed []
+ok  spliced_kn vs notice_kn (insert)           expect edited got edited    shared 0.82 typical 0.95 changed [[np.float64(12.01), np.float64(16.97)]] removed []
+
+128 true copies, 69 edits >= 2 s, 0 wrong: []
+edits of 0.5-1 s (below resolution): 27 of 36 caught anyway
+lowest typical (median) score of a true copy: [(0.869, 'undone speed-test/spliced_whatsapp_2.0x'), (0.887, 'undone speed-test-2/speed_1.8x'), (0.913, 'undone speed-test-2/speed_1.4x')]
+7.4 ms per diff

@@ -29,6 +29,9 @@ Returns this dict (and `POST /api/check` returns the same JSON):
                                      // also "variant": {"kind": "speed"|"tape"|"pitch", "speed": 1.5|null,
                                      //   "semitones": 2.5|null, "score": 0.88} (added 2026-11-25, optional)
   "credits_charged": 50,             // 0 on a cache hit or in mock mode
+  // optional (added 2026-11-26): parts match a stored clip but some seconds differ (fpdiff.py), so it
+  // was checked as a new clip: "edited_copy_of": {"id": "k7f3q2", "result_url": "…",
+  //   "changed": [[8.0, 11.2]] (s in this clip), "removed": [[3.0, 5.0]] (s cut from the stored one)}
   "error": null,                     // or {"code": "insufficient_speech" | "too_large" | "out_of_credits" | "failed", "message": "…"}
   "result_url": "https://<PUBLIC_BASE_URL>/r/k7f3q2"
 }
@@ -84,6 +87,9 @@ fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
   (same length) → also the original's result, plus `cache.variant`. `core_regions`, the excerpt and
   the result page stay in the **original's** seconds; the bot says so (`cache_variant_speed`,
   `cache_variant_pitch`).
+- A near-match counts only if the fingerprint diff finds no changed or cut seconds (edits of ~2 s
+  or more). Otherwise it's an **edited copy**: a new check (credits charged) with `edited_copy_of`,
+  and the bot adds `edited_copy` / `edited_copy_cut`; in groups it's never shortened to one line.
 - Two identical clips arriving together → one API call; the second gets the cache-hit result.
 - `check()` can take a few seconds on a cold API; show a "checking…" message first.
 

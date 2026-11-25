@@ -6,7 +6,9 @@ Pipeline, cheapest step first (layers of "have we checked this clip before?"):
      same bytes already checked?                       → cached result
   3. same decoded audio already checked?               → cached result (other container / lossless
      format / renamed file: .ogg vs .opus, WAV vs FLAC, voice note inside a video)
-  4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80
+  4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80 AND
+     the fingerprint diff (fpdiff.py) finds no changed or cut seconds; if it does, the clip is an
+     edited copy: checked by the API like a new clip, with result["edited_copy_of"] saying which
      (lossy re-encodes: WhatsApp Opus, MP3, AAC; needs fpcalc)
   5. a copy at another speed or pitch of a stored clip? → cached result, cache.variant says how
      (variants.py: undo the change with ffmpeg, fingerprint again; only runs when 1-4 missed)
@@ -111,9 +113,10 @@ async def _check_file(audio_path: str, source: dict, t0: float) -> dict:
 
 async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float) -> dict:
     tg = source.get("tg_file_unique_id")
+    edited = None
     if store.has_candidates(norm.duration, *variants.window(norm.duration)):
         fp = await asyncio.to_thread(fingerprint.compute, norm.path)
-        match = store.find_similar(fp, norm.duration)
+        match, edited = await asyncio.to_thread(store.match_fingerprint, fp, norm.duration)
         if match:
             return _done(store.hit(match[0], tg_file_unique_id=tg, source=source), f"cache:fingerprint({match[1]:.2f})", t0, norm)
         if v := await asyncio.to_thread(variants.find, norm.path, fp, norm.duration):
@@ -122,11 +125,17 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
             r = store.hit(v.check_id, source=source)
             r["cache"]["variant"] = v.as_cache_info()
             return _done(r, f"cache:{v.kind}({v.score:.2f}, speed={v.speed}, semitones={v.semitones})", t0, norm)
+        if edited:  # parts match a known clip but some seconds differ: never reuse its verdict
+            log.info("edited copy of %s: changed %s, removed %s", edited[0], edited[1].changed, edited[1].removed)
         raw = await aletheia.detect(norm.path, idempotency_key=norm.sha256)
     else:
         raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),
                                        asyncio.to_thread(fingerprint.compute, norm.path))
     result = build_result(raw, verdict.decide(raw["result"]), trimmed=norm.trimmed)
+    if edited:
+        cid, d = edited
+        result["edited_copy_of"] = {"id": cid, "result_url": result_url(cid), "changed": d.changed,
+                                    "removed": d.removed}
     store.save(result, source=source, sha256=norm.sha256, fp=fp, duration=norm.duration, audio_path=norm.path,
                pcm_sha256=norm.pcm_sha256)
     return _done(result, "api", t0, norm)

@@ -8,6 +8,9 @@ Throwaway tests behind the decisions in `../PLAN.md`. Not product code.
 | `spikes/fp_test.py` | Fingerprint comparison: SHA vs Chromaprint vs numpy Philips hash |
 | `spikes/speed_fp_test.py` | Speed / tape-style copies: fingerprint stretch vs ffmpeg undo vs fusion (0 credits; `results/speed_fp_test.json`, write-up `speed-test.md`) |
 | `spikes/pitch_fp_test.py` | Pure pitch shifts: undo grid of whole vs half semitones (0 credits) |
+| `spikes/false_match_test.py` | Can two different recordings hit the cache? 630 pairs, plain + layer 5 (`false-match.md`) |
+| `spikes/replace_splice_test.py`, `spikes/window_min_test.py` | Same-length replacement splices vs the whole-clip score; worst-window check |
+| `spikes/fp_diff_test.py` | Fingerprint diff: 128 true copies vs 105 edits (`fp_diff.md`; `--calibrate` for the threshold sweep) |
 | `spikes/card_test.py` | Verdict card: Pillow vs HTML→PNG (Playwright) with Kannada/Hindi text |
 | `spikes/timeline_test.py` | wavesurfer.js regions vs heat strip; core-region rule |
 | `spikes/stt_test.py` | faster-whisper word timestamps (EN/HI/KN) |

@@ -16,6 +16,9 @@ tried directly, for the most-checked clips first, up to MAX_TAPE_TRIES.
 Pitch copies keep their length, so nothing tells the shift: whole semitones -6..+6 are undone in
 parallel, then half-steps next to the best one if it came close.
 
+A match must also pass the fingerprint diff (fpdiff.py): an edited and sped-up copy is not the
+original. It sees edits of ~2 s or more, also after a speed undo (research/fp_diff.md).
+
 Evidence (research/speed-test.md, 0 credits): speed 0.5-2x >= 0.84, tape 0.95-0.99, pitch
 -4..+4 semitones (incl. 0.5, 2.5, 3.3) 0.86-0.97; different clips <= 0.67 across every attempt.
 """
@@ -29,7 +32,7 @@ from dataclasses import asdict, dataclass
 
 import numpy as np
 
-from app.core import fingerprint, store
+from app.core import fingerprint, fpdiff, store
 from app.core.normalize import FFMPEG
 
 log = logging.getLogger(__name__)
@@ -124,7 +127,7 @@ def _speed_or_tape(q, duration, cands, undo) -> Match | None:
         fq = undo.result(kind, s)
         if fq:
             sc = fingerprint.similarity(fq, sf)
-            if sc >= fingerprint.SAME_CLIP and (best is None or sc > best.score):
+            if sc >= fingerprint.SAME_CLIP and (best is None or sc > best.score) and _unchanged(fq, sf):
                 best = Match(cid, sc, kind, speed=round(s, 2))
     return best
 
@@ -145,16 +148,22 @@ def _pitch(duration, cands, undo) -> Match | None:
             for cid, sf in same if fq else ():
                 sc = fingerprint.similarity(fq, sf)
                 if out is None or sc > out[0]:
-                    out = (sc, cid, u)
+                    out = (sc, cid, u, fq, sf)
         return out
 
     found = best_of(SEMITONES)
     if found and REFINE_FROM <= found[0] < fingerprint.SAME_CLIP:
-        found = max(found, best_of([found[2] - 0.5, found[2] + 0.5]) or found)
-    if found and found[0] >= fingerprint.SAME_CLIP:
+        found = max(found, best_of([found[2] - 0.5, found[2] + 0.5]) or found, key=lambda t: t[0])
+    if found and found[0] >= fingerprint.SAME_CLIP and _unchanged(found[3], found[4]):
         # we undid a shift of u semitones, so the copy was shifted by -u
         return Match(found[1], found[0], "pitch", semitones=-found[2])
     return None
+
+
+def _unchanged(fq, sf) -> bool:
+    """The undone copy must also pass the fingerprint diff, so an edited AND sped-up copy isn't
+    taken for the original. Sees edits of >= ~2 s."""
+    return fpdiff.diff(fq, sf).same
 
 
 # --------------------------------------------------------------------------- ffmpeg undo runs

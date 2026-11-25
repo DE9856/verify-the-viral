@@ -231,3 +231,43 @@ def test_variant_note_in_reply():
     assert "1.25×" in bot.variant_note({**hit, "variant": {"kind": "tape", "speed": 1.25}}, "en")
     assert "higher or deeper" in bot.variant_note({**hit, "variant": {"kind": "pitch", "semitones": -2}}, "en")
     assert bot.variant_note(hit, "en") is None
+
+
+# --------------------------------------------------------------------------- fingerprint diff (fpdiff.py)
+
+def _replace(src, donor, tmp_path, at, secs, name="edited.ogg"):
+    g = (f"[0:a]aresample=16000,aformat=channel_layouts=mono,atrim=0:{at},asetpts=N/SR/TB[a];"
+         f"[1:a]aresample=16000,aformat=channel_layouts=mono,atrim=1:{1 + secs},asetpts=N/SR/TB[b];"
+         f"[0:a]aresample=16000,aformat=channel_layouts=mono,atrim={at + secs},asetpts=N/SR/TB[c];"
+         "[a][b][c]concat=n=3:v=0:a=1[o]")
+    return _convert(src, tmp_path / name, "-i", str(donor), "-filter_complex", g, "-map", "[o]",
+                    "-c:a", "libopus", "-b:a", "24k")
+
+
+@needs_fpcalc
+def test_replacement_splice_of_a_known_clip_is_not_a_cache_hit(fake, tmp_path):
+    """3 s of a known clip swapped for AI speech of the same length scored ~0.9 as a whole clip
+    (research/false-match.md): the diff must refuse the hit, find the seconds and say so."""
+    a = run(AUDIO / "real_en.wav")
+    b = run(_replace(AUDIO / "real_en.wav", AUDIO / "fake_en.mp3", tmp_path, 8.0, 3))
+    assert fake.calls == 2 and b["id"] != a["id"] and not b["cache"]["hit"]
+    e = b["edited_copy_of"]
+    assert e["id"] == a["id"] and any(s <= 11.5 and t >= 7.5 for s, t in e["changed"])
+    assert store.get(b["id"])["edited_copy_of"]["id"] == a["id"]        # kept with the result
+
+
+@needs_fpcalc
+def test_heavy_compression_is_still_the_same_clip():
+    from app.core import fpdiff
+    d = fpdiff.diff(fingerprint.compute(str(AUDIO / "spliced_whatsapp.ogg")),
+                    fingerprint.compute(str(AUDIO / "spliced_en.wav")))
+    assert d.same, d
+
+
+def test_edited_note_in_reply():
+    from app import bot
+    r = {"band": "no_signs", "core_regions": [], "cache": {"hit": False},
+         "edited_copy_of": {"id": "x", "changed": [[7.9, 11.2]], "removed": []}}
+    assert "8–11 s are different" in bot.format_reply(r, "en")
+    r["edited_copy_of"] = {"id": "x", "changed": [], "removed": [[3.0, 5.0]]}
+    assert "cut out" in bot.format_reply(r, "en")

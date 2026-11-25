@@ -12,7 +12,7 @@ import time
 from contextlib import contextmanager
 
 from app import config
-from app.core import fingerprint
+from app.core import fingerprint, fpdiff
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS checks (
@@ -134,17 +134,36 @@ def has_candidates(duration: float, lo: float | None = None, hi: float | None = 
                            "AND duration BETWEEN ? AND ? LIMIT 1", (lo, hi)).fetchone() is not None
 
 
-def find_similar(fp: list[int] | None, duration: float) -> tuple[str, float] | None:
-    """Best matching cached check (id, similarity) at or above fingerprint.SAME_CLIP."""
+EDIT_LENGTH = 0.4        # an edited copy can be up to 40 % longer or shorter (inserted / cut seconds)
+
+
+def match_fingerprint(fp: list[int] | None, duration: float):
+    """Layer 4: ((id, similarity) of the same clip, or None), ((id, Diff) of a clip this is an edited
+    copy of, or None). Same clip = similarity >= SAME_CLIP AND the diff finds nothing changed; a
+    whole-clip score alone lets a few fake seconds inside a known clip through (research/false-match.md)."""
     if not fp:
-        return None
-    lo, hi = _duration_window(duration)
+        return None, None
     with _db() as con:
         rows = con.execute("SELECT id, fp FROM checks WHERE fp IS NOT NULL AND band!='error' "
-                           "AND duration BETWEEN ? AND ?", (lo, hi)).fetchall()
-    best = max(((r["id"], fingerprint.similarity(fp, json.loads(r["fp"]))) for r in rows),
-               key=lambda t: t[1], default=None)
-    return best if best and best[1] >= fingerprint.SAME_CLIP else None
+                           "AND duration BETWEEN ? AND ?",
+                           (duration * (1 - EDIT_LENGTH), duration * (1 + EDIT_LENGTH))).fetchall()
+    scored = sorted(((fingerprint.similarity(fp, f), r["id"], f) for r in rows for f in [json.loads(r["fp"])]),
+                    key=lambda t: t[0], reverse=True)
+    edited = None
+    for sim, cid, f in scored:
+        if sim < fpdiff.NEAR:
+            break
+        d = fpdiff.diff(fp, f)
+        if d.same and sim >= fingerprint.SAME_CLIP:
+            return (cid, sim), None
+        if d.verdict == "edited" and edited is None:
+            edited = (cid, d)
+    return None, edited
+
+
+def find_similar(fp: list[int] | None, duration: float) -> tuple[str, float] | None:
+    """The same clip (id, similarity), checked by the diff; see match_fingerprint."""
+    return match_fingerprint(fp, duration)[0]
 
 
 def _salt() -> str:

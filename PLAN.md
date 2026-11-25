@@ -134,6 +134,12 @@ original's. Evidence: `research/speed-test.md` (server run 295 credits; offline 
 ~1 s extra on a miss. Tests: `test_speed_copy_is_a_free_repeat`, `test_pitch_shifted_copy_is_a_free_repeat`,
 `test_speed_copy_of_a_different_clip_is_checked`.
 
+**Update 2026-11-26 (built): fingerprint diff, `app/core/fpdiff.py`.** A whole-clip score let a
+same-length fake over ≤ 30 % of a known clip through (`research/false-match.md`). Every fuzzy hit
+(layers 4 and 5) now also needs the diff to find no changed/cut stretch (frames > 0.24 below the
+pair's median, 3+ in a row; median ≥ 0.75). Otherwise: edited copy → API + `edited_copy_of` + reply
+line. 128 true copies / 69 edits ≥ 2 s, 0 wrong; ~1 s edits below resolution (`research/fp_diff.md`).
+
 Bonus: use SHA-256 of the *normalised* audio as the Idempotency-Key, so retries and identical
 re-uploads within 24 h cost 0 credits.
 
