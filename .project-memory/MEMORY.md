@@ -11,8 +11,8 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Setup: dev laptop makes all changes → push `testing` → merge to `master` after a server test; Fedora laptop = server (bot + API + ngrok). Plan status: `.project-memory/PLAN.md`.
 - Done: research (0/12 real false alarms); bot, card, web, PWA share; Sync 1+2; hear-the-fake-part; AI-clip radar; step C cache hardening; step L live listen. master = testing, 140 tests pass.
 - In progress: nothing uncommitted. Demo video (step V): title cards done; phone clips 3-7 + live-listen segment to record.
-- Next: 1) ask the user the open questions 2) efficiency fixes if approved (live WAV -> Opus, audio cleanup) 3) step V video 4) B6 Reddit + B7 demo script 5) Sync 3 (rehearse, tag, Google form).
-- Blockers / open questions: Reddit post (B6) made?; approve efficiency fixes?; delete 6 old speed-copy checks on the server?; native review of new hi/kn texts; organizers' reply on ~10k credits.
+- Next: 1) ask the user the open questions 2) efficiency fixes if approved (live WAV -> Opus, audio cleanup) 3) step V video 4) step D: PPT (tech stack) + PDF (whole project + judging Q&A) + demo script; Reddit post NOT required any more 5) Sync 3 (rehearse, tag, submit).
+- Blockers / open questions: approve efficiency fixes?; delete 6 old speed-copy checks on the server?; native review of new hi/kn texts; organizers' reply on ~10k credits.
 - Updated: 2026-11-26, Claude (Windows dev laptop, handoff)
 
 ## Rules & gotchas
