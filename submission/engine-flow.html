@@ -1,0 +1,209 @@
+<title>Check Before Share engine</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;700;800&family=Noto+Sans+Mono:wght@500;700&display=swap">
+<style>
+  /* Layout: one bus route down the page. Each engine step is a stop; cache checks branch off as early exits. */
+  :root {
+    --bg: #eef0eb; --fg: #18203a; --soft: #3d4766; --rule: #c4c9c1; --panel: #f7f8f5;
+    --coral: #ff7a6b; --saffron: #ffae4d; --lemon: #ffdf5e; --mint: #8ddbac; --ink-on-stock: #18203a;
+    --font: "Noto Sans", system-ui, sans-serif; --mono: "Noto Sans Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #11172b; --fg: #eef0eb; --soft: #b9c0d0; --rule: #2c3552; --panel: #182040; color-scheme: dark } }
+  :root[data-theme="dark"] { --bg: #11172b; --fg: #eef0eb; --soft: #b9c0d0; --rule: #2c3552; --panel: #182040; color-scheme: dark }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font: 500 16px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 980px; margin: 0 auto; padding-block: 28px 56px;
+          padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { margin: 0; font-size: clamp(30px, 6vw, 48px); line-height: 1.08; font-weight: 800; letter-spacing: -.025em; text-wrap: balance; }
+  .lede { margin: 12px 0 0; max-width: 62ch; color: var(--soft); font-size: 17px; }
+  h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+  code, .mono { font-family: var(--mono); font-size: .88em; }
+
+  /* entry points: three boarding points onto the same line */
+  .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 30px; }
+  .board div { border: 2px solid var(--fg); border-radius: 8px; padding: 12px 14px; min-width: 0; background: var(--panel); }
+  .board b { display: block; font-size: 15px; }
+  .board span { display: block; font-size: 13.5px; color: var(--soft); line-height: 1.4; margin-top: 2px; }
+  .merge { display: flex; justify-content: center; margin: 4px 0 0; }
+  .merge svg { width: 100%; max-width: 640px; height: 40px; overflow: visible; }
+  .merge path { fill: none; stroke: var(--fg); stroke-width: 3; }
+  .func { margin: 0 auto; width: fit-content; max-width: 100%; border: 3px solid var(--fg); border-radius: 999px;
+          padding: 8px 18px; font: 700 15px/1.2 var(--mono); background: var(--bg); text-align: center; }
+
+  /* the route */
+  ol.route { list-style: none; margin: 26px 0 0; padding: 0; position: relative; }
+  ol.route::before { content: ""; position: absolute; left: 21px; top: 8px; bottom: 30px; width: 4px; background: var(--fg); border-radius: 2px; }
+  .stop { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 14px; padding-bottom: 22px; }
+  .dot { position: relative; z-index: 1; width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--fg); background: var(--bg);
+         display: grid; place-items: center; font: 700 17px/1 var(--mono); }
+  .stop.api .dot { background: var(--fg); color: var(--bg); }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding-top: 8px; }
+  .body p { margin: 4px 0 0; color: var(--soft); max-width: 60ch; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag { border: 1.5px solid var(--fg); border-radius: 4px; padding: 1px 7px; font: 700 12.5px/1.5 var(--mono); }
+  .file { font: 700 12.5px/1.4 var(--mono); color: var(--soft); }
+
+  /* early exits off the route: answer from the cache, 0 credits */
+  .exit { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; border: 2px dashed var(--fg);
+          border-radius: 8px; padding: 10px 12px; background: var(--panel); }
+  .exit svg { width: 26px; height: 26px; stroke: var(--fg); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-top: 1px; }
+  .exit b { display: block; font-size: 14.5px; }
+  .exit span { display: block; font-size: 13.5px; color: var(--soft); line-height: 1.45; }
+
+  /* verdict bands as ticket stock */
+  .bands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .band { border-radius: 8px; padding: 10px 12px; color: var(--ink-on-stock); min-width: 0; }
+  .band b { display: block; font-size: 15px; }
+  .band span { display: block; font-size: 13.5px; line-height: 1.4; }
+  .b-red { background: var(--coral); } .b-org { background: var(--saffron); } .b-yel { background: var(--lemon); } .b-grn { background: var(--mint); }
+
+  /* the windows strip, drawn to scale: 24.8 s clip, 4 s windows every 2 s, fake at 8–16 s */
+  .win { border: 2px solid var(--fg); border-radius: 8px; padding: 12px; background: var(--panel); overflow-x: auto; }
+  .win svg { display: block; width: 100%; min-width: 520px; height: auto; }
+  .win text { font: 700 11px var(--mono); fill: var(--soft); }
+  .win .lbl { font: 700 12px var(--font); fill: var(--fg); }
+  .win figcaption { margin-top: 6px; font-size: 13.5px; color: var(--soft); }
+
+  /* where the answer goes */
+  .out { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .out div { border-top: 4px solid var(--fg); padding-top: 10px; min-width: 0; }
+  .out b { display: block; font-size: 15.5px; }
+  .out span { display: block; font-size: 14px; color: var(--soft); line-height: 1.45; margin-top: 3px; }
+
+  .never { margin-top: 30px; border: 2px solid var(--fg); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; }
+  .never p { margin: 0; color: var(--soft); max-width: 70ch; }
+  .foot { margin-top: 26px; font-size: 13.5px; color: var(--soft); }
+
+  @media (max-width: 680px) {
+    .board, .out { grid-template-columns: minmax(0, 1fr); }
+    .merge { display: none; }
+    .func { margin-top: 14px; }
+    .bands { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+
+<div class="wrap">
+  <h1>How a voice note gets checked</h1>
+  <p class="lede">Every clip takes the same route through the engine, whichever door it came in by. Repeats leave early and cost nothing; new clips go to DetectifAI's Aletheia once, and our rules read its 4-second windows to find the fake seconds.</p>
+
+  <div class="board">
+    <div><b>Telegram group or DM</b><span>voice note, audio, video, round video, file · up to 20 MB</span><span class="file">app/bot.py</span></div>
+    <div><b>Android share sheet</b><span>WhatsApp → Share → Check Before Share (installed web app)</span><span class="file">POST /share</span></div>
+    <div><b>Upload on the website</b><span>pick a file on the landing page</span><span class="file">POST /api/check</span></div>
+  </div>
+  <div class="merge" aria-hidden="true"><svg viewBox="0 0 640 40" preserveAspectRatio="none"><path d="M106 0 C106 26 320 14 320 40 M320 0 V40 M534 0 C534 26 320 14 320 40"/></svg></div>
+  <div class="func">check(audio, source) · app/core/check.py</div>
+
+  <ol class="route">
+    <li class="stop">
+      <span class="dot">1</span>
+      <div class="body">
+        <div><h2>Seen this Telegram file before?</h2>
+          <p>Telegram gives every file a stable ID that survives forwarding, so an exact forward is recognised before the file is even opened.</p></div>
+        <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Yes: stored answer, 0 credits</b><span>“Already checked N times”, same result page, radar count +1</span></div></div>
+      </div>
+    </li>
+    <li class="stop">
+      <span class="dot">2</span>
+      <div class="body">
+        <div><h2>Prepare the audio</h2>
+          <p>Do as little as possible: voice notes go to Aletheia unchanged; videos have their audio copied out; only odd formats are converted (mono 16 kHz Opus). Clips over 5 minutes are cut to the first 5, and we say so.</p>
+          <div class="tags"><span class="tag">passthrough</span><span class="tag">copy</span><span class="tag">transcode</span><span class="tag">sha256</span><span class="tag">decoded-audio sha256</span></div>
+          <p class="file">app/core/normalize.py · ffmpeg</p></div>
+        <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Same bytes as a stored clip: stored answer, 0 credits</b><span>matched by the sha256 of the audio</span></div></div>
+        <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Same sound in a different file: stored answer, 0 credits</b><span>the audio is decoded and hashed, so .ogg vs .opus, WAV vs FLAC, a renamed or re-tagged file, or a voice note inside a video still match. Exact, so it never confuses two clips</span></div></div>
+      </div>
+    </li>
+    <li class="stop">
+      <span class="dot">3</span>
+      <div class="body">
+        <div><h2>One check for a clip arriving twice at once</h2>
+          <p>When a group forwards the same clip simultaneously, the second request waits for the first and gets its answer, so Aletheia is called once.</p>
+          <p class="file">single-flight in check.py</p></div>
+      </div>
+    </li>
+    <li class="stop">
+      <span class="dot">4</span>
+      <div class="body">
+        <div><h2>Re-compressed copy of a known clip?</h2>
+          <p>WhatsApp re-encodes every forward, so bytes change. An audio fingerprint (Chromaprint) still matches: re-encodes score 0.89 or more, different clips 0.71 or less, and we accept 0.80. This needs Chromaprint's fpcalc on the server; without it the bot warns at startup and only stops 1 and 2 catch repeats. If no stored clip has a similar length, the fingerprint is computed alongside the API call instead of before it.</p>
+          <p class="file">app/core/fingerprint.py · fpcalc</p></div>
+        <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Similarity ≥ 0.80: stored answer, 0 credits</b><span>the same fake keeps its ID as it spreads between groups</span></div></div>
+      </div>
+    </li>
+    <li class="stop api">
+      <span class="dot">5</span>
+      <div class="body">
+        <div><h2>Ask Aletheia, once</h2>
+          <p>One REST call returns an overall verdict and scores for 4-second windows every 2 seconds. The Idempotency-Key is the audio's sha256, so a retry or a repeat within 24 hours is never charged twice.</p>
+          <div class="tags"><span class="tag">POST /v1/deepfake/detect</span><span class="tag">2 credits / s</span><span class="tag">retry on 429 / 503</span></div>
+          <p class="file">app/core/aletheia.py · DetectifAI</p></div>
+        <figure class="win">
+          <svg viewBox="0 0 560 150" role="img" aria-label="Spliced test clip: the overall verdict is real, but windows from 8 to 16 seconds are fake; seconds 10 to 14 are covered by two fake windows">
+            <text class="lbl" x="0" y="14">Whole clip</text>
+            <rect x="120" y="4" width="430" height="16" rx="3" fill="var(--mint)"/>
+            <text x="126" y="16" style="fill:#18203a">real · score 0.25</text>
+            <text class="lbl" x="0" y="44">4-s windows</text>
+            <g stroke="var(--fg)" stroke-width="1.5">
+              <rect x="120" y="32" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="154.7" y="44" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="189.4" y="56" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="224.1" y="68" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="258.7" y="80" width="69.4" height="9" rx="2" fill="var(--coral)"/>
+              <rect x="293.4" y="92" width="69.4" height="9" rx="2" fill="var(--coral)"/>
+              <rect x="328.1" y="104" width="69.4" height="9" rx="2" fill="var(--coral)"/>
+              <rect x="362.8" y="32" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="397.5" y="44" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="432.2" y="56" width="69.4" height="9" rx="2" fill="none"/>
+              <rect x="480.6" y="68" width="69.4" height="9" rx="2" fill="none"/>
+            </g>
+            <rect x="293.4" y="120" width="69.4" height="12" rx="2" fill="var(--saffron)" stroke="var(--fg)" stroke-width="1.5"/>
+            <text class="lbl" x="0" y="130">2+ overlap</text>
+            <text x="368" y="130" style="fill:var(--fg)">10–14 s</text>
+            <g><line x1="120" y1="142" x2="550" y2="142" stroke="var(--rule)" stroke-width="1.5"/>
+              <text x="120" y="150">0</text><text x="258.7" y="150">8</text><text x="293.4" y="150">10</text><text x="362.8" y="150">14</text><text x="550" y="150" text-anchor="end">24.8 s</text></g>
+          </svg>
+          <figcaption>Our spliced test clip, to scale. The whole-clip verdict said real. Three windows came back fake, and the seconds covered by two of them (10–14 s) are the AI sentence (truth 10.0–14.8 s).</figcaption>
+        </figure>
+      </div>
+    </li>
+    <li class="stop">
+      <span class="dot">6</span>
+      <div class="body">
+        <div><h2>Decide the band</h2>
+          <p>Each window's own real/fake label is used, never a cut-off on its score.</p>
+          <p class="file">app/core/verdict.py</p></div>
+        <div class="bands">
+          <div class="band b-red"><b>Likely AI-generated</b><span>overall verdict is fake</span></div>
+          <div class="band b-org"><b>Partly AI-generated</b><span>overall real, but 2+ fake windows overlap → those seconds</span></div>
+          <div class="band b-yel"><b>Unclear</b><span>one isolated fake window, or under 10 s of speech</span></div>
+          <div class="band b-grn"><b>No signs of an AI voice</b><span>overall real, no fake windows</span></div>
+        </div>
+      </div>
+    </li>
+    <li class="stop">
+      <span class="dot">7</span>
+      <div class="body">
+        <div><h2>Remember it</h2>
+          <p>Result, both sha256 hashes (file and decoded audio), fingerprint and the audio go into SQLite, so the next forward exits at stop 1, 2 or 4. Chats are stored only as a salted hash, to count how many chats a clip reached.</p>
+          <p class="file">app/core/store.py · data/app.db</p></div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="out">
+    <div><b>Telegram reply</b><span>Verdict card image (HTML drawn by Chromium, so Kannada and Hindi shape correctly), caption in English, हिन्दी or ಕನ್ನಡ, a voice note of just the fake seconds, and 👍 / 👎 that go back to DetectifAI's feedback API.</span></div>
+    <div><b>Result page /r/&lt;id&gt;</b><span>The waveform with the fake part marked; tap any second to hear it.</span></div>
+    <div><b>AI-clip radar /radar</b><span>Flagged clips seen in 2+ chats or checked 3+ times, counting up live as people forward them.</span></div>
+  </div>
+
+  <div class="never">
+    <h2>A bad clip never crashes the bot</h2>
+    <p>Not enough speech (Aletheia's 422, not charged), out of credits (402), a failed download or a broken file all come back as a polite reply in the chat's language instead of an error.</p>
+  </div>
+
+  <p class="foot">Check Before Share · CMRIT × DetectifAI hackathon, Track 4. Numbers on this page come from our own test runs (research/real-world.md).</p>
+</div>

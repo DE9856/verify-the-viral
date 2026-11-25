@@ -1,4 +1,5 @@
-"""Lane A · step A3 — audio fingerprint for the "already checked" cache.
+"""Audio fingerprint for the "already checked" cache (layer 4 in check.py; layer 3 is the exact
+decoded-audio hash in normalize.py).
 
 Tested (research/spikes/fp_test.py): Chromaprint `fpcalc -raw -json -length 300 <file>`, then best
 (1 − bit error rate) over ±60 frame offsets (~±7 s). Re-encodes (Opus 16k, Opus ×2, MP3 64k,
@@ -28,7 +29,9 @@ def fpcalc_path() -> str | None:
     candidates = [config.FPCALC_PATH]
     if not os.path.isabs(config.FPCALC_PATH):
         candidates.insert(0, str(config.ROOT / config.FPCALC_PATH))
-    candidates += [str(config.ROOT / "bin" / "fpcalc.exe"), str(config.ROOT / "bin" / "fpcalc")]
+    # then the repo's bin/ (Windows download) and plain `fpcalc` on PATH (Linux: dnf/apt package),
+    # so an env copied from another machine still finds it
+    candidates += [str(config.ROOT / "bin" / "fpcalc.exe"), str(config.ROOT / "bin" / "fpcalc"), "fpcalc"]
     for c in candidates:
         if os.path.isfile(c):
             return c

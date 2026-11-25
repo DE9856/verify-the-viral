@@ -11,11 +11,11 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed; U2 'hear the fake part' + U3 AI-clip radar (/radar) live.
 - In progress: demo video (PLAN.md step V): friend's kit + title cards done on demo laptop; Lane B phone clips 3-7 next; files in ~/Downloads/demo-clips (WA0011 spliced hero, WA0012 real, WA0013 clone).
 - Next: 1) user confirms own voice OK in video + sends hero-* files to friend 2) phone setup + 2 extra Telegram groups 3) 'start recording session' (fresh DB) -> clips 3-7 -> 'done'; rough cut 4) B6 Reddit + B7 demo script last.
-- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best; asked organizers for ~10k extra credits (efficiency experiments), awaiting reply.
+- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best; asked organizers for ~10k extra credits (efficiency experiments), awaiting reply; cross-format cache layers pushed to `testing`; Fedora server still needs `sudo dnf install chromaprint-tools` + pull + restart, then merge testing → master.
 - Updated: 2026-11-25, Claude (Windows dev laptop)
 
 ## Rules & gotchas
-- Voice notes go to Aletheia unchanged (passthrough); only odd formats are transcoded. `fpcalc.exe` in `bin/` (gitignored); without it only exact cache tiers work.
+- Voice notes go to Aletheia unchanged (passthrough); only odd formats are transcoded. Repeat-clip cache layers: Telegram id → file sha → decoded-audio sha (lossless/container changes) → Chromaprint (lossy re-encodes; needs fpcalc: `bin/fpcalc.exe` on Windows, gitignored; Fedora `sudo dnf install chromaprint-tools`). Bot + /health warn if fpcalc is missing.
 - Windows: never os.replace onto a file another request may open (PermissionError); use rename-no-clobber.
 - Env template is `env.example` (no dot): a permission rule blocks Claude from `.env*` files. Copy it to `.env`.
 - REST API in the product; MCP only inside Claude Code for dev/testing (base64, 25 MB, LLM round trip).

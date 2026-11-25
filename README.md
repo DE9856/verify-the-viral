@@ -137,7 +137,7 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 ## Architecture
 
 ```
- Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (Telegram file id, then audio fingerprint)
+ Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (Telegram file id, same bytes, same decoded audio, then audio fingerprint)
                                ├─► core.check(audio) ────┤        └─► yes: stored result, "checked N times", 0 credits
  Android share sheet ─► api.py ┘   (normalise with ffmpeg └─► no: POST /v1/deepfake/detect
    (PWA share target)               mono 16 kHz, ≤ 300 s)           └─► verdict bands + core regions → SQLite
@@ -174,8 +174,16 @@ credits (replies are marked "Test mode").
 **Telegram setup:** create the bot with @BotFather, then `/setprivacy` → **Disable** so it can see
 voice notes in groups, and **remove and re-add** it to any group it was already in.
 
-Chromaprint `fpcalc` (for the "already checked" cache): download 1.5.1 from
-https://github.com/acoustid/chromaprint/releases, put it in `bin/`, set `FPCALC_PATH` in `.env`.
+Chromaprint `fpcalc` (for the "already checked" cache): on Windows, download 1.5.1 from
+https://github.com/acoustid/chromaprint/releases and put `fpcalc.exe` in `bin/`; on Fedora,
+`sudo dnf install chromaprint-tools` (it's then found on PATH). The bot's startup log and `/health`
+say loudly if it's missing.
+
+**How a repeat clip is recognised (0 credits), cheapest first:** the same Telegram file id → the
+same bytes → the same decoded audio (catches another container or lossless format, a renamed or
+re-tagged file, a voice note inside a video; works without `fpcalc`) → an audio fingerprint
+(Chromaprint ≥ 0.80, catches lossy re-encodes like WhatsApp Opus, MP3 and AAC). Only then is
+Aletheia called.
 
 ## Team and how we built it
 

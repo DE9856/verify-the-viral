@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS checks (
   audio_path TEXT,
   band TEXT NOT NULL,
   result TEXT NOT NULL,
-  times_checked INTEGER NOT NULL DEFAULT 1
+  times_checked INTEGER NOT NULL DEFAULT 1,
+  pcm_sha256 TEXT
 );
 CREATE INDEX IF NOT EXISTS checks_sha ON checks(sha256);
 CREATE INDEX IF NOT EXISTS checks_tg ON checks(tg_file_unique_id);
@@ -71,12 +72,21 @@ def _db():
         if _ready_for != str(config.DB_PATH):
             con.execute("PRAGMA journal_mode=WAL")
             con.executescript(SCHEMA)
+            _migrate(con)
             _ready_for = str(config.DB_PATH)
         con.execute("PRAGMA busy_timeout=10000")
         yield con
         con.commit()
     finally:
         con.close()
+
+
+def _migrate(con: sqlite3.Connection) -> None:
+    """Bring a database made by an older version up to date (CREATE IF NOT EXISTS adds no columns)."""
+    cols = {r["name"] for r in con.execute("PRAGMA table_info(checks)")}
+    if "pcm_sha256" not in cols:
+        con.execute("ALTER TABLE checks ADD COLUMN pcm_sha256 TEXT")
+    con.execute("CREATE INDEX IF NOT EXISTS checks_pcm ON checks(pcm_sha256)")
 
 
 def _duration_window(duration: float) -> tuple[float, float]:
@@ -91,10 +101,12 @@ def _as_hit(row: sqlite3.Row) -> dict:
     return r
 
 
-def find_exact(*, tg_file_unique_id: str | None = None, sha256: str | None = None) -> str | None:
-    """Return the id of a cached (non-error) check for this exact file, if any."""
+def find_exact(*, tg_file_unique_id: str | None = None, sha256: str | None = None,
+               pcm_sha256: str | None = None) -> str | None:
+    """Return the id of a cached (non-error) check for this exact file or exact decoded audio, if any."""
     with _db() as con:
-        for col, val in (("tg_file_unique_id", tg_file_unique_id), ("sha256", sha256)):
+        for col, val in (("tg_file_unique_id", tg_file_unique_id), ("sha256", sha256),
+                         ("pcm_sha256", pcm_sha256)):
             if val:
                 row = con.execute(f"SELECT id FROM checks WHERE {col}=? AND band!='error' "
                                   "ORDER BY created_at LIMIT 1", (val,)).fetchone()
@@ -169,15 +181,16 @@ def hit(check_id: str, *, tg_file_unique_id: str | None = None, source: dict | N
 
 
 def save(result: dict, *, source: dict, sha256: str | None, fp: list[int] | None,
-         duration: float | None, audio_path: str | None) -> None:
+         duration: float | None, audio_path: str | None, pcm_sha256: str | None = None) -> None:
     now = time.time()
     with _db() as con:
         con.execute(
             "INSERT OR REPLACE INTO checks (id, created_at, last_checked_at, sha256, tg_file_unique_id, channel,"
-            " duration, fp, audio_path, band, result, times_checked) VALUES (?,?,?,?,?,?,?,?,?,?,?,1)",
+            " duration, fp, audio_path, band, result, times_checked, pcm_sha256)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,1,?)",
             (result["id"], now, now, sha256, source.get("tg_file_unique_id"), source.get("channel"),
              duration, json.dumps(fp) if fp else None, audio_path, result["band"],
-             json.dumps(result, ensure_ascii=False)))
+             json.dumps(result, ensure_ascii=False), pcm_sha256))
         _sighting(con, result["id"], now, source)
 
 

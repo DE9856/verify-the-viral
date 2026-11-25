@@ -1,10 +1,13 @@
-"""THE contract entry point (see CONTRACT.md). Owner: Lane A.
+"""THE contract entry point (see CONTRACT.md).
 
-Pipeline, cheapest step first:
+Pipeline, cheapest step first (layers of "have we checked this clip before?"):
   1. Telegram file_unique_id already seen?            → cached result, no decoding at all
   2. normalize (passthrough / stream copy / transcode) → sha256 of the bytes we'd send
-  3. same bytes already checked?                       → cached result
+     same bytes already checked?                       → cached result
+  3. same decoded audio already checked?               → cached result (other container / lossless
+     format / renamed file: .ogg vs .opus, WAV vs FLAC, voice note inside a video)
   4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80
+     (lossy re-encodes: WhatsApp Opus, MP3, AAC; needs fpcalc)
      (no candidates: skip the lookup and fingerprint in parallel with the API call)
   5. Aletheia REST call (Idempotency-Key = sha256)     → verdict bands → store
 Identical clips arriving at the same moment share one API call (single-flight).
@@ -98,6 +101,8 @@ async def _check_file(audio_path: str, source: dict, t0: float) -> dict:
     tg = source.get("tg_file_unique_id")
     if cid := store.find_exact(sha256=norm.sha256):
         return _done(store.hit(cid, tg_file_unique_id=tg, source=source), "cache:exact", t0, norm)
+    if norm.pcm_sha256 and (cid := store.find_exact(pcm_sha256=norm.pcm_sha256)):
+        return _done(store.hit(cid, tg_file_unique_id=tg, source=source), "cache:decoded", t0, norm)
     return await _once(f"sha:{norm.sha256}", lambda: _check_normalized(norm, source, t0), source)
 
 
@@ -113,7 +118,8 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
         raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),
                                        asyncio.to_thread(fingerprint.compute, norm.path))
     result = build_result(raw, verdict.decide(raw["result"]), trimmed=norm.trimmed)
-    store.save(result, source=source, sha256=norm.sha256, fp=fp, duration=norm.duration, audio_path=norm.path)
+    store.save(result, source=source, sha256=norm.sha256, fp=fp, duration=norm.duration, audio_path=norm.path,
+               pcm_sha256=norm.pcm_sha256)
     return _done(result, "api", t0, norm)
 
 

@@ -66,6 +66,7 @@ class Normalized:
     duration: float  # seconds actually sent
     trimmed: bool    # True if the input was longer than 300 s
     method: str      # passthrough | copy | transcode
+    pcm_sha256: str | None = None  # of the decoded audio: same sound in another file → same hash
 
 
 def audio_dir() -> Path:
@@ -94,6 +95,18 @@ def _sha256(path: str) -> str:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def pcm_sha256(src: str) -> str | None:
+    """sha256 of the decoded audio (mono 16 kHz 16-bit, first MAX_SECONDS), ignoring the container,
+    tags and file name. Catches the same recording in a different wrapper or a lossless format
+    (.ogg/.opus, WAV/FLAC, a voice note inside a video, a renamed file). A lossy re-encode changes
+    the samples, so that is left to the fingerprint layer. Best effort: None if decoding fails."""
+    r = subprocess.run([FFMPEG, "-v", "error", "-i", src, "-vn", "-map", "0:a:0", "-ac", "1", "-ar", "16000",
+                        "-t", str(config.MAX_SECONDS), "-f", "s16le", "-"], capture_output=True)
+    if r.returncode != 0 or not r.stdout:
+        return None
+    return hashlib.sha256(r.stdout).hexdigest()
 
 
 def _ffmpeg(args: list[str]) -> None:
@@ -136,7 +149,7 @@ def normalize_sync(src: str) -> Normalized:
         final = audio_dir() / f"{digest}{ext}"
         _place(out, final)
     return Normalized(path=str(final), sha256=digest, duration=round(send_seconds, 3),
-                      trimmed=trimmed, method=method)
+                      trimmed=trimmed, method=method, pcm_sha256=pcm_sha256(src))
 
 
 def _rename_no_clobber(src: str | Path, final: Path) -> None:

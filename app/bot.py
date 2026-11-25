@@ -331,6 +331,12 @@ def main() -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     log.info("mock mode: %s · default language: %s", config.MOCK_ALETHEIA or "off (real API)",
              config.DEFAULT_LANG)
+    from app.core import fingerprint
+    if fp := fingerprint.fpcalc_path():
+        log.info("fpcalc: %s (re-encoded forwards hit the cache)", fp)
+    else:
+        log.warning("!!! fpcalc NOT FOUND: a re-encoded forward (WhatsApp, MP3) will be checked again "
+                    "and cost credits. Windows: put fpcalc.exe in bin/. Fedora: sudo dnf install chromaprint-tools")
     build_app().run_polling(allowed_updates=Update.ALL_TYPES)
 
 

@@ -38,7 +38,8 @@ def startup_report() -> list[str]:
     if not config.MOCK_ALETHEIA and not config.DETECTIF_API_KEY:
         issues.append("DETECTIF_API_KEY is empty and MOCK_ALETHEIA is off: every check will fail")
     if not fingerprint.fpcalc_path():
-        issues.append("fpcalc not found: re-encoded forwards won't hit the cache (exact repeats still will)")
+        issues.append("fpcalc not found: re-encoded forwards won't hit the cache (exact repeats still will). "
+                      "Windows: put fpcalc.exe in bin/. Fedora: sudo dnf install chromaprint-tools")
     if "localhost" in config.PUBLIC_BASE_URL or "127.0.0.1" in config.PUBLIC_BASE_URL:
         issues.append("PUBLIC_BASE_URL is localhost: result links in Telegram won't open on phones")
     return issues

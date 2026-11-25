@@ -74,8 +74,10 @@ Mock results are stored like real ones, so `result_url` opens a working result p
 fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
 
 ## 6. Behaviour Lane B can rely on (added 2026-11-25, no shape change)
-- Same clip again (same Telegram `file_unique_id`, same bytes, or a re-encoded forward with
-  fingerprint ≥ 0.80) → the **same `id`**, `cache.hit: true`, `times_checked` + 1, `credits_charged: 0`.
+- Same clip again (same Telegram `file_unique_id`, same bytes, the same decoded audio in another
+  file — other container, lossless format, renamed or re-tagged (added 2026-11-25) — or a re-encoded
+  forward with fingerprint ≥ 0.80) → the **same `id`**, `cache.hit: true`, `times_checked` + 1,
+  `credits_charged: 0`.
 - Two identical clips arriving together → one API call; the second gets the cache-hit result.
 - `check()` can take a few seconds on a cold API; show a "checking…" message first.
 

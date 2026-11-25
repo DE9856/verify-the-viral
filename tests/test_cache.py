@@ -71,6 +71,47 @@ def test_same_file_again_is_free(fake):
     assert b["cache"] == {"hit": True, "times_checked": 2} and b["credits_charged"] == 0
 
 
+def _convert(src, dst, *args):
+    import subprocess
+    from app.core.normalize import FFMPEG
+    subprocess.run([FFMPEG, "-v", "error", "-y", "-i", str(src), *args, str(dst)], check=True)
+    return dst
+
+
+def test_same_audio_in_another_format_hits_decoded_layer(fake, tmp_path, monkeypatch):
+    """Layer 3 works without fpcalc: a lossless re-wrap (WAV → FLAC) decodes to the same samples."""
+    monkeypatch.setattr(fingerprint, "compute", lambda path: None)   # as if fpcalc were missing
+    a = run(AUDIO / "spliced_en.wav")
+    b = run(_convert(AUDIO / "spliced_en.wav", tmp_path / "forwarded.flac"))
+    c = run(_convert(AUDIO / "spliced_en.wav", tmp_path / "renamed.wav", "-metadata", "title=fwd"))
+    assert fake.calls == 1 and b["id"] == a["id"] == c["id"]
+    assert c["cache"] == {"hit": True, "times_checked": 3} and c["credits_charged"] == 0
+
+
+def test_lossy_reencode_does_not_hit_decoded_layer(fake, tmp_path, monkeypatch):
+    """Without fpcalc, a lossy re-encode is a new check: the decoded layer never guesses."""
+    monkeypatch.setattr(fingerprint, "compute", lambda path: None)
+    run(AUDIO / "spliced_en.wav")
+    run(_convert(AUDIO / "spliced_en.wav", tmp_path / "fwd.mp3", "-b:a", "64k"))
+    assert fake.calls == 2
+
+
+def test_old_database_gets_new_column(fake, tmp_path, monkeypatch):
+    import sqlite3
+    db = tmp_path / "old.db"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE checks (id TEXT PRIMARY KEY, created_at REAL NOT NULL, last_checked_at REAL NOT NULL,"
+                " sha256 TEXT, tg_file_unique_id TEXT, channel TEXT, duration REAL, fp TEXT, audio_path TEXT,"
+                " band TEXT NOT NULL, result TEXT NOT NULL, times_checked INTEGER NOT NULL DEFAULT 1)")
+    con.commit()
+    con.close()
+    monkeypatch.setattr(config, "DB_PATH", db)
+    monkeypatch.setattr(store, "_ready_for", None)
+    a = run(AUDIO / "spliced_en.wav")
+    b = run(_convert(AUDIO / "spliced_en.wav", tmp_path / "fwd.flac"))
+    assert fake.calls == 1 and b["id"] == a["id"]
+
+
 @pytest.mark.skipif(fingerprint.fpcalc_path() is None, reason="fpcalc not installed")
 def test_whatsapp_reencode_hits_fingerprint_cache(fake):
     a = run(AUDIO / "spliced_en.wav")
