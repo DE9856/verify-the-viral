@@ -33,3 +33,5 @@ Live in the test group (real API, bot + server on one laptop, ngrok https): spli
 Small suggestion (your file, optional): the timeline button opens the page in `DEFAULT_LANG` even
 after `/lang en`. The page accepts `?lang=en|hi|kn`, so `result_url + "?lang=" + lang` in `bot.py`
 would open it in the chat's language.
+- Update: the Android share target now passes on a real phone too (installed from the ngrok URL,
+  WhatsApp-style share → result page). README can drop "pending" for the PWA.

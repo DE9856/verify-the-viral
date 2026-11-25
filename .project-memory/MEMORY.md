@@ -8,10 +8,10 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 ## Current work
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
 - Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. Lane A = demo laptop (engine+web, runs bot+server at Sync 2); Lane B = teammate PC (bot+card+story).
-- Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded).
+- Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed.
 - In progress: none. Demo laptop runs ngrok + uvicorn + bot (live, credits 3241).
-- Next: 1) B6 Reddit draft + backup video, B7 demo script (Lane B) 2) Android install + WhatsApp share test (A5) 3) A6 transcript (optional) 4) hi/kn native review 5) Sync 3 freeze.
-- Blockers / open questions: build hours; who has the Android phone; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
+- Next: 1) user merges lane-a (ngrok manifest fix) into master 2) optional: share one real WhatsApp voice note (own voice, ~20-50 credits) 3) B6 backup video + B7 demo script (Lane B, needs demo laptop) 4) F1 rehearse x3 incl. hotspot 5) Sync 3 freeze; A6 optional.
+- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
 - Updated: 2026-11-25, Claude (Lane A, Sync 2)
 
 ## Rules & gotchas
@@ -26,7 +26,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Whisper: English transcripts only; Kannada output is garbage.
 - Telegram groups: disable privacy mode AND re-add bot; 20 MB download cap. Bot = @verifytheviralbot; httpx logger must stay at WARNING (URLs carry the token).
 - Aletheia limits per docs: <=300 s, >=2 s speech (422 not charged), 2 credits/s, min 20.
-- PWA share target: Android Chrome only, installed + HTTPS on a STABLE origin (URL change breaks it). ngrok free shows a one-time "Visit Site" page in browsers. Start (repo root): `ngrok http --url=spirits-bauble-astronomy.ngrok-free.dev 8000`, `uvicorn app.api:app --host 127.0.0.1 --port 8000`, `python -m app.bot`; PUBLIC_BASE_URL needs `https://`.
+- PWA share target: Android Chrome only, installed + HTTPS on a STABLE origin (URL change breaks it). ngrok free shows a one-time "Visit Site" page in browsers (cookie abuse_interstitial); cookie-less fetches like the manifest get that page, so manifest links need crossorigin="use-credentials". Fallback: Tailscale Funnel. Start (repo root): `ngrok http --url=spirits-bauble-astronomy.ngrok-free.dev 8000`, `uvicorn app.api:app --host 127.0.0.1 --port 8000`, `python -m app.bot`; PUBLIC_BASE_URL needs `https://`.
 - OGG/Opus accepted directly; ffmpeg only to strip video/normalise.
 - Only clone voices with the owner's consent (own/teammate); no cloning of public figures.
 
