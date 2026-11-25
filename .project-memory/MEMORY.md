@@ -3,39 +3,25 @@ Shared memory for this folder. Before editing anything in `.project-memory/`, re
 Asked about the project's past? If the answer isn't below or in a topic file, search `.project-memory/history/` for the key words before saying it isn't recorded.
 
 ## Overview
-Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Lane A engine + web (`app/core/*`, `app/api.py`, result page, PWA) and Lane B bot + card + wording (`app/bot.py`, `app/core/card.py`, `app/i18n.json`) merged on master at Sync 1. Default language English (`DEFAULT_LANG`). Python 3.11, FastAPI, python-telegram-bot. Tests: `.venv/Scripts/python -m pytest -q` (venv on this PC).
+Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Default language English (`DEFAULT_LANG`). Python 3.11, FastAPI, python-telegram-bot. Tests: `.venv/Scripts/python -m pytest -q` (venv on this PC).
 
 ## Current work
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
 - Setup (since 2026-11-25): no more Lane A/B. All changes on this Windows laptop; the Fedora laptop is the server (bot + API). Commit + push to branch `testing`; merge into `master` only when it works. Plan: `PLAN.md`; status in `.project-memory/PLAN.md`.
-- Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed; U2 'hear the fake part' + U3 AI-clip radar (/radar) live. Step L live listen DONE 2026-11-26 (/live, Aletheia live stream, sustained rule; `research/live-listen.md`). Step C cache hardening DONE 2026-11-26 (formats, speed/pitch copies, fingerprint diff + verdict; `research/fp_diff.md`).
+- Done: research (0/12 real false alarms); bot, card, web, PWA share; Sync 1+2; hear-the-fake-part; AI-clip radar. Step L live listen DONE 2026-11-26 (/live, Aletheia live stream, sustained rule; `research/live-listen.md`). Step C cache hardening DONE 2026-11-26 (formats, speed/pitch copies, fingerprint diff + verdict; `research/fp_diff.md`).
 - In progress: demo video (PLAN.md step V): friend's kit + title cards done on demo laptop; Lane B phone clips 3-7 next; files in ~/Downloads/demo-clips (WA0011 spliced hero, WA0012 real, WA0013 clone).
 - Next: 1) user confirms own voice OK in video + sends hero-* files to friend 2) phone setup + 2 extra Telegram groups 3) 'start recording session' (fresh DB) -> clips 3-7 -> 'done'; rough cut 4) B6 Reddit + B7 demo script last.
 - Blockers / open questions: build hours; who reads Kannada best (native review of new hi/kn lines too); asked organizers for ~10k extra credits, awaiting reply; old pre-layer-5 speed-copy checks (ytu2eA edQR-A vX-ksg jB7LTA ZOD39w 5kAVrg) still in the real DB, delete? (user's call).
 - Updated: 2026-11-26, Claude (Windows dev laptop)
 
 ## Rules & gotchas
-- Voice notes go to Aletheia unchanged (passthrough); only odd formats are transcoded. Repeat-clip cache layers: Telegram id → file sha → decoded-audio sha (lossless/container changes) → Chromaprint (lossy re-encodes; needs fpcalc: `bin/fpcalc.exe` on Windows, gitignored; Fedora `sudo dnf install chromaprint-tools`). Bot + /health warn if fpcalc is missing.
-- Windows: never os.replace onto a file another request may open (PermissionError); use rename-no-clobber.
-- Env template is `env.example` (no dot): a permission rule blocks Claude from `.env*` files. Copy it to `.env`.
-- REST API in the product; MCP only inside Claude Code for dev/testing (base64, 25 MB, LLM round trip).
-- Aletheia returns per-segment scores (4 s windows, 2 s step) in ONE call; overall verdict missed a spliced fake, segments caught it. Never window client-side.
-- Partly-fake rule: seconds covered by >=2 overlapping fake windows.
-- Segment `verdict` uses its own threshold (0.883 came back real): read the field, never score>0.62.
-- Pillow can't shape Kannada/Hindi (no raqm): render cards as HTML via Playwright.
-- Whisper: English transcripts only; Kannada output is garbage.
-- Telegram groups: disable privacy mode AND re-add bot; 20 MB download cap. Bot = @verifytheviralbot; httpx logger must stay at WARNING (URLs carry the token).
-- Whole-clip fingerprint scores average away a few fake seconds; every fuzzy hit must pass the fingerprint diff (`app/core/fpdiff.py`, median-relative, ~2 s resolution; `research/fp_diff.md`).
-- Speed/pitch-changed copies hit cache layer 5 (variants.py: undo with ffmpeg + re-fingerprint; times stay the original's); detection OK 0.75-1.75x, 0.5x calls the whole clip fake, 2x unclear (`research/speed-test.md`).
-- Live listen (speaker -> phone mic) makes 2-4 s of real speech 'fake' (0.65-0.97, varies per run; same file checks clean): live bands use `verdict.decide_live` (>=3 overlapping fake windows each >=0.9); score floors overfit; file checks unchanged (`research/live-listen.md`).
-- Live calls: Aletheia has a WebSocket stream (`wss://platform.detectif.ai/v1/stream?checks=deepfake`, 16 kHz PCM, updates every 10 s, only speech seconds charged, browser stream tokens); a call companion is Track 01's idea, ours is Track 04.
-- Aletheia limits per docs: <=300 s, >=2 s speech (422 not charged), 2 credits/s, min 20.
-- PWA share target: Android Chrome only, installed + HTTPS on a STABLE origin (URL change breaks it). ngrok free shows a one-time "Visit Site" page in browsers (cookie abuse_interstitial); cookie-less fetches like the manifest get that page, so manifest links need crossorigin="use-credentials". Fallback: Tailscale Funnel. Start (repo root): `ngrok http --url=spirits-bauble-astronomy.ngrok-free.dev 8000`, `uvicorn app.api:app --host 127.0.0.1 --port 8000`, `python -m app.bot`; PUBLIC_BASE_URL needs `https://`.
-- OGG/Opus accepted directly; ffmpeg only to strip video/normalise.
-- Only clone voices with the owner's consent (own/teammate); no cloning of public figures.
+- Facts in the root `CLAUDE.md` (segments, Pillow, Whisper, Telegram, consent) aren't repeated here.
+- Before cache work read `cache.md`; before verdict/API/live work `aletheia.md`; before running or deploying `deploy.md`.
+- Merge `testing` → `master` only after a server test passes; give the Fedora laptop a prompt that asks for a SHORT report.
 
 ## Topics
 - `submission/engine-flow.html`: engine workflow diagram (published artifact https://claude.ai/artifact/6rn99xKVfsqftwRxKNbMox); update it if check() flow changes.
-- `PLAN.md` (root): the build plan with test evidence; `.project-memory/PLAN.md` tracks step status. Read before starting or finishing a step.
+- `.project-memory/PLAN.md` (4 KB): step status; read before starting or finishing a step. Root `PLAN.md` (29 KB, evidence): grep it for the step, don't read it whole.
 - `research/README.md`: what each spike tests and how to rerun.
+- `cache.md`, `aletheia.md`, `deploy.md`: topic files (read when the task touches them).
 - `history/`: what happened and why, one file per day; `history/SUMMARY.md` is one line per month. Search it, don't read it all (see RULES.md).
