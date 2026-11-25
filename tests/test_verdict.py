@@ -79,23 +79,34 @@ def test_flagged_bands_keep_their_colour():
     assert out == {"band": "partly_fake", "core_regions": [[10.0, 14.0]]}   # edit inside a region / unexplained
 
 
-def test_live_score_floor_on_the_phone_run():
-    """Phone test o6yz8A (server, 2026-11-26): real speech through a speaker came back fake at 0.65-0.85.
-    With min_score 0.9 only the clone and the AI sentence are marked (truth in stream time: clone
-    21.4-35.7, AI sentence 49.7-53.5), and the 0.57 overall 'fake' no longer decides alone."""
-    T = [(1.31, 5.31, "real", .01), (3.31, 7.31, "fake", .66), (5.31, 9.31, "fake", .65), (7.31, 11.31, "fake", .71),
-         (9.31, 13.31, "real", .04), (11.31, 15.31, "real", .05), (13.31, 17.31, "real", .08), (15.31, 22.99, "real", .57),
-         (17.31, 24.99, "fake", .99), (22.99, 26.99, "fake", .98), (24.99, 28.99, "fake", .98), (26.99, 30.99, "fake", .97),
-         (28.99, 32.99, "fake", 1.0), (30.99, 34.99, "fake", .98), (32.99, 41.92, "real", .39), (34.99, 43.92, "real", .20),
-         (41.92, 45.92, "fake", .85), (43.92, 47.92, "fake", .65), (45.92, 49.92, "fake", .72), (47.92, 51.92, "fake", .73),
-         (49.92, 53.92, "fake", .98), (51.92, 55.92, "fake", .95), (53.92, 57.92, "real", .05), (55.92, 59.92, "real", .01)]
-    r = {"verdict": "fake", "score": 0.57, "scored_seconds": 50.3,
-         "segments": [{"start": a, "end": b, "verdict": v, "score": s} for a, b, v, s in T]}
-    assert decide(r)["band"] == "likely_fake"                                   # the file-check rule
-    assert decide(r, min_score=0.9) == {"band": "partly_fake", "core_regions": [[22.99, 32.99], [51.92, 53.92]]}
+# the three real live calls (server, phone, 2026-11-26; research/live-listen.md)
+O6YZ8A = [(1.31, 5.31, "real", .01), (3.31, 7.31, "fake", .66), (5.31, 9.31, "fake", .65), (7.31, 11.31, "fake", .71),
+          (9.31, 13.31, "real", .04), (11.31, 15.31, "real", .05), (13.31, 17.31, "real", .08), (15.31, 22.99, "real", .57),
+          (17.31, 24.99, "fake", .99), (22.99, 26.99, "fake", .98), (24.99, 28.99, "fake", .98), (26.99, 30.99, "fake", .97),
+          (28.99, 32.99, "fake", 1.0), (30.99, 34.99, "fake", .98), (32.99, 41.92, "real", .39), (34.99, 43.92, "real", .20),
+          (41.92, 45.92, "fake", .85), (43.92, 47.92, "fake", .65), (45.92, 49.92, "fake", .72), (47.92, 51.92, "fake", .73),
+          (49.92, 53.92, "fake", .98), (51.92, 55.92, "fake", .95), (53.92, 57.92, "real", .05), (55.92, 59.92, "real", .01)]
+DEZRG = [(0.86, 4.86, "real", .06), (2.86, 6.86, "fake", .97), (4.86, 8.86, "fake", .97), (6.86, 10.86, "real", .86),
+         (8.86, 12.86, "real", .05), (10.86, 14.86, "real", .03), (12.86, 16.86, "real", .01), (13.41, 17.41, "real", .01)]
+ZXOUDG = [(2.0 * i, 2.0 * i + 4, "real", .95 if i == 7 else .02) for i in range(10)]   # one 0.95 window labelled real
 
 
-def test_live_weak_fakes_alone_make_it_unclear_not_green():
-    segs = [{"start": 0, "end": 4, "verdict": "fake", "score": 0.7}, {"start": 2, "end": 6, "verdict": "fake", "score": 0.66}]
-    r = {"verdict": "real", "score": 0.2, "scored_seconds": 20, "segments": segs}
-    assert decide(r)["band"] == "partly_fake" and decide(r, min_score=0.9)["band"] == "unclear"
+def _live(rows, verdict="real", score=0.1, speech=20.0):
+    return {"verdict": verdict, "score": score, "scored_seconds": speech,
+            "segments": [{"start": a, "end": b, "verdict": v, "score": s} for a, b, v, s in rows]}
+
+
+def test_live_rule_on_the_three_real_calls():
+    from app.core.verdict import decide_live
+    assert decide_live(_live(ZXOUDG)) == {"band": "no_signs", "core_regions": []}         # real voice
+    assert decide_live(_live(DEZRG, score=0.37)) == {"band": "unclear", "core_regions": []}   # 2 s burst at 0.97
+    out = decide_live(_live(O6YZ8A, "fake", 0.57, 50.3))                                  # real + clone + spliced
+    assert out == {"band": "partly_fake", "core_regions": [[22.99, 32.99]]}                 # the clone only
+    assert decide(_live(DEZRG, score=0.37))["band"] == "partly_fake"                      # the file rule would cry wolf
+
+
+def test_live_whole_call_clone_is_likely_fake():
+    from app.core.verdict import decide_live
+    rows = [(2.0 * i, 2.0 * i + 4, "fake", .98) for i in range(8)]
+    assert decide_live(_live(rows, "fake", 0.96))["band"] == "likely_fake"
+    assert decide_live(_live(rows, "fake", 0.60))["band"] == "partly_fake"   # unsure overall: show the seconds

@@ -144,11 +144,13 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
   clip; only our "edited copy, 17–19 s are different" line pointed at them.
 - **Live listen hears through a microphone, not inside the call:** Android and iOS don't let apps
   capture call audio, so the call has to be on speaker. In our phone test, playing audio through a
-  speaker made 5 of 11 windows of **real** speech come back "fake", but at lower scores (0.65–0.85)
-  than the real fakes (0.95–1.00). So on the live path a window only counts as AI at a score of
-  0.9 or more; weaker ones show "possibly AI, keep listening" and can make the result 🟡, never 🔴.
-  With that rule the test call marked exactly the cloned voice and the AI sentence. One test call so
-  far: `research/live-listen.md`.
+  speaker made a 2–4 s stretch of a **real** recording come back "fake" (once at 0.65–0.71, once at
+  0.97), while the same file checked normally was clean. A score cut-off can't fix that, so live
+  listen asks for **sustained** evidence instead: a stretch counts as AI only when at least 3 windows
+  in a row (about 8 s) are confidently fake, and the light turns 🔴 only after two confident updates
+  in a row. A short burst shows 🟡 "possibly AI". A cloned caller is fake for far longer than 8 s;
+  finding a short spliced sentence stays the job of file checks. Three test calls so far
+  (`research/live-listen.md`): real voice 🟢, the false-alarm recording 🟡, a clone 🟠 at the clone.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).

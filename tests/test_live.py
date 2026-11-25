@@ -90,7 +90,8 @@ class DocsStream:
                                        "segments": [{"start": 0.0, "end": 4.0, "score": 0.01, "verdict": "real"},
                                                     {"start": 2.0, "end": 6.0, "score": 0.97, "verdict": "fake"},
                                                     {"start": 4.0, "end": 8.0, "score": 0.98, "verdict": "fake"},
-                                                    {"start": 6.0, "end": 10.0, "score": 0.02, "verdict": "real"}]}}}}
+                                                    {"start": 6.0, "end": 10.0, "score": 0.96, "verdict": "fake"},
+                                                    {"start": 8.0, "end": 12.0, "score": 0.02, "verdict": "real"}]}}}}
             await asyncio.sleep(0.01)
         return self.out.pop(0)
 
@@ -111,7 +112,7 @@ def test_real_stream_messages_become_a_normal_check(client, monkeypatch):
         ws.send_text(json.dumps({"type": "stop"}))
         result, seen = _until(ws, "result")
     assert [m for m in seen if m["type"] == "update"][0]["verdict"] == "real"
-    assert result["band"] == "partly_fake" and result["core_regions"] == [[4.0, 6.0]]
+    assert result["band"] == "partly_fake" and result["core_regions"] == [[4.0, 8.0]]   # 3 sure windows in a row
     r = store.get(result["id"])
     assert r["operation_id"] == "op_6f1e" and r["credits_charged"] == 22       # 11 s of speech x 2
     assert r["duration"] == 12.0          # stream time (segments' clock), not the 11 s of speech
@@ -134,8 +135,10 @@ def test_stream_closed_for_credits_says_so(client, monkeypatch):
 
 def test_live_checks_never_reach_the_radar():
     done = {"seconds": 30, "speech_seconds": 30, "ended_by": "client_stop"}
-    res = {"operation_id": "op_live", "result": {"verdict": "fake", "score": 0.9, "duration_seconds": 30,
-                                                 "scored_seconds": 30, "segments": []}}
+    res = {"operation_id": "op_live", "result": {"verdict": "fake", "score": 0.95, "duration_seconds": 30,
+                                                 "scored_seconds": 30,
+                                                 "segments": [{"start": 2.0 * i, "end": 2.0 * i + 4, "verdict": "fake",
+                                                               "score": 0.98} for i in range(8)]}}
     r = live.save_result("liveid", done, res, "x.wav")
     for _ in range(3):
         store.hit(r["id"], source={"channel": "live"})

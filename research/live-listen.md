@@ -25,7 +25,7 @@ Under the file-check rule (trust each window's own verdict, 2 overlapping = a re
 windows would have made a false AI region (~4.4–8.4 s), and the 2 others would have stretched the AI
 sentence's region back to ~43 s.
 
-## Rule for the live path: a fake verdict counts only at score ≥ 0.9 (`live.LIVE_MIN_SCORE`)
+## First rule tried: a fake verdict counts only at score ≥ 0.9 — superseded (failed on 8DezRg below)
 - Re-applied to o6yz8A's segments: **partly_fake at 22.0–32.0 s and 51.0–53.0 s (file time)** — inside
   the clone (20.4–34.7) and the AI sentence (48.8–52.5); no region in real speech. The 0.57 overall
   "fake" no longer decides on its own.
@@ -34,3 +34,29 @@ sentence's region back to ~43 s.
 - Margin: highest false alarm 0.85 vs lowest sure fake 0.95, from **one** run. Next: replay the real
   notice alone through the speaker (~35 credits) to confirm nothing goes red.
 - File checks keep Aletheia's own per-window verdicts (a 0.883 Hindi window labelled real stays real).
+
+## Confirmation run 8DezRg — the 0.9 floor FAILED (2026-11-26 01:43, 33 credits)
+Real notice (WA0012) alone through the speaker: partly_fake [[4.86, 6.86]]; windows 2.86–6.86 and
+4.86–8.86 came back fake at **0.97** (file time ≈ 2.3–8.3 s: the same stretch that scored 0.65–0.71
+in o6yz8A). Overall real 0.37. The score of this false alarm varies run to run, so a score floor
+tuned on one call cannot filter it (overfitting). Open question: does a plain FILE check of WA0012
+flag 2–8 s too (recording vs speaker path)? Candidate rule: sustained evidence on the live path
+(≥ 3 overlapping confident windows ≈ 8 s), since a live threat is a cloned caller, not a 2 s splice.
+
+## Recording or speaker? (0 credits) — the speaker path
+WA0012 is the same recording as `notice_en` (fingerprint 0.965, `false-match.md`), which Aletheia
+checked as a FILE in the accuracy test: clean → windows 2–6 s real 0.079, 4–8 s real 0.005, overall
+real 0.02; WhatsApp quality → 2–6 s real **0.173**, overall real 0.03. So the file is clean (the demo
+video's real clip is safe); playing it through a speaker pushes its weakest stretch to fake
+(0.65–0.71, then 0.97). Note: with 4 s windows every 2 s, at most 2 windows cover any moment, so a
+"sustained" rule must count CONSECUTIVE confident fake windows (≥ 3 ≈ 8 s), not overlaps.
+
+## Rule now: sustained + confident (`verdict.decide_live`, 2026-11-26)
+A region needs ≥ 3 consecutive (overlapping) fake windows that each score ≥ 0.9 (≈ 8 s); likely_fake
+also needs a confident (≥ 0.9) overall fake; any weaker fake signal → unclear, never green. The live
+light turns red only after 2 sure fake updates in a row. On the three calls: Zxoudg → no_signs;
+8DezRg (2 windows at 0.97) → unclear; o6yz8A → partly_fake [[22.99, 32.99]] (stream time; the clone,
+file 22.0–32.0 inside 20.4–34.7), no longer marking the 3.7 s AI sentence (file checks do that).
+Still 3 calls: needs more REAL voices through the speaker (hi, kn, other speakers) before trusting it.
+Bug caught by the tests: "in a row" must mean overlapping, not "starts ≤ 2.5 s apart" — Aletheia
+stretches a window across silence (17.31–24.99).

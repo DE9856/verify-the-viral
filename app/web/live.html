@@ -136,6 +136,7 @@ class PCM16k extends AudioWorkletProcessor {
 registerProcessor('pcm16k', PCM16k)`
 
 let ws = null, ctx = null, mic = null, wakeLock = null, running = false, finished = false, started = 0, timer = null
+let sureFakes = 0   // sure fake updates in a row: red only from the 2nd (a speaker can fake one burst)
 
 function show (state, status, advice = '') {
   $('ticket').dataset.state = state
@@ -148,7 +149,7 @@ function button (label, stop, disabled = false) {
 function idle () { show('idle', ''); button(t('live_start'), false) }
 
 async function start () {
-  finished = false
+  finished = false; sureFakes = 0
   $('done').style.display = 'none'; $('checked').textContent = ''
   try {
     mic = await navigator.mediaDevices.getUserMedia({ audio: {
@@ -204,8 +205,9 @@ function handle (m) {
   if (m.type === 'update') {
     $('checked').textContent = t('live_checked', { n: Math.round(m.speech_seconds || 0) })
     if (!running) return
-    if (m.verdict === 'fake' && m.sure) show('fake', t('live_fake', { n: Math.round(m.window_seconds || 0) }), t('live_fake_advice'))
-    else if (m.verdict === 'fake') show('listening', t('live_maybe'))      // low score: the speaker path alone can do this
+    sureFakes = m.verdict === 'fake' && m.sure ? sureFakes + 1 : 0
+    if (sureFakes >= 2) show('fake', t('live_fake', { n: Math.round(m.window_seconds || 0) }), t('live_fake_advice'))
+    else if (m.verdict === 'fake') show('listening', t('live_maybe'))      // one burst or a low score: not enough
     else show('real', t('live_no_signs'))
   } else if (m.type === 'limit') {
     stop(); $('advice').textContent = t('live_limit', { n: m.seconds })

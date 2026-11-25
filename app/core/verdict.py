@@ -55,26 +55,15 @@ def core_regions(segments: list[dict], threshold: float = DEFAULT_THRESHOLD, min
     return [[round(a, 2), round(b, 2)] for a, b in regions]
 
 
-def decide(result: dict, min_score: float | None = None) -> dict:
-    """min_score (live listen only): a fake verdict counts only when its score is at least this high.
-    Through a speaker and a phone mic, real speech came back 'fake' at 0.65-0.85 while real fakes
-    scored 0.95-1.00 (research/live-listen.md). Weaker fake verdicts still make the result 'unclear'."""
+def decide(result: dict) -> dict:
+    if overall_verdict(result) == "fake":
+        return {"band": "likely_fake", "core_regions": []}
     segments = result.get("segments") or []
     threshold = result.get("threshold") or DEFAULT_THRESHOLD
-    overall_fake = overall_verdict(result) == "fake"
-    weak = False
-    if min_score is not None:
-        def sure(x: dict) -> bool:
-            return float(x.get("score") or 0) >= min_score
-        weak = (overall_fake and not sure(result)) or any(_is_fake(s, threshold) and not sure(s) for s in segments)
-        overall_fake = overall_fake and sure(result)
-        segments = [s if not _is_fake(s, threshold) or sure(s) else {**s, "verdict": "real"} for s in segments]
-    if overall_fake:
-        return {"band": "likely_fake", "core_regions": []}
     core = core_regions(segments, threshold)
     if core:
         return {"band": "partly_fake", "core_regions": core}
-    any_fake = weak or any(_is_fake(s, threshold) for s in segments)
+    any_fake = any(_is_fake(s, threshold) for s in segments)
     scored = result.get("scored_seconds") or result.get("duration_seconds") or 0
     if any_fake or scored < config.RELIABLE_SPEECH_SECONDS:
         return {"band": "unclear", "core_regions": []}
@@ -118,3 +107,49 @@ def _merge(regions: list[list[float]]) -> list[list[float]]:
         else:
             merged.append([a, b])
     return merged
+
+
+# --------------------------------------------------------------------------- live listen
+
+LIVE_SURE = 0.9      # a live window counts only when its fake verdict is this confident...
+LIVE_RUN = 3         # ...and at least this many windows in a row are (3 windows every 2 s ≈ 8 s)
+
+
+def decide_live(result: dict, sure: float = LIVE_SURE, min_run: int = LIVE_RUN) -> dict:
+    """Bands for live listen (a call on speaker, heard through a phone mic). Stricter than decide():
+    through a speaker, real speech came back "fake" for 2-4 s at a time, at 0.65-0.71 in one call and
+    0.97 in another, so neither the per-window verdict nor a score can be trusted on its own
+    (research/live-listen.md). The live threat is a cloned caller, fake for far longer than that:
+    - a region needs >= min_run consecutive fake windows that each score >= sure; its seconds are
+      where those windows overlap (as in decide())
+    - likely_fake needs that AND a confident overall fake verdict
+    - any weaker fake signal (a short burst, low scores, an unsure overall fake): unclear, never green
+    Finding a short spliced sentence stays the job of file checks."""
+    segments = sorted(result.get("segments") or [], key=lambda x: float(x["start"]))
+    threshold = result.get("threshold") or DEFAULT_THRESHOLD
+
+    def strong(x: dict) -> bool:
+        return _is_fake(x, threshold) and float(x.get("score") or 0) >= sure
+
+    runs, run = [], []
+    for x in segments:
+        # "in a row" = overlapping: Aletheia stretches a window over silence (e.g. 17.31-24.99), so
+        # neighbours can start ~6 s apart
+        if strong(x) and (not run or float(x["start"]) < float(run[-1]["end"])):
+            run.append(x)
+        else:
+            if len(run) >= min_run:
+                runs.append(run)
+            run = [x] if strong(x) else []
+    if len(run) >= min_run:
+        runs.append(run)
+    core = core_regions([x for r in runs for x in r], threshold)
+    overall_fake = overall_verdict(result) == "fake"
+    if core and overall_fake and float(result.get("score") or 0) >= sure:
+        return {"band": "likely_fake", "core_regions": []}
+    if core:
+        return {"band": "partly_fake", "core_regions": core}
+    scored = result.get("scored_seconds") or result.get("duration_seconds") or 0
+    if overall_fake or any(_is_fake(x, threshold) for x in segments) or scored < config.RELIABLE_SPEECH_SECONDS:
+        return {"band": "unclear", "core_regions": []}
+    return {"band": "no_signs", "core_regions": []}
