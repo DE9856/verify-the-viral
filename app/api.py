@@ -7,6 +7,7 @@
   POST /api/feedback/{id}    {"correct": bool, "label": "real"|"fake"|null}
   GET  /r/{id}               result page (waveform, AI-sounding part in red, verdict in kn/hi/en)
   GET  /media/{id}           the checked audio, for the waveform
+  GET  /radar, /api/radar    fake radar: flagged clips that are circulating (2+ chats or 3+ checks)
   GET  /manifest.webmanifest, /sw.js, /offline, /static/*   PWA + assets
   GET  /health               self-check: mock mode, key, fpcalc, public URL, DetectifAI status, stats
 """
@@ -124,6 +125,17 @@ def result_page(check_id: str, lang: str | None = None):
     html = ((WEB / "result.html").read_text(encoding="utf-8")
             .replace("__DATA__", _embed(r)).replace("__I18N__", _embed(_i18n())).replace("__LANG__", lang))
     return HTMLResponse(html, headers=NO_STORE)
+
+
+@app.get("/radar", response_class=HTMLResponse)
+def radar_page():
+    return HTMLResponse((WEB / "radar.html").read_text(encoding="utf-8")
+                        .replace("__I18N__", _embed({k: v for k, v in _i18n().items() if k.startswith("label_")})))
+
+
+@app.get("/api/radar")
+def api_radar():
+    return JSONResponse(store.radar(), headers={"Cache-Control": "no-store"})
 
 
 @app.get("/offline", response_class=HTMLResponse)

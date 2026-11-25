@@ -1,0 +1,149 @@
+<!doctype html>
+<!-- Lane A · fake radar: flagged clips that are circulating. Data: GET /api/radar (polled). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101418">
+<title>Fake Radar — Check Before Share</title>
+<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><!-- send cookies: ngrok free answers cookie-less requests with its warning page -->
+<link rel="icon" href="/static/icons/icon-192.png">
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#14181d; --muted:#5c6773; --line:#e3e6ea;
+          --red:#e5484d; --orange:#f76b15; --amber:#f5a524; --neutral:#d5dae0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1014; --card:#161b21; --text:#e8ebee; --muted:#9aa6b2; --line:#252c34; --neutral:#2a323b; }
+  }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans",sans-serif }
+  main { max-width:720px; margin:0 auto; padding:16px }
+  .top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px }
+  .brand { font-weight:700; font-size:15px; color:var(--muted); text-decoration:none }
+  .live { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted) }
+  .live i { width:8px; height:8px; border-radius:50%; background:var(--red); animation:pulse 1.6s infinite }
+  .live.off i { background:var(--muted); animation:none }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 60%,transparent)} 100%{box-shadow:0 0 0 8px transparent} }
+  h1 { font-size:28px; line-height:1.2; margin:8px 0 2px }
+  .sub { color:var(--muted); margin:0 0 14px }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px }
+  .stat b { display:block; font-size:22px; line-height:1.2; font-variant-numeric:tabular-nums }
+  .stat span { font-size:12px; color:var(--muted) }
+  .item { display:block; color:inherit; text-decoration:none; background:var(--card); border:1px solid var(--line);
+          border-left:6px solid var(--band); border-radius:14px; padding:14px 16px; margin-bottom:10px }
+  .item:hover { border-color:var(--band) }
+  .item.bump { animation:bump 1.2s ease-out }
+  @keyframes bump { 0%{transform:scale(1.02); box-shadow:0 0 0 3px color-mix(in srgb,var(--band) 45%,transparent)} 100%{transform:none; box-shadow:none} }
+  .row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap }
+  .label { font-weight:700; color:var(--band) }
+  .count { font-size:15px; font-variant-numeric:tabular-nums }
+  .count b { font-size:20px }
+  .plus { display:inline-block; margin-left:6px; font-size:12px; font-weight:700; color:var(--band) }
+  .meta { color:var(--muted); font-size:14px; margin-top:2px }
+  .strip { display:flex; height:10px; border-radius:3px; overflow:hidden; background:var(--neutral); margin-top:10px }
+  .strip div { flex:1 1 0 }
+  .go { margin-top:8px; font-size:14px; font-weight:600 }
+  .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:20px; color:var(--muted); text-align:center }
+  footer { color:var(--muted); font-size:13px; margin-top:18px }
+  @media (max-width:420px) { .stat b { font-size:18px } h1 { font-size:24px } }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <a class="brand" href="/">✓ Check Before Share</a>
+    <span class="live" id="live"><i></i><span id="updated">connecting…</span></span>
+  </div>
+  <h1>Fake radar</h1>
+  <p class="sub">AI-sounding voice clips going around right now, as people check them.</p>
+
+  <div class="stats">
+    <div class="stat"><b id="s-checks">–</b><span>checks</span></div>
+    <div class="stat"><b id="s-repeats">–</b><span>instant repeats</span></div>
+    <div class="stat"><b id="s-saved">–</b><span>credits saved (≈)</span></div>
+  </div>
+
+  <div id="list"></div>
+
+  <footer>
+    <p id="rules"></p>
+    <p>Chat names and IDs are never stored: each chat becomes a scrambled code, used only to count
+      chats (the share app counts as one). A score is evidence, not proof. Checked with Aletheia by DetectifAI.</p>
+  </footer>
+</main>
+<script>
+const I18N = __I18N__;
+const BAND = { likely_fake: 'var(--red)', partly_fake: 'var(--orange)' };
+const seen = {};          // id → times_checked at the last poll, to animate new checks
+let first = true;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.round(t % 60)).padStart(2, '0')}`;
+const label = (band) => (I18N['label_' + band] || {}).en || band;
+
+function ago(ts) {
+  const s = Math.max(0, Date.now() / 1000 - ts);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  return `${Math.floor(s / 86400)} d ago`;
+}
+const clock = (ts) => new Date(ts * 1000).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+
+function strip(segments, duration) {
+  if (!segments.length || !duration) return '';
+  const n = 60, cells = [];
+  for (let i = 0; i < n; i++) {
+    const mid = (i + 0.5) * duration / n;
+    const k = segments.filter((s) => s.verdict === 'fake' && s.start <= mid && mid < s.end).length;
+    cells.push(`<div style="background:${k >= 2 ? 'var(--red)' : k === 1 ? 'var(--amber)' : 'transparent'}"></div>`);
+  }
+  return `<div class="strip" aria-hidden="true">${cells.join('')}</div>`;
+}
+
+function render(data) {
+  const st = data.stats;
+  $('s-checks').textContent = st.checks;
+  $('s-repeats').textContent = st.repeats;
+  $('s-saved').textContent = st.credits_saved.toLocaleString();
+  $('rules').textContent = `A flagged clip appears here once it has been checked in ${data.rules.min_places}+ different chats ` +
+    `or ${data.rules.min_checks}+ times in the last ${data.rules.days} days, so a private voice note checked once never shows up.`;
+  if (!data.items.length) {
+    $('list').innerHTML = '<div class="empty">Nothing circulating right now. Flagged clips appear here when people keep checking them.</div>';
+    return;
+  }
+  $('list').innerHTML = data.items.map((it) => {
+    const grew = !first && seen[it.id] !== undefined && it.times_checked > seen[it.id];
+    const plus = grew ? `<span class="plus">+${it.times_checked - seen[it.id]}</span>` : '';
+    const where = it.core_regions.length
+      ? `AI-sounding part: ${it.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')} · ` : '';
+    return `<a class="item${grew ? ' bump' : ''}" href="/r/${esc(it.id)}" style="--band:${BAND[it.band] || 'var(--red)'}">
+      <div class="row"><span class="label">${esc(label(it.band))}</span>
+        <span class="count">Checked <b>${it.times_checked}</b>× · in <b>${it.places}</b> chat${it.places === 1 ? '' : 's'}${plus}</span></div>
+      <div class="meta">${where}${it.duration ? Math.round(it.duration) + ' s clip · ' : ''}first seen ${esc(clock(it.first_seen))} · last checked ${ago(it.last_seen)}</div>
+      ${strip(it.segments, it.duration)}
+      <div class="go">Hear it and see where →</div></a>`;
+  }).join('');
+  data.items.forEach((it) => { seen[it.id] = it.times_checked; });
+  first = false;
+}
+
+async function poll() {
+  try {
+    const r = await fetch('/api/radar', { cache: 'no-store', credentials: 'same-origin' });
+    if (!r.ok) throw new Error(r.status);
+    render(await r.json());
+    $('live').classList.remove('off');
+    $('updated').textContent = 'Live · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  } catch (e) {
+    $('live').classList.add('off');
+    $('updated').textContent = 'reconnecting…';
+  }
+}
+poll();
+setInterval(poll, 8000);
+</script>
+</body>
+</html>

@@ -53,3 +53,11 @@ one extra line: "Whole-clip verdict alone: real. The 4-second scores caught this
 - hi/kn of the two new strings are my drafts: add them to the native-speaker review.
 - README/Reddit/video: this is the demo moment. Suggested tagline: "Other detectors say real or
   fake. We show you, and let you hear, the 4 seconds that lie."
+
+## 2026-11-25 — Fake radar (user's call)
+New public page `/radar` (link on the landing page): flagged clips that are circulating (seen in
+2+ chats or checked 3+ times), live, with "checked N× in M chats" and ≈ credits saved by the cache.
+- Your file I touched: `app/bot.py` passes `"chat_id": msg.chat_id` in `source` (one line; the
+  engine stores only a salted hash, see `CONTRACT.md` §1 and §8).
+- Ideas for you (optional): a `/radar` link in the `/start` text; mention it in README/Reddit/video:
+  "forward the fake into a second group and watch the radar count go up live".

@@ -23,6 +23,8 @@
   button { width:100%; border:0; border-radius:10px; padding:12px; background:var(--text); color:var(--card); font:inherit; font-weight:600; cursor:pointer }
   button:disabled { opacity:.6 }
   ol { margin:0; padding-left:20px; color:var(--muted) }
+  .radar { display:block; color:inherit; text-decoration:none }
+  .radar span { color:var(--muted) }
 </style>
 </head>
 <body>
@@ -44,6 +46,9 @@
       <li>In WhatsApp, long-press a voice note or video → Share → <em>Check Before Share</em>.</li>
     </ol>
   </div>
+
+  <a class="card radar" href="/radar"><strong>📡 Fake radar</strong><br>
+    <span>AI-sounding clips going around right now, as people check them →</span></a>
 </main>
 <script>
   document.getElementById('form').addEventListener('submit', () => {

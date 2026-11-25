@@ -3,8 +3,8 @@
 - Plan: `PLAN.md` (§5 = the two-lane split and every step's "done when"). Interface: `CONTRACT.md`.
 - **Ask the user "Lane A or Lane B?" at the start of a session if they haven't said.**
 - Lane A (engine + web) owns: `app/core/{normalize,aletheia,verdict,fingerprint,store,check,excerpt}.py`,
-  `app/api.py`, `app/web/{result,index}.html`, `app/web/pwa/`, `app/web/static/`, `scripts/smoke_real.py`,
-  `tests/test_{verdict,cache,normalize,api,excerpt}.py`.
+  `app/api.py`, `app/web/{result,index,radar}.html`, `app/web/pwa/`, `app/web/static/`, `scripts/smoke_real.py`,
+  `tests/test_{verdict,cache,normalize,api,excerpt,radar}.py`.
 - Lane B (bot + card + story) owns: `app/bot.py`, `app/core/card.py`, `app/web/card.html`,
   `app/web/theme.css`, `app/web/fonts/`, `app/i18n.json`, `README.md`, `submission/`,
   `tests/test_bot*.py`, `tests/test_card*.py`.

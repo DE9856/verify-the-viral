@@ -7,7 +7,8 @@ Everything else in a lane can change freely.
 
 ```python
 async def check(audio_path: str, *, source: dict) -> dict
-# source = {"channel": "telegram" | "share", "tg_file_unique_id": str | None, "filename": str}
+# source = {"channel": "telegram" | "share", "tg_file_unique_id": str | None, "filename": str,
+#           "chat_id": int (optional, Telegram; only a salted hash is stored, to count chats on /radar)}
 ```
 
 Returns this dict (and `POST /api/check` returns the same JSON):
@@ -87,3 +88,9 @@ part = await excerpt.fake_part(result)   # result from check()
 ```
 Cached on disk (`data/audio/excerpts/`); calling it again for the same result is instant. The bot
 sends it after the card (`send_fake_part` in `app/bot.py`).
+
+## 8. Fake radar (added 2026-11-25, Lane A)
+`GET /radar` (page) and `GET /api/radar` (JSON: `items`, `stats`, `rules`). Lists real-API results
+with band `likely_fake` / `partly_fake` once they are circulating: seen in ≥ 2 chats (distinct
+salted chat codes; the share app counts as one) or checked ≥ 3 times, in the last 7 days. Every
+`check()` and cache hit records a sighting (`sightings` table); raw chat ids are never stored.

@@ -4,7 +4,9 @@ The bot and the web server are separate processes sharing this file, so: WAL mod
 timeout, and a short-lived connection per call. Linear fingerprint scan is fine at hackathon scale,
 and it only compares clips of similar length.
 """
+import hashlib
 import json
+import secrets
 import sqlite3
 import time
 from contextlib import contextmanager
@@ -39,7 +41,23 @@ CREATE TABLE IF NOT EXISTS feedback (
   channel TEXT,
   created_at REAL NOT NULL
 );
+-- one row per check of a clip (first check and every repeat), for the fake radar.
+-- place = "tg:<salted hash of the chat id>" | "share" | channel: we count chats, never store them.
+CREATE TABLE IF NOT EXISTS sightings (
+  check_id TEXT NOT NULL,
+  at REAL NOT NULL,
+  channel TEXT,
+  place TEXT
+);
+CREATE INDEX IF NOT EXISTS sightings_check ON sightings(check_id);
 """
+# the radar lists a flagged clip only once it is circulating, so a private voice note that was
+# checked once (and maybe wrongly flagged) never appears on a public page
+RADAR_MIN_PLACES = 2
+RADAR_MIN_CHECKS = 3
+RADAR_BANDS = ("likely_fake", "partly_fake")
+# DetectifAI pricing (docs: 2 credits per second, 20 minimum), to estimate what a repeat would have cost
+CREDITS_PER_SECOND, MIN_CREDITS = 2, 20
 _ready_for: str | None = None
 
 
@@ -105,12 +123,44 @@ def find_similar(fp: list[int] | None, duration: float) -> tuple[str, float] | N
     return best if best and best[1] >= fingerprint.SAME_CLIP else None
 
 
-def hit(check_id: str, *, tg_file_unique_id: str | None = None) -> dict:
+def _salt() -> str:
+    """Random per-install secret, so a chat's code can't be turned back into its chat id."""
+    path = config.DB_PATH.parent / "radar_salt"
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        salt = secrets.token_hex(16)
+        try:
+            with open(path, "x", encoding="utf-8") as f:   # first writer wins
+                f.write(salt)
+            return salt
+        except FileExistsError:
+            return path.read_text(encoding="utf-8").strip()
+
+
+def place_of(source: dict | None) -> str | None:
+    if not source:
+        return None
+    chat = source.get("chat_id")
+    if source.get("channel") == "telegram" and chat is not None:
+        return "tg:" + hashlib.sha256(f"{_salt()}:{chat}".encode()).hexdigest()[:16]
+    return source.get("channel")
+
+
+def _sighting(con, check_id: str, now: float, source: dict | None) -> None:
+    if source is not None:
+        con.execute("INSERT INTO sightings (check_id, at, channel, place) VALUES (?,?,?,?)",
+                    (check_id, now, source.get("channel"), place_of(source)))
+
+
+def hit(check_id: str, *, tg_file_unique_id: str | None = None, source: dict | None = None) -> dict:
     """Count one more check of a cached clip; return it shaped as a cache hit (0 credits)."""
     now = time.time()
     with _db() as con:
         con.execute("UPDATE checks SET times_checked = times_checked + 1, last_checked_at=? WHERE id=?",
                     (now, check_id))
+        _sighting(con, check_id, now, source)
         if tg_file_unique_id:  # remember this Telegram file too, so the next forward is tier-1
             con.execute("UPDATE checks SET tg_file_unique_id = COALESCE(tg_file_unique_id, ?) WHERE id=?",
                         (tg_file_unique_id, check_id))
@@ -128,6 +178,7 @@ def save(result: dict, *, source: dict, sha256: str | None, fp: list[int] | None
             (result["id"], now, now, sha256, source.get("tg_file_unique_id"), source.get("channel"),
              duration, json.dumps(fp) if fp else None, audio_path, result["band"],
              json.dumps(result, ensure_ascii=False)))
+        _sighting(con, result["id"], now, source)
 
 
 def get(check_id: str) -> dict | None:
@@ -172,3 +223,38 @@ def stats() -> dict:
         f = con.execute("SELECT COUNT(*) n, COALESCE(SUM(correct),0) ok FROM feedback").fetchone()
     return {"clips": c["n"], "checks": c["t"], "cache_hits": c["t"] - c["n"],
             "feedback": f["n"], "feedback_correct": f["ok"]}
+
+
+def radar(*, days: float = 7, limit: int = 30) -> dict:
+    """Flagged clips that are circulating (real API results only), newest activity first."""
+    since = time.time() - days * 86400
+    marks = ",".join("?" * len(RADAR_BANDS))
+    with _db() as con:
+        rows = con.execute(
+            f"SELECT c.id, c.band, c.created_at, c.last_checked_at, c.times_checked, c.duration, c.result,"
+            f" (SELECT COUNT(DISTINCT place) FROM sightings s WHERE s.check_id = c.id) AS places"
+            f" FROM checks c WHERE c.band IN ({marks}) AND c.last_checked_at >= ?"
+            f" AND json_extract(c.result, '$.operation_id') IS NOT NULL"   # mock results have none
+            f" ORDER BY c.last_checked_at DESC", (*RADAR_BANDS, since)).fetchall()
+        totals = con.execute(
+            "SELECT COUNT(*) n, COALESCE(SUM(times_checked),0) t,"
+            " COALESCE(SUM((times_checked - 1) * MAX(?, CAST(ROUND(? * COALESCE(duration, 0)) AS INTEGER))),0) saved"
+            " FROM checks WHERE band != 'error' AND json_extract(result, '$.operation_id') IS NOT NULL",
+            (MIN_CREDITS, CREDITS_PER_SECOND)).fetchone()
+    items = []
+    for r in rows:
+        places = max(r["places"], 1)    # clips checked before sightings existed were still seen once
+        if places < RADAR_MIN_PLACES and r["times_checked"] < RADAR_MIN_CHECKS:
+            continue
+        res = json.loads(r["result"])
+        items.append({"id": r["id"], "band": r["band"], "times_checked": r["times_checked"],
+                      "places": places, "first_seen": r["created_at"], "last_seen": r["last_checked_at"],
+                      "duration": r["duration"] or res.get("duration"), "core_regions": res.get("core_regions", []),
+                      "segments": [{"start": s["start"], "end": s["end"], "verdict": s.get("verdict")}
+                                   for s in res.get("segments", [])]})
+        if len(items) >= limit:
+            break
+    return {"items": items,
+            "stats": {"clips": totals["n"], "checks": totals["t"], "repeats": totals["t"] - totals["n"],
+                      "credits_saved": int(totals["saved"])},
+            "rules": {"min_places": RADAR_MIN_PLACES, "min_checks": RADAR_MIN_CHECKS, "days": days}}

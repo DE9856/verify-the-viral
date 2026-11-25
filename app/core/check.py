@@ -57,9 +57,9 @@ async def check(audio_path: str, *, source: dict) -> dict:
     tg = source.get("tg_file_unique_id")
     try:
         if tg and (cid := store.find_exact(tg_file_unique_id=tg)):
-            return _done(store.hit(cid), "cache:telegram", t0)
+            return _done(store.hit(cid, source=source), "cache:telegram", t0)
         if tg:
-            return await _once(f"tg:{tg}", lambda: _check_file(audio_path, source, t0), tg)
+            return await _once(f"tg:{tg}", lambda: _check_file(audio_path, source, t0), source)
         return await _check_file(audio_path, source, t0)
     except NormalizeError as e:
         return _done(_save_error(ERROR_MAP.get(e.code, "failed"), str(e), source), f"error:{e.code}", t0)
@@ -97,8 +97,8 @@ async def _check_file(audio_path: str, source: dict, t0: float) -> dict:
     norm = await normalize.normalize(audio_path)
     tg = source.get("tg_file_unique_id")
     if cid := store.find_exact(sha256=norm.sha256):
-        return _done(store.hit(cid, tg_file_unique_id=tg), "cache:exact", t0, norm)
-    return await _once(f"sha:{norm.sha256}", lambda: _check_normalized(norm, source, t0), tg)
+        return _done(store.hit(cid, tg_file_unique_id=tg, source=source), "cache:exact", t0, norm)
+    return await _once(f"sha:{norm.sha256}", lambda: _check_normalized(norm, source, t0), source)
 
 
 async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float) -> dict:
@@ -107,7 +107,7 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
         fp = await asyncio.to_thread(fingerprint.compute, norm.path)
         match = store.find_similar(fp, norm.duration)
         if match:
-            return _done(store.hit(match[0], tg_file_unique_id=tg), f"cache:fingerprint({match[1]:.2f})", t0, norm)
+            return _done(store.hit(match[0], tg_file_unique_id=tg, source=source), f"cache:fingerprint({match[1]:.2f})", t0, norm)
         raw = await aletheia.detect(norm.path, idempotency_key=norm.sha256)
     else:
         raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),
@@ -117,11 +117,13 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
     return _done(result, "api", t0, norm)
 
 
-async def _once(key: str, fn, tg: str | None) -> dict:
+async def _once(key: str, fn, source: dict) -> dict:
     """Single-flight: concurrent identical work waits for the first run, then counts as a cache hit."""
     if key in _inflight:
         first = await asyncio.shield(_inflight[key])
-        return store.hit(first["id"], tg_file_unique_id=tg) if first["band"] != "error" else first
+        if first["band"] == "error":
+            return first
+        return store.hit(first["id"], tg_file_unique_id=source.get("tg_file_unique_id"), source=source)
     fut = asyncio.get_running_loop().create_future()
     _inflight[key] = fut
     try:
