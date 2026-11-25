@@ -11,7 +11,7 @@ This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bo
 - [ ] K1. Push to GitHub, add teammate, create `lane-a` / `lane-b` branches
 - [ ] Phase 1 — A1 normalise + REST client · A2 verdict bands + tests | B1 bot on mock ✅ (2026-11-25) · B2 i18n en/hi/kn ✅ code (native review pending)
 - [ ] Sync 1 (MVP): spliced clip → 🟠 10–14 s reply from the real API
-- [ ] Phase 2 — A3 SQLite + fingerprint cache · A4 FastAPI + result page | B3 card (Playwright) ✅ (2026-11-25) · B4 cache-hit wording
+- [ ] Phase 2 — A3 SQLite + fingerprint cache · A4 FastAPI + result page | B3 card (Playwright) ✅ (2026-11-25) · B4 cache-hit wording ✅ (2026-11-25, on mock)
 - [ ] Sync 2: reply + card + live `/r/<id>` timeline
 - [ ] Phase 3 — A5 PWA (cut first) · A6 transcript (stretch) · A7 hardening | B5 README · B6 Reddit draft + backup video · B7 demo script
 - [ ] Sync 3 freeze → F1 rehearse ×3 · F2 final video + Reddit post live (required) · F3 tag repo + Google form

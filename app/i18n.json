@@ -164,5 +164,15 @@
   "en": "TEST SAMPLE",
   "hi": "टेस्ट नमूना",
   "kn": "ಪರೀಕ್ಷಾ ಮಾದರಿ"
+ },
+ "short_no_signs": {
+  "en": "✅ No signs of an AI voice.",
+  "hi": "✅ AI आवाज़ के कोई संकेत नहीं।",
+  "kn": "✅ AI ಧ್ವನಿಯ ಲಕ್ಷಣಗಳಿಲ್ಲ."
+ },
+ "feedback_already": {
+  "en": "Thanks, someone already answered for this check.",
+  "hi": "धन्यवाद, इस जाँच के लिए किसी ने पहले ही जवाब दे दिया है।",
+  "kn": "ಧನ್ಯವಾದಗಳು, ಈ ಪರಿಶೀಲನೆಗೆ ಯಾರೋ ಈಗಾಗಲೇ ಉತ್ತರಿಸಿದ್ದಾರೆ."
  }
 }

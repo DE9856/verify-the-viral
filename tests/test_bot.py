@@ -68,3 +68,49 @@ def test_chat_language_default_set_and_saved(monkeypatch, tmp_path):
 def test_every_bot_key_in_every_language():
     for key in ["seconds", "mock_note", "start", "lang_set", "lang_usage", "lang_admins_only", "trimmed"]:
         assert all(bot.I18N[key].get(lang) for lang in bot.LANGS), key
+
+
+# ---- B4 ----
+
+def _msg(chat_type):
+    return SimpleNamespace(chat=SimpleNamespace(type=chat_type))
+
+
+def test_group_etiquette(monkeypatch):
+    clean, fake = mock_result(monkeypatch, "real_en"), mock_result(monkeypatch, "fake_kn")
+    assert bot.short_reply(clean, _msg("group")) and bot.short_reply(clean, _msg("supergroup"))
+    assert not bot.short_reply(clean, _msg("private"))
+    assert not bot.short_reply(fake, _msg("group"))
+
+
+def test_cache_hit_line(monkeypatch):
+    r = mock_result(monkeypatch, "fake_en")
+    r["cache"] = {"hit": True, "times_checked": 7}
+    assert "Already checked 7 times." in bot.format_reply(r, "en")
+
+
+def test_timeline_button_only_for_public_https(monkeypatch):
+    r = mock_result(monkeypatch, "spliced_en")
+    r["result_url"] = "http://localhost:8000/r/abc"
+    rows = bot.keyboard(r, "en").inline_keyboard
+    assert len(rows) == 1 and [b.text for b in rows[0]] == ["👍", "👎"]
+    r["result_url"] = "https://demo.ngrok-free.app/r/abc"
+    rows = bot.keyboard(r, "en").inline_keyboard
+    assert rows[1][0].url == r["result_url"]
+    assert bot.keyboard(r, "en", with_feedback=False).inline_keyboard[0][0].url == r["result_url"]
+
+
+def test_feedback_callback_roundtrip(monkeypatch):
+    r = mock_result(monkeypatch, "spliced_en")
+    r["operation_id"] = "op_" + "a" * 32
+    for button, correct in zip(bot.keyboard(r, "en").inline_keyboard[0], (True, False)):
+        assert len(button.callback_data.encode()) <= 64
+        assert bot.parse_feedback(button.callback_data) == (correct, "partly_fake", r["operation_id"])
+    assert bot.parse_feedback("fb:2:p:x") is None and bot.parse_feedback("other") is None
+
+
+def test_feedback_labels():
+    assert bot.feedback_label("partly_fake", True) == "fake"
+    assert bot.feedback_label("likely_fake", False) == "real"
+    assert bot.feedback_label("no_signs", False) == "fake"
+    assert bot.feedback_label("unclear", False) is None

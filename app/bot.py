@@ -6,7 +6,9 @@ B2: per-chat language (default config.DEFAULT_LANG), /lang en|hi|kn (admins only
 saved to data/chat_langs.json so it survives restarts.
 B3: the verdict card (app/core/card.py) as a photo with the reply text as caption;
 falls back to text if the card can't be drawn. Chromium is warmed up at startup.
-Later: cache wording + 👍/👎 feedback (B4).
+B4: "Already checked N times" on cache hits; a button to the timeline page (only when
+PUBLIC_BASE_URL is a public https address: Telegram rejects localhost links); in groups a
+one-line ✅ for 🟢 instead of the full card; "Was this right? 👍 / 👎" → send_feedback().
 Gotcha: the bot only sees group media if privacy mode is disabled in @BotFather AND it was re-added.
 """
 import json
@@ -14,13 +16,14 @@ import logging
 import tempfile
 from pathlib import Path
 
-from telegram import BotCommand, Message, Update
+from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
 from telegram.constants import ChatAction, ChatMemberStatus, ChatType
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (Application, CallbackQueryHandler, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 from app import config
 from app.core import card
-from app.core.check import check
+from app.core.check import check, send_feedback
 
 log = logging.getLogger("bot")
 
@@ -81,6 +84,9 @@ def format_reply(result: dict, lang: str) -> str:
     lines = [t(result["band"], lang, regions=format_regions(result.get("core_regions", []), lang))]
     if result.get("trimmed"):
         lines.append(t("trimmed", lang))
+    cache = result.get("cache") or {}
+    if cache.get("hit"):
+        lines.append(t("cache_hit", lang, n=cache.get("times_checked", 2)))
     if config.MOCK_ALETHEIA:
         # mock mode replays recorded results, unrelated to the clip sent: say so
         lines.append(t("mock_note", lang))
@@ -94,6 +100,54 @@ def pick_media(msg: Message):
         if media is not None:
             return kind, media
     return None, None
+
+
+# ---- B4: group etiquette, timeline button, feedback buttons ----
+
+# one letter per band keeps callback_data under Telegram's 64-byte limit
+BAND_CODE = {"likely_fake": "l", "partly_fake": "p", "unclear": "u", "no_signs": "n"}
+CODE_BAND = {v: k for k, v in BAND_CODE.items()}
+
+
+def is_group(msg: Message) -> bool:
+    return msg.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP)
+
+
+def short_reply(result: dict, msg: Message) -> bool:
+    """In groups, a clean result gets one quiet line instead of the full card."""
+    return result["band"] == "no_signs" and is_group(msg)
+
+
+def public_link(url: str) -> bool:
+    return url.startswith("https://") and "localhost" not in url and "127.0.0.1" not in url
+
+
+def feedback_label(band: str, correct: bool) -> str | None:
+    """What the clip really is, from the user's 👍/👎 on our verdict (None if we can't tell)."""
+    said = {"likely_fake": "fake", "partly_fake": "fake", "no_signs": "real"}.get(band)
+    if said is None:
+        return None
+    return said if correct else ("real" if said == "fake" else "fake")
+
+
+def keyboard(result: dict, lang: str, with_feedback: bool = True) -> InlineKeyboardMarkup | None:
+    rows = []
+    if with_feedback:
+        op = result.get("operation_id") or result["id"]
+        code = BAND_CODE[result["band"]]
+        rows.append([InlineKeyboardButton("👍", callback_data=f"fb:1:{code}:{op}"),
+                     InlineKeyboardButton("👎", callback_data=f"fb:0:{code}:{op}")])
+    if public_link(result.get("result_url", "")):
+        rows.append([InlineKeyboardButton(t("view_timeline", lang), url=result["result_url"])])
+    return InlineKeyboardMarkup(rows) if rows else None
+
+
+def parse_feedback(data: str):
+    """'fb:1:p:op_123' → (True, 'partly_fake', 'op_123'), or None if it isn't ours."""
+    parts = data.split(":", 3)
+    if len(parts) != 4 or parts[0] != "fb" or parts[1] not in ("0", "1") or parts[2] not in CODE_BAND:
+        return None
+    return parts[1] == "1", CODE_BAND[parts[2]], parts[3]
 
 
 # ---- handlers ----
@@ -123,16 +177,56 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await msg.reply_text(t("error_failed", lang), do_quote=True)
         return
 
-    log.info("chat %s %s -> %s (%s)", msg.chat_id, kind, result["band"], lang)
-    text = format_reply(result, lang)
-    if result["band"] != "error":
-        try:
-            png = await card.render_card(result, lang)
-            await msg.reply_photo(png, caption=text, do_quote=True)
-            return
-        except Exception:
-            log.exception("card failed, sending text only")
-    await msg.reply_text(text, do_quote=True)
+    log.info("chat %s %s -> %s (%s)%s", msg.chat_id, kind, result["band"], lang,
+             " cache hit" if (result.get("cache") or {}).get("hit") else "")
+    if result["band"] == "error":
+        await msg.reply_text(format_reply(result, lang), do_quote=True)
+        return
+    if short_reply(result, msg):
+        cache = result.get("cache") or {}
+        line = t("short_no_signs", lang)
+        if cache.get("hit"):
+            line += " " + t("cache_hit", lang, n=cache.get("times_checked", 2))
+        await msg.reply_text(line, do_quote=True,
+                             reply_markup=keyboard(result, lang, with_feedback=False))
+        return
+
+    text = format_reply(result, lang) + "\n\n" + t("feedback_question", lang)
+    markup = keyboard(result, lang)
+    try:
+        png = await card.render_card(result, lang)
+        await msg.reply_photo(png, caption=text, do_quote=True, reply_markup=markup)
+    except Exception:
+        log.exception("card failed, sending text only")
+        await msg.reply_text(text, do_quote=True, reply_markup=markup)
+
+
+async def on_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    parsed = parse_feedback(query.data or "")
+    lang = chat_lang(query.message.chat_id) if query.message else config.DEFAULT_LANG
+    if parsed is None:
+        await query.answer()
+        return
+    correct, band, op = parsed
+    done = context.bot_data.setdefault("feedback_done", set())
+    if op in done:  # one answer per check, even if two people tap at once
+        await query.answer(t("feedback_already", lang))
+        return
+    done.add(op)
+    try:
+        await send_feedback(op if op.startswith("op_") else "", correct, feedback_label(band, correct))
+    except Exception:
+        log.exception("send_feedback failed for %s", op)
+    log.info("feedback %s correct=%s band=%s", op, correct, band)
+    await query.answer(t("feedback_thanks", lang))
+    # drop the 👍/👎 row, keep the timeline link
+    rows = [r for r in (query.message.reply_markup.inline_keyboard if query.message and query.message.reply_markup else [])
+            if not any((b.callback_data or "").startswith("fb:") for b in r)]
+    try:
+        await query.edit_message_reply_markup(InlineKeyboardMarkup(rows) if rows else None)
+    except Exception:
+        log.debug("could not edit buttons", exc_info=True)
 
 
 async def on_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -184,6 +278,7 @@ def build_app() -> Application:
     app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).post_init(post_init).post_shutdown(post_shutdown).build()
     app.add_handler(CommandHandler(["start", "help"], on_start))
     app.add_handler(CommandHandler("lang", on_lang))
+    app.add_handler(CallbackQueryHandler(on_feedback, pattern=r"^fb:"))
     app.add_handler(MessageHandler(MEDIA, on_media))
     return app
 
