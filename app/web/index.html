@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101418">
+<title>Check Before Share</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#14181d; --muted:#5c6773; --line:#e3e6ea }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0d1014; --card:#161b21; --text:#e8ebee; --muted:#9aa6b2; --line:#252c34 } }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Kannada","Nirmala UI",sans-serif }
+  main { max-width:560px; margin:0 auto; padding:24px 16px }
+  img { width:72px; height:72px; border-radius:16px }
+  h1 { margin:12px 0 4px; font-size:26px }
+  p { color:var(--muted); margin:0 0 16px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px }
+  input[type=file] { width:100%; margin:8px 0 12px; font:inherit }
+  button { width:100%; border:0; border-radius:10px; padding:12px; background:var(--text); color:var(--card); font:inherit; font-weight:600; cursor:pointer }
+  button:disabled { opacity:.6 }
+  ol { margin:0; padding-left:20px; color:var(--muted) }
+</style>
+</head>
+<body>
+<main>
+  <img src="/static/icons/icon-192.png" alt="">
+  <h1>Check Before Share</h1>
+  <p>Is this voice note real? Find out which seconds sound AI-generated, before you forward it.</p>
+
+  <form class="card" action="/share" method="post" enctype="multipart/form-data" id="form">
+    <strong>Check a voice note or video</strong>
+    <input type="file" name="media" accept="audio/*,video/*,.ogg,.opus,.m4a,.mp4" required>
+    <button type="submit" id="go">Check it</button>
+  </form>
+
+  <div class="card">
+    <strong>On Android: check straight from WhatsApp</strong>
+    <ol>
+      <li>Open this page in Chrome → ⋮ → <em>Install app</em> (or <em>Add to Home screen</em>).</li>
+      <li>In WhatsApp, long-press a voice note or video → Share → <em>Check Before Share</em>.</li>
+    </ol>
+  </div>
+</main>
+<script>
+  document.getElementById('form').addEventListener('submit', () => {
+    const b = document.getElementById('go'); b.disabled = true; b.textContent = 'Checking…'
+  })
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js')
+</script>
+</body>
+</html>
