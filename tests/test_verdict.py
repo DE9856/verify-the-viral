@@ -45,7 +45,7 @@ def test_single_isolated_fake_window_is_unclear():
 
 
 # --------------------------------------------------------------------------- apply_edits (fingerprint diff)
-from app.core.verdict import apply_edits  # noqa: E402
+from app.core.verdict import apply_edits, decide  # noqa: E402
 
 SEG = lambda a, b, v: {"start": a, "end": b, "score": 0.9 if v == "fake" else 0.1, "verdict": v}  # noqa: E731
 
@@ -77,3 +77,25 @@ def test_flagged_bands_keep_their_colour():
     assert apply_edits({"band": "likely_fake", "core_regions": []}, [], [[1, 3]], [[5, 6]])["band"] == "likely_fake"
     out = apply_edits({"band": "partly_fake", "core_regions": [[10.0, 14.0]]}, [], [[11.0, 13.0], [18.0, 20.0]], [])
     assert out == {"band": "partly_fake", "core_regions": [[10.0, 14.0]]}   # edit inside a region / unexplained
+
+
+def test_live_score_floor_on_the_phone_run():
+    """Phone test o6yz8A (server, 2026-11-26): real speech through a speaker came back fake at 0.65-0.85.
+    With min_score 0.9 only the clone and the AI sentence are marked (truth in stream time: clone
+    21.4-35.7, AI sentence 49.7-53.5), and the 0.57 overall 'fake' no longer decides alone."""
+    T = [(1.31, 5.31, "real", .01), (3.31, 7.31, "fake", .66), (5.31, 9.31, "fake", .65), (7.31, 11.31, "fake", .71),
+         (9.31, 13.31, "real", .04), (11.31, 15.31, "real", .05), (13.31, 17.31, "real", .08), (15.31, 22.99, "real", .57),
+         (17.31, 24.99, "fake", .99), (22.99, 26.99, "fake", .98), (24.99, 28.99, "fake", .98), (26.99, 30.99, "fake", .97),
+         (28.99, 32.99, "fake", 1.0), (30.99, 34.99, "fake", .98), (32.99, 41.92, "real", .39), (34.99, 43.92, "real", .20),
+         (41.92, 45.92, "fake", .85), (43.92, 47.92, "fake", .65), (45.92, 49.92, "fake", .72), (47.92, 51.92, "fake", .73),
+         (49.92, 53.92, "fake", .98), (51.92, 55.92, "fake", .95), (53.92, 57.92, "real", .05), (55.92, 59.92, "real", .01)]
+    r = {"verdict": "fake", "score": 0.57, "scored_seconds": 50.3,
+         "segments": [{"start": a, "end": b, "verdict": v, "score": s} for a, b, v, s in T]}
+    assert decide(r)["band"] == "likely_fake"                                   # the file-check rule
+    assert decide(r, min_score=0.9) == {"band": "partly_fake", "core_regions": [[22.99, 32.99], [51.92, 53.92]]}
+
+
+def test_live_weak_fakes_alone_make_it_unclear_not_green():
+    segs = [{"start": 0, "end": 4, "verdict": "fake", "score": 0.7}, {"start": 2, "end": 6, "verdict": "fake", "score": 0.66}]
+    r = {"verdict": "real", "score": 0.2, "scored_seconds": 20, "segments": segs}
+    assert decide(r)["band"] == "partly_fake" and decide(r, min_score=0.9)["band"] == "unclear"

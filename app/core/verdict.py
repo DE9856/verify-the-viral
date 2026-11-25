@@ -55,15 +55,26 @@ def core_regions(segments: list[dict], threshold: float = DEFAULT_THRESHOLD, min
     return [[round(a, 2), round(b, 2)] for a, b in regions]
 
 
-def decide(result: dict) -> dict:
-    if overall_verdict(result) == "fake":
-        return {"band": "likely_fake", "core_regions": []}
+def decide(result: dict, min_score: float | None = None) -> dict:
+    """min_score (live listen only): a fake verdict counts only when its score is at least this high.
+    Through a speaker and a phone mic, real speech came back 'fake' at 0.65-0.85 while real fakes
+    scored 0.95-1.00 (research/live-listen.md). Weaker fake verdicts still make the result 'unclear'."""
     segments = result.get("segments") or []
     threshold = result.get("threshold") or DEFAULT_THRESHOLD
+    overall_fake = overall_verdict(result) == "fake"
+    weak = False
+    if min_score is not None:
+        def sure(x: dict) -> bool:
+            return float(x.get("score") or 0) >= min_score
+        weak = (overall_fake and not sure(result)) or any(_is_fake(s, threshold) and not sure(s) for s in segments)
+        overall_fake = overall_fake and sure(result)
+        segments = [s if not _is_fake(s, threshold) or sure(s) else {**s, "verdict": "real"} for s in segments]
+    if overall_fake:
+        return {"band": "likely_fake", "core_regions": []}
     core = core_regions(segments, threshold)
     if core:
         return {"band": "partly_fake", "core_regions": core}
-    any_fake = any(_is_fake(s, threshold) for s in segments)
+    any_fake = weak or any(_is_fake(s, threshold) for s in segments)
     scored = result.get("scored_seconds") or result.get("duration_seconds") or 0
     if any_fake or scored < config.RELIABLE_SPEECH_SECONDS:
         return {"band": "unclear", "core_regions": []}

@@ -204,7 +204,8 @@ function handle (m) {
   if (m.type === 'update') {
     $('checked').textContent = t('live_checked', { n: Math.round(m.speech_seconds || 0) })
     if (!running) return
-    if (m.verdict === 'fake') show('fake', t('live_fake', { n: Math.round(m.window_seconds || 0) }), t('live_fake_advice'))
+    if (m.verdict === 'fake' && m.sure) show('fake', t('live_fake', { n: Math.round(m.window_seconds || 0) }), t('live_fake_advice'))
+    else if (m.verdict === 'fake') show('listening', t('live_maybe'))      // low score: the speaker path alone can do this
     else show('real', t('live_no_signs'))
   } else if (m.type === 'limit') {
     stop(); $('advice').textContent = t('live_limit', { n: m.seconds })

@@ -143,8 +143,12 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
   overlapping 4 s windows). In a server test, Aletheia missed a 2 s and a 1 s AI insert in a known
   clip; only our "edited copy, 17–19 s are different" line pointed at them.
 - **Live listen hears through a microphone, not inside the call:** Android and iOS don't let apps
-  capture call audio, so the call has to be on speaker. Speaker-to-microphone audio is noisier than
-  a voice note; we haven't yet measured how that affects accuracy.
+  capture call audio, so the call has to be on speaker. In our phone test, playing audio through a
+  speaker made 5 of 11 windows of **real** speech come back "fake", but at lower scores (0.65–0.85)
+  than the real fakes (0.95–1.00). So on the live path a window only counts as AI at a score of
+  0.9 or more; weaker ones show "possibly AI, keep listening" and can make the result 🟡, never 🔴.
+  With that rule the test call marked exactly the cloned voice and the AI sentence. One test call so
+  far: `research/live-listen.md`.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).

@@ -110,12 +110,14 @@ sends it after the card (`send_fake_part` in `app/bot.py`).
 ## 9. Live listen (added 2026-11-26) — `app/core/live.py`, `GET /live`, `WS /ws/live`
 Browser → server: binary frames of 16 kHz 16-bit mono PCM (~0.1 s, max 64 KB), then the text
 `{"type": "stop"}`. Server → browser (JSON): `{"type": "ready"}`; `{"type": "update", "early",
-"verdict": "real"|"fake", "score", "seconds", "speech_seconds", "window_seconds"}`; `{"type":
+"verdict": "real"|"fake", "score", "sure", "seconds", "speech_seconds", "window_seconds"}` (`sure` = score
+>= `live.LIVE_MIN_SCORE` 0.9; a fake that isn't sure shows "possibly AI"); `{"type":
 "limit", "seconds"}` (LIVE_MAX_SECONDS reached, default 300); `{"type": "result", "id", "band",
 "core_regions", "result_url"}`; `{"type": "error", "code": "insufficient_speech" | "out_of_credits" |
 "busy" | "auth" | "unavailable" | "failed"}`. The final result is stored like a check (channel
 `"live"`, audio as WAV, extra field `"live": {"seconds", "speech_seconds", "updates", "ended_by"}`)
-and is never listed on the radar. Texts: `live_*` in `app/i18n.json`.
+and is never listed on the radar. Its band uses `verdict.decide(result, min_score=0.9)`: through a
+speaker, real speech came back fake at 0.65–0.85 (`research/live-listen.md`). Texts: `live_*` in `app/i18n.json`.
 
 ## 8. AI-clip radar (added 2026-11-25, Lane A)
 `GET /radar` (page) and `GET /api/radar` (JSON: `items`, `stats`, `rules`). Lists real-API results

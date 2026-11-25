@@ -37,6 +37,10 @@ MAX_FRAME = 64 * 1024                  # Aletheia's limit per binary frame
 LIVE_MAX_SECONDS = int(os.getenv("LIVE_MAX_SECONDS", "300"))   # stop by itself: protects credits
 LIVE_UPDATE_SECONDS = 5                # docs: 5-60, default 10. 10 felt sparse on stage (2 updates in 25 s);
                                        # billing is by speech seconds, not by update (phone test: 101 credits for 50 s)
+# A fake verdict counts only at this score or higher on the live path: through a speaker and a phone
+# mic, real speech came back "fake" at 0.65-0.85, real fakes at 0.95-1.00 (research/live-listen.md).
+# Below it the light shows "possibly AI" and the final band is at most "unclear".
+LIVE_MIN_SCORE = 0.9
 CLOSE_CODES = {4401: "auth", 4403: "auth", 4402: "out_of_credits", 4429: "busy", 1013: "busy"}
 
 
@@ -210,7 +214,8 @@ async def run(browser, *, opener=None) -> None:
                 await tell({"type": "ready"})
             elif kind == "deepfake" and not m.get("final"):
                 await tell({k: m.get(k) for k in ("early", "verdict", "score", "seconds", "speech_seconds",
-                                                  "window_seconds")} | {"type": "update"})
+                                                  "window_seconds")}
+                           | {"type": "update", "sure": float(m.get("score") or 0) >= LIVE_MIN_SCORE})
             elif kind == "error":
                 log.warning("live stream error: %s %s", m.get("code"), m.get("message"))
                 await tell({"type": "error", "code": m.get("code") or "failed"})
@@ -251,7 +256,7 @@ def save_result(sid: str, done: dict, res: dict, wav_path: str) -> dict:
     raw = {"operation_id": res.get("operation_id"), "model": {"name": "aletheia", "version": "live stream"},
            "result": res["result"],
            "credits": {"charged": 0 if config.MOCK_ALETHEIA else max(store.MIN_CREDITS, round(speech * store.CREDITS_PER_SECOND))}}
-    result = check_mod.build_result(raw, verdict.decide(res["result"]))
+    result = check_mod.build_result(raw, verdict.decide(res["result"], min_score=LIVE_MIN_SCORE))
     result["id"] = sid
     result["result_url"] = check_mod.result_url(sid)
     # Aletheia's duration_seconds is the SPEECH length, but segment times are stream time (the WAV we

@@ -11,6 +11,7 @@ Throwaway tests behind the decisions in `../PLAN.md`. Not product code.
 | `spikes/false_match_test.py` | Can two different recordings hit the cache? 630 pairs, plain + layer 5 (`false-match.md`) |
 | `spikes/replace_splice_test.py`, `spikes/window_min_test.py` | Same-length replacement splices vs the whole-clip score; worst-window check |
 | `spikes/fp_diff_test.py` | Fingerprint diff: 128 true copies vs 105 edits (`fp_diff.md`; `--calibrate` for the threshold sweep) |
+| `live-listen.md` | Live listen on the real stream: phone tests, speaker-path false alarms, the 0.9 score floor |
 | `spikes/card_test.py` | Verdict card: Pillow vs HTML→PNG (Playwright) with Kannada/Hindi text |
 | `spikes/timeline_test.py` | wavesurfer.js regions vs heat strip; core-region rule |
 | `spikes/stt_test.py` | faster-whisper word timestamps (EN/HI/KN) |
