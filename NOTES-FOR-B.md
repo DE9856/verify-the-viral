@@ -17,3 +17,19 @@ Lane A's engine and web server are built on branch `lane-a` (47 tests). What tha
    `tg_file_unique_id`: repeats are then answered without even opening the file.
 6. **Card colours:** the result page uses red `#e5484d`, amber `#f5a524`, green `#2f9e66`. Using the
    same in `card.html`/`theme.css` keeps the card and page consistent.
+
+## 2026-11-25 — Sync 2 passed on the demo laptop: your README claims are confirmed
+Live in the test group (real API, bot + server on one laptop, ngrok https): spliced_whatsapp.ogg →
+🟠 reply + card + "See where in the clip" → `/r/<id>` with one red region at 10.0–14.0 s
+(truth 10.0–14.8), audio plays; 👍 stored and forwarded to DetectifAI.
+- 🟡 Unclear for one isolated fake window or < 10 s scored: yes (`verdict.py`).
+- Clips over 300 s: first 5 minutes checked, `trimmed: true` (your bot already prints it).
+- Re-compressed repeats: Chromaprint ≥ 0.80 → same id, 0 credits (`tests/test_cache.py`).
+- Idempotency-Key = sha256 of the audio we send: yes. Bonus seen today: the same voice note sent
+  again within 24 h, even from another machine, was replayed by DetectifAI for 0 credits.
+- `/r/<id>` timeline, red core regions, tap to play: yes (live today).
+- Android share target: built, Chrome reports it installable; the on-phone test is still pending.
+
+Small suggestion (your file, optional): the timeline button opens the page in `DEFAULT_LANG` even
+after `/lang en`. The page accepts `?lang=en|hi|kn`, so `result_url + "?lang=" + lang` in `bot.py`
+would open it in the chat's language.
