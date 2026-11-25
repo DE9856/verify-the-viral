@@ -54,7 +54,7 @@ one extra line: "Whole-clip verdict alone: real. The 4-second scores caught this
 - README/Reddit/video: this is the demo moment. Suggested tagline: "Other detectors say real or
   fake. We show you, and let you hear, the 4 seconds that lie."
 
-## 2026-11-25 — Fake radar (user's call)
+## 2026-11-25 — AI-clip radar (user's call; first called "fake radar", renamed so nobody reads it as "not real")
 New public page `/radar` (link on the landing page): flagged clips that are circulating (seen in
 2+ chats or checked 3+ times), live, with "checked N× in M chats" and ≈ credits saved by the cache.
 - Your file I touched: `app/bot.py` passes `"chat_id": msg.chat_id` in `source` (one line; the

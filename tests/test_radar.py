@@ -1,4 +1,4 @@
-"""Lane A: fake radar (store.radar, /radar, /api/radar). Fake Aletheia, no network, no credits."""
+"""Lane A: AI-clip radar (store.radar, /radar, /api/radar). Fake Aletheia, no network, no credits."""
 import asyncio
 import sqlite3
 from pathlib import Path
@@ -74,7 +74,7 @@ def test_radar_page_and_json(fake):
         run(AUDIO / "spliced_en.wav", chat_id=chat)
     client = TestClient(api.app)
     page = client.get("/radar")
-    assert page.status_code == 200 and "Fake radar" in page.text and "__I18N__" not in page.text
+    assert page.status_code == 200 and "AI-clip radar" in page.text and "__I18N__" not in page.text
     assert "Partly AI-generated" in page.text                  # band labels embedded from i18n.json
     data = client.get("/api/radar")
     assert data.headers["cache-control"] == "no-store"

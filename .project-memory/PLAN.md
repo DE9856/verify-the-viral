@@ -13,7 +13,7 @@ This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bo
 - [x] Sync 1 (MVP): merged on master; spliced clip → 🟠 10–14 s from the real API in the group (2026-11-25)
 - [x] Phase 2 — A3 SQLite + fingerprint cache · A4 FastAPI + result page | B3 card (Playwright) · B4 cache-hit wording
 - [x] Sync 2: reply + card + live `/r/<id>` timeline over https, 👍 forwarded (demo laptop, real API, 2026-11-25)
-- [ ] Phase 3 — [x] A5 PWA (Android install + share passed 2026-11-25) · [x] U2 "hear the fake part": voice note of the flagged seconds + card line (live-tested) · [x] U3 fake radar /radar (live-tested: 7x in 2 chats) · [ ] A6 transcript (stretch, cut) · [x] A7 hardening | [x] B5 README (Sync 2 screenshot + links still to add) · [ ] B6 Reddit draft + backup video · [ ] B7 demo script
+- [ ] Phase 3 — [x] A5 PWA (Android install + share passed 2026-11-25) · [x] U2 "hear the fake part": voice note of the flagged seconds + card line (live-tested) · [x] U3 AI-clip radar /radar (live-tested: 7x in 2 chats) · [ ] A6 transcript (stretch, cut) · [x] A7 hardening | [x] B5 README (Sync 2 screenshot + links still to add) · [ ] B6 Reddit draft + backup video · [ ] B7 demo script
 - [ ] Sync 3 freeze → F1 rehearse ×3 · F2 final video + Reddit post live (required) · F3 tag repo + Google form
 
 ## Constraints and decisions

@@ -7,7 +7,7 @@
   POST /api/feedback/{id}    {"correct": bool, "label": "real"|"fake"|null}
   GET  /r/{id}               result page (waveform, AI-sounding part in red, verdict in kn/hi/en)
   GET  /media/{id}           the checked audio, for the waveform
-  GET  /radar, /api/radar    fake radar: flagged clips that are circulating (2+ chats or 3+ checks)
+  GET  /radar, /api/radar    AI-clip radar: flagged clips that are circulating (2+ chats or 3+ checks)
   GET  /manifest.webmanifest, /sw.js, /offline, /static/*   PWA + assets
   GET  /health               self-check: mock mode, key, fpcalc, public URL, DetectifAI status, stats
 """

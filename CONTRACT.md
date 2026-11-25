@@ -89,7 +89,7 @@ part = await excerpt.fake_part(result)   # result from check()
 Cached on disk (`data/audio/excerpts/`); calling it again for the same result is instant. The bot
 sends it after the card (`send_fake_part` in `app/bot.py`).
 
-## 8. Fake radar (added 2026-11-25, Lane A)
+## 8. AI-clip radar (added 2026-11-25, Lane A)
 `GET /radar` (page) and `GET /api/radar` (JSON: `items`, `stats`, `rules`). Lists real-API results
 with band `likely_fake` / `partly_fake` once they are circulating: seen in ≥ 2 chats (distinct
 salted chat codes; the share app counts as one) or checked ≥ 3 times, in the last 7 days. Every

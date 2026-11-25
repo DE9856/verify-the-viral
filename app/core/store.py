@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS feedback (
   channel TEXT,
   created_at REAL NOT NULL
 );
--- one row per check of a clip (first check and every repeat), for the fake radar.
+-- one row per check of a clip (first check and every repeat), for the AI-clip radar.
 -- place = "tg:<salted hash of the chat id>" | "share" | channel: we count chats, never store them.
 CREATE TABLE IF NOT EXISTS sightings (
   check_id TEXT NOT NULL,

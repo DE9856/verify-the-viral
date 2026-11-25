@@ -201,7 +201,7 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await tg_file.download_to_drive(path)
             task = asyncio.create_task(check(str(path), source={
                 "channel": "telegram", "tg_file_unique_id": media.file_unique_id, "filename": filename,
-                # only a salted hash is stored, to count chats on the fake radar (store.place_of)
+                # only a salted hash is stored, to count chats on the AI-clip radar (store.place_of)
                 "chat_id": msg.chat_id}))
             # a cache hit answers at once; a real API call can take seconds → say we're on it
             done, _ = await asyncio.wait({task}, timeout=CHECKING_AFTER_S)
