@@ -1,5 +1,5 @@
 {
- "_status": "en is final wording from PLAN.md §3. hi and kn are Claude's drafts: a native speaker must check them (Lane B · B2).",
+ "_status": "en is final. hi and kn are Claude's drafts: a native speaker must check them (Lane B · B2). Review sheet: research/i18n-review.md",
  "likely_fake": {
   "en": "🔴 Likely AI-generated. This voice shows strong signs of being made by AI. Don't forward it — check the official source first.",
   "hi": "🔴 संभवतः AI से बनी आवाज़। इस आवाज़ में AI से बने होने के मज़बूत संकेत हैं। इसे आगे न भेजें — पहले आधिकारिक स्रोत से पुष्टि करें।",
@@ -69,5 +69,35 @@
   "en": "Thanks — your answer was sent to help improve the model.",
   "hi": "धन्यवाद — आपका जवाब मॉडल सुधारने के लिए भेज दिया गया।",
   "kn": "ಧನ್ಯವಾದಗಳು — ಮಾದರಿಯನ್ನು ಸುಧಾರಿಸಲು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ."
+ },
+ "seconds": {
+  "en": "s",
+  "hi": "सेकंड",
+  "kn": "ಸೆಕೆಂಡು"
+ },
+ "mock_note": {
+  "en": "🧪 Test mode: this is a recorded sample result, not a check of your clip.",
+  "hi": "🧪 टेस्ट मोड: यह पहले से रिकॉर्ड किया गया नमूना नतीजा है, आपकी क्लिप की जाँच नहीं।",
+  "kn": "🧪 ಪರೀಕ್ಷಾ ಮೋಡ್: ಇದು ಮೊದಲೇ ದಾಖಲಿಸಿದ ಮಾದರಿ ಫಲಿತಾಂಶ, ನಿಮ್ಮ ಕ್ಲಿಪ್‌ನ ಪರಿಶೀಲನೆ ಅಲ್ಲ."
+ },
+ "start": {
+  "en": "Send or forward a voice note, audio or video and I'll check whether the voice is AI-generated.\nIn a group, just add me: I check every voice note and video.\nLanguage: /lang en | hi | kn",
+  "hi": "कोई वॉइस नोट, ऑडियो या वीडियो भेजें या फॉरवर्ड करें, मैं जाँचूँगा कि आवाज़ AI से बनी है या नहीं।\nग्रुप में बस मुझे जोड़ दें: मैं हर वॉइस नोट और वीडियो जाँचता हूँ।\nभाषा: /lang en | hi | kn",
+  "kn": "ವಾಯ್ಸ್ ನೋಟ್, ಆಡಿಯೋ ಅಥವಾ ವಿಡಿಯೋ ಕಳುಹಿಸಿ ಅಥವಾ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ, ಧ್ವನಿ AI ನಿಂದ ರಚಿಸಿದ್ದೇ ಎಂದು ನಾನು ಪರಿಶೀಲಿಸುತ್ತೇನೆ.\nಗ್ರೂಪ್‌ನಲ್ಲಿ ನನ್ನನ್ನು ಸೇರಿಸಿ ಸಾಕು: ಪ್ರತಿ ವಾಯ್ಸ್ ನೋಟ್ ಮತ್ತು ವಿಡಿಯೋವನ್ನು ಪರಿಶೀಲಿಸುತ್ತೇನೆ.\nಭಾಷೆ: /lang en | hi | kn"
+ },
+ "lang_set": {
+  "en": "Language set to English.",
+  "hi": "भाषा हिंदी कर दी गई है।",
+  "kn": "ಭಾಷೆಯನ್ನು ಕನ್ನಡಕ್ಕೆ ಬದಲಾಯಿಸಲಾಗಿದೆ."
+ },
+ "lang_usage": {
+  "en": "Choose a language: /lang en (English), /lang hi (हिन्दी), /lang kn (ಕನ್ನಡ)",
+  "hi": "भाषा चुनें: /lang en (English), /lang hi (हिन्दी), /lang kn (ಕನ್ನಡ)",
+  "kn": "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ: /lang en (English), /lang hi (हिन्दी), /lang kn (ಕನ್ನಡ)"
+ },
+ "lang_admins_only": {
+  "en": "Only group admins can change the language.",
+  "hi": "सिर्फ़ ग्रुप एडमिन भाषा बदल सकते हैं।",
+  "kn": "ಗ್ರೂಪ್ ಅಡ್ಮಿನ್‌ಗಳು ಮಾತ್ರ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಬಹುದು."
  }
 }

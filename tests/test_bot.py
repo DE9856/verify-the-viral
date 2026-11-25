@@ -44,7 +44,27 @@ def test_pick_media_order():
 
 
 def test_mock_replies_say_test_mode(monkeypatch):
-    assert bot.MOCK_NOTE in bot.format_reply(mock_result(monkeypatch, "real_en"), "en")
+    note = bot.t("mock_note", "kn")
+    assert note in bot.format_reply(mock_result(monkeypatch, "real_en"), "kn")
     r = mock_result(monkeypatch, "real_en")
     monkeypatch.setattr(config, "MOCK_ALETHEIA", "")
-    assert bot.MOCK_NOTE not in bot.format_reply(r, "en")
+    assert note not in bot.format_reply(r, "kn")
+
+
+def test_regions_use_local_seconds(monkeypatch):
+    assert "10–14 ಸೆಕೆಂಡು" in bot.format_reply(mock_result(monkeypatch, "spliced_en"), "kn")
+    assert "10–14 सेकंड" in bot.format_reply(mock_result(monkeypatch, "spliced_en"), "hi")
+
+
+def test_chat_language_default_set_and_saved(monkeypatch, tmp_path):
+    monkeypatch.setattr(bot, "LANG_FILE", tmp_path / "langs.json")
+    monkeypatch.setattr(bot, "_chat_langs", {})
+    assert bot.chat_lang(-100) == config.DEFAULT_LANG
+    bot.set_chat_lang(-100, "hi")
+    assert bot.chat_lang(-100) == "hi" and bot.chat_lang(-200) == config.DEFAULT_LANG
+    assert bot._load_langs() == {"-100": "hi"}
+
+
+def test_every_bot_key_in_every_language():
+    for key in ["seconds", "mock_note", "start", "lang_set", "lang_usage", "lang_admins_only", "trimmed"]:
+        assert all(bot.I18N[key].get(lang) for lang in bot.LANGS), key
