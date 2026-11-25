@@ -99,5 +99,70 @@
   "en": "Only group admins can change the language.",
   "hi": "सिर्फ़ ग्रुप एडमिन भाषा बदल सकते हैं।",
   "kn": "ಗ್ರೂಪ್ ಅಡ್ಮಿನ್‌ಗಳು ಮಾತ್ರ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಬಹುದು."
+ },
+ "label_likely_fake": {
+  "en": "Likely AI-generated",
+  "hi": "संभवतः AI से बनी आवाज़",
+  "kn": "AI ಧ್ವನಿ ಇರುವ ಸಾಧ್ಯತೆ ಹೆಚ್ಚು"
+ },
+ "label_partly_fake": {
+  "en": "Partly AI-generated",
+  "hi": "आंशिक रूप से AI से बनी",
+  "kn": "ಭಾಗಶಃ AI ನಿಂದ ರಚಿಸಲಾಗಿದೆ"
+ },
+ "label_unclear": {
+  "en": "Unclear",
+  "hi": "साफ़ नहीं",
+  "kn": "ಖಚಿತವಿಲ್ಲ"
+ },
+ "label_no_signs": {
+  "en": "No signs of an AI voice",
+  "hi": "AI आवाज़ के संकेत नहीं",
+  "kn": "AI ಧ್ವನಿಯ ಲಕ್ಷಣಗಳಿಲ್ಲ"
+ },
+ "advice_likely_fake": {
+  "en": "Don't forward it. Check the official source first.",
+  "hi": "इसे आगे न भेजें। पहले आधिकारिक स्रोत से पुष्टि करें।",
+  "kn": "ಇದನ್ನು ಫಾರ್ವರ್ಡ್ ಮಾಡಬೇಡಿ. ಮೊದಲು ಅಧಿಕೃತ ಮೂಲದಿಂದ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ."
+ },
+ "advice_partly_fake": {
+  "en": "AI-sounding part: {regions}. Words may have been edited into a real recording.",
+  "hi": "AI जैसा हिस्सा: {regions}। असली रिकॉर्डिंग में शब्द जोड़े गए हो सकते हैं।",
+  "kn": "AI ನಂತೆ ಕೇಳುವ ಭಾಗ: {regions}. ನಿಜವಾದ ರೆಕಾರ್ಡಿಂಗ್‌ಗೆ ಪದಗಳನ್ನು ಸೇರಿಸಿರಬಹುದು."
+ },
+ "advice_unclear": {
+  "en": "Too short or mixed to tell. Ask the sender where it came from.",
+  "hi": "बताने के लिए बहुत छोटी या मिली-जुली। भेजने वाले से पूछें कि यह कहाँ से आई।",
+  "kn": "ಹೇಳಲು ತುಂಬಾ ಚಿಕ್ಕದು ಅಥವಾ ಮಿಶ್ರ. ಇದು ಎಲ್ಲಿಂದ ಬಂತು ಎಂದು ಕಳುಹಿಸಿದವರನ್ನು ಕೇಳಿ."
+ },
+ "advice_no_signs": {
+  "en": "This checks the voice, not whether the claim is true.",
+  "hi": "यह सिर्फ़ आवाज़ की जाँच है, दावे की सच्चाई की नहीं।",
+  "kn": "ಇದು ಧ್ವನಿಯನ್ನು ಮಾತ್ರ ಪರಿಶೀಲಿಸುತ್ತದೆ, ಹೇಳಿಕೆ ನಿಜವೇ ಎಂಬುದನ್ನಲ್ಲ."
+ },
+ "card_timeline": {
+  "en": "Where in the clip",
+  "hi": "क्लिप में कहाँ",
+  "kn": "ಕ್ಲಿಪ್‌ನಲ್ಲಿ ಎಲ್ಲಿ"
+ },
+ "legend_ai": {
+  "en": "sounds AI-made",
+  "hi": "AI जैसा",
+  "kn": "AI ನಂತೆ"
+ },
+ "legend_human": {
+  "en": "sounds human",
+  "hi": "इंसानी आवाज़ जैसा",
+  "kn": "ಮಾನವ ಧ್ವನಿಯಂತೆ"
+ },
+ "checked_by": {
+  "en": "Checked with Aletheia by DetectifAI",
+  "hi": "DetectifAI के Aletheia से जाँचा गया",
+  "kn": "DetectifAI ನ Aletheia ಮೂಲಕ ಪರಿಶೀಲಿಸಲಾಗಿದೆ"
+ },
+ "card_test": {
+  "en": "TEST SAMPLE",
+  "hi": "टेस्ट नमूना",
+  "kn": "ಪರೀಕ್ಷಾ ಮಾದರಿ"
  }
 }

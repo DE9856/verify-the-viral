@@ -1,0 +1,81 @@
+<!doctype html>
+<!-- Lane B · verdict card template. card.py loads this once, then calls window.render(data)
+     and screenshots it. All text arrives already translated from app/i18n.json. -->
+<html lang="kn">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="theme.css">
+<style>
+  html, body { margin: 0; }
+  body { width: 900px; height: 420px; background: var(--bg); color: var(--text);
+         font-family: var(--font); overflow: hidden; }
+  .card { position: relative; box-sizing: border-box; height: 420px; padding: 30px 40px 26px 52px;
+          display: flex; flex-direction: column; }
+  .stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: var(--band); }
+  .top { display: flex; justify-content: space-between; align-items: center;
+         font-size: 15px; font-weight: 700; letter-spacing: .14em; color: var(--muted); }
+  .test { color: #0f1419; background: #eab308; padding: 3px 10px; border-radius: 4px; letter-spacing: .08em; }
+  .label { margin-top: 18px; font-size: 44px; font-weight: 700; line-height: 1.2; color: var(--band);
+           display: flex; align-items: center; gap: 16px; }
+  .dot { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--band);
+         box-shadow: 0 0 0 6px color-mix(in srgb, var(--band) 25%, transparent); }
+  .advice { margin-top: 10px; font-size: 23px; font-weight: 500; line-height: 1.45; color: var(--text); }
+  .tl { margin-top: auto; }
+  .tl-head { display: flex; justify-content: space-between; align-items: baseline;
+             font-size: 15px; color: var(--muted); margin-bottom: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; margin-left: 16px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .strip { display: flex; height: 34px; border-radius: 6px; overflow: hidden; background: var(--human); }
+  .strip div { flex: 1 1 0; }
+  .axis { display: flex; justify-content: space-between; font-size: 14px; color: var(--faint); margin-top: 5px; }
+  .foot { margin-top: 14px; padding-top: 12px; border-top: 1px solid #24303c;
+          display: flex; justify-content: space-between; gap: 20px; font-size: 14px; color: var(--muted); }
+  .foot .by { color: var(--faint); text-align: right; white-space: nowrap; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="stripe"></div>
+  <div class="top"><span>CHECK BEFORE SHARE</span><span class="test" id="test" hidden></span></div>
+  <div class="label"><span class="dot"></span><span id="label"></span></div>
+  <div class="advice" id="advice"></div>
+  <div class="tl" id="tl">
+    <div class="tl-head">
+      <span id="tl-label"></span>
+      <span class="legend">
+        <span><i class="sw" style="background: var(--ai)"></i><b id="leg-ai"></b></span>
+        <span><i class="sw" style="background: var(--human)"></i><b id="leg-human"></b></span>
+      </span>
+    </div>
+    <div class="strip" id="strip"></div>
+    <div class="axis"><span>0</span><span id="mid"></span><span id="end"></span></div>
+  </div>
+  <div class="foot"><span id="disclaimer"></span><span class="by" id="by"></span></div>
+</div>
+<script>
+  // bins: one number per time slice. 0 = sounds human, 1 = one AI window, 2 = 2+ overlapping AI windows.
+  window.render = (d) => {
+    const $ = (id) => document.getElementById(id);
+    document.documentElement.lang = d.lang;
+    $("card").style.setProperty("--band", `var(--band-${d.band})`);
+    $("label").textContent = d.label;
+    $("advice").textContent = d.advice;
+    $("tl-label").textContent = d.timeline_label;
+    $("leg-ai").textContent = d.legend_ai;
+    $("leg-human").textContent = d.legend_human;
+    $("disclaimer").textContent = d.disclaimer;
+    $("by").textContent = d.checked_by;
+    $("test").textContent = d.test || "";
+    $("test").hidden = !d.test;
+    $("tl").hidden = !d.bins.length;
+    $("strip").innerHTML = d.bins.map((b) =>
+      `<div style="background:${b >= 2 ? "var(--ai)" : b === 1 ? "color-mix(in srgb, var(--ai) 45%, var(--human))" : "transparent"}"></div>`
+    ).join("");
+    $("mid").textContent = d.axis_mid;
+    $("end").textContent = d.axis_end;
+    return document.fonts.ready.then(() => true);
+  };
+</script>
+</body>
+</html>

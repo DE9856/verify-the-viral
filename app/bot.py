@@ -4,7 +4,9 @@ B1: voice / audio / video / video_note / audio-or-video document, in groups and 
 download (refuse > 20 MB before downloading) → check() → reply with the band text.
 B2: per-chat language (default config.DEFAULT_LANG), /lang en|hi|kn (admins only in groups),
 saved to data/chat_langs.json so it survives restarts.
-Later: the card (B3), cache wording + 👍/👎 feedback (B4).
+B3: the verdict card (app/core/card.py) as a photo with the reply text as caption;
+falls back to text if the card can't be drawn. Chromium is warmed up at startup.
+Later: cache wording + 👍/👎 feedback (B4).
 Gotcha: the bot only sees group media if privacy mode is disabled in @BotFather AND it was re-added.
 """
 import json
@@ -17,6 +19,7 @@ from telegram.constants import ChatAction, ChatMemberStatus, ChatType
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 from app import config
+from app.core import card
 from app.core.check import check
 
 log = logging.getLogger("bot")
@@ -121,7 +124,15 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     log.info("chat %s %s -> %s (%s)", msg.chat_id, kind, result["band"], lang)
-    await msg.reply_text(format_reply(result, lang), do_quote=True)
+    text = format_reply(result, lang)
+    if result["band"] != "error":
+        try:
+            png = await card.render_card(result, lang)
+            await msg.reply_photo(png, caption=text, do_quote=True)
+            return
+        except Exception:
+            log.exception("card failed, sending text only")
+    await msg.reply_text(text, do_quote=True)
 
 
 async def on_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -159,10 +170,18 @@ async def on_lang(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def post_init(app: Application) -> None:
     await app.bot.set_my_commands([BotCommand("lang", "Language: en | hi | kn"),
                                    BotCommand("help", "How to use this bot")])
+    try:
+        await card.start()  # warm Chromium now so the first card isn't slow
+    except Exception:
+        log.exception("card renderer failed to start; replies will be text only")
+
+
+async def post_shutdown(app: Application) -> None:
+    await card.close()
 
 
 def build_app() -> Application:
-    app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).post_init(post_init).build()
+    app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).post_init(post_init).post_shutdown(post_shutdown).build()
     app.add_handler(CommandHandler(["start", "help"], on_start))
     app.add_handler(CommandHandler("lang", on_lang))
     app.add_handler(MessageHandler(MEDIA, on_media))
