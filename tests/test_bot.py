@@ -96,8 +96,8 @@ def test_timeline_button_only_for_public_https(monkeypatch):
     assert len(rows) == 1 and [b.text for b in rows[0]] == ["👍", "👎"]
     r["result_url"] = "https://demo.ngrok-free.app/r/abc"
     rows = bot.keyboard(r, "en").inline_keyboard
-    assert rows[1][0].url == r["result_url"]
-    assert bot.keyboard(r, "en", with_feedback=False).inline_keyboard[0][0].url == r["result_url"]
+    assert rows[1][0].url == r["result_url"] + "?lang=en"
+    assert bot.keyboard(r, "en", with_feedback=False).inline_keyboard[0][0].url == r["result_url"] + "?lang=en"
 
 
 def test_feedback_callback_roundtrip(monkeypatch):

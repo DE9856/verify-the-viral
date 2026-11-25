@@ -189,5 +189,105 @@
   "en": "Whole-clip verdict alone: real. The 4-second scores caught this part.",
   "hi": "सिर्फ़ पूरी क्लिप का नतीजा: असली। 4-सेकंड के स्कोर ने यह हिस्सा पकड़ा।",
   "kn": "ಇಡೀ ಕ್ಲಿಪ್‌ನ ತೀರ್ಪು ಮಾತ್ರ: ನಿಜ. 4-ಸೆಕೆಂಡಿನ ಸ್ಕೋರ್‌ಗಳು ಈ ಭಾಗವನ್ನು ಹಿಡಿದವು."
+ },
+ "card_checked_len": {
+  "en": "of voice checked",
+  "hi": "आवाज़ की जाँच हुई",
+  "kn": "ಧ್ವನಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ"
+ },
+ "label_error": {
+  "en": "Could not check",
+  "hi": "जाँच नहीं हो सकी",
+  "kn": "ಪರಿಶೀಲಿಸಲು ಆಗಲಿಲ್ಲ"
+ },
+ "page_play": {
+  "en": "Play the clip",
+  "hi": "क्लिप चलाएँ",
+  "kn": "ಕ್ಲಿಪ್ ಪ್ಲೇ ಮಾಡಿ"
+ },
+ "page_pause": {
+  "en": "Pause",
+  "hi": "रोकें",
+  "kn": "ವಿರಾಮ"
+ },
+ "page_play_part": {
+  "en": "Hear the AI-sounding part",
+  "hi": "AI जैसा हिस्सा सुनें",
+  "kn": "AI ನಂತೆ ಕೇಳುವ ಭಾಗ ಕೇಳಿ"
+ },
+ "page_tap_hint": {
+  "en": "Each box is about a second. Tap one to hear it.",
+  "hi": "हर खाना लगभग एक सेकंड है। सुनने के लिए उस पर टैप करें।",
+  "kn": "ಪ್ರತಿ ಚೌಕ ಸುಮಾರು ಒಂದು ಸೆಕೆಂಡು. ಕೇಳಲು ಅದನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ."
+ },
+ "page_one_window": {
+  "en": "one 4-second score flagged",
+  "hi": "एक 4-सेकंड स्कोर पर शक",
+  "kn": "ಒಂದು 4-ಸೆಕೆಂಡಿನ ಸ್ಕೋರ್ ಮೇಲೆ ಅನುಮಾನ"
+ },
+ "page_facts": {
+  "en": "How we decided",
+  "hi": "हमने कैसे तय किया",
+  "kn": "ನಾವು ಹೇಗೆ ನಿರ್ಧರಿಸಿದೆವು"
+ },
+ "page_overall": {
+  "en": "Whole-clip verdict",
+  "hi": "पूरी क्लिप का नतीजा",
+  "kn": "ಇಡೀ ಕ್ಲಿಪ್‌ನ ತೀರ್ಪು"
+ },
+ "page_part": {
+  "en": "AI-sounding part",
+  "hi": "AI जैसा हिस्सा",
+  "kn": "AI ನಂತೆ ಕೇಳುವ ಭಾಗ"
+ },
+ "page_length": {
+  "en": "Length checked",
+  "hi": "जाँची गई लंबाई",
+  "kn": "ಪರಿಶೀಲಿಸಿದ ಅವಧಿ"
+ },
+ "page_short": {
+  "en": "short, less reliable",
+  "hi": "छोटी, कम भरोसेमंद",
+  "kn": "ಚಿಕ್ಕದು, ಕಡಿಮೆ ವಿಶ್ವಾಸಾರ್ಹ"
+ },
+ "page_times": {
+  "en": "Times checked",
+  "hi": "कितनी बार जाँचा",
+  "kn": "ಎಷ್ಟು ಬಾರಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ"
+ },
+ "page_problem": {
+  "en": "Problem",
+  "hi": "समस्या",
+  "kn": "ಸಮಸ್ಯೆ"
+ },
+ "page_real": {
+  "en": "real",
+  "hi": "असली",
+  "kn": "ನಿಜ"
+ },
+ "page_fake": {
+  "en": "AI-generated",
+  "hi": "AI से बनी",
+  "kn": "AI ನಿಂದ ರಚಿತ"
+ },
+ "page_score": {
+  "en": "score",
+  "hi": "स्कोर",
+  "kn": "ಸ್ಕೋರ್"
+ },
+ "page_yes": {
+  "en": "Yes, right",
+  "hi": "हाँ, सही",
+  "kn": "ಹೌದು, ಸರಿ"
+ },
+ "page_no": {
+  "en": "No, wrong",
+  "hi": "नहीं, गलत",
+  "kn": "ಇಲ್ಲ, ತಪ್ಪು"
+ },
+ "page_check_another": {
+  "en": "Check another clip",
+  "hi": "दूसरी क्लिप जाँचें",
+  "kn": "ಇನ್ನೊಂದು ಕ್ಲಿಪ್ ಪರಿಶೀಲಿಸಿ"
  }
 }

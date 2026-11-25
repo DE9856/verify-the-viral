@@ -9,8 +9,8 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
 - Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. Lane A = demo laptop (engine+web, runs bot+server at Sync 2); Lane B = teammate PC (bot+card+story).
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed; U2 'hear the fake part' + U3 AI-clip radar (/radar) live.
-- In progress: none. U2 voice note + U3 AI-clip radar live and on master. Demo laptop runs ngrok + uvicorn + bot (live, English, credits ~3040).
-- Next: 1) teammate `git pull` on master + DEFAULT_LANG=en in their .env 2) B6 backup video + B7 demo script (Lane B, needs demo laptop) 3) F1 rehearse x3 incl. hotspot 4) Sync 3 freeze; A6 optional.
+- In progress: UI redesign (ticket world) committed + pushed to master: card, result, landing, AI-clip radar. Demo laptop runs ngrok + uvicorn + bot (live, English, credits ~3040).
+- Next: 1) friend pulls master on demo laptop + restarts bot/server 2) B6 backup video + B7 demo script last (user's call) 3) F1 rehearse x3 incl. hotspot; Sync 3 freeze; hi/kn review incl. new page_* strings.
 - Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
 - Updated: 2026-11-25, Claude (Lane A, Sync 2)
 

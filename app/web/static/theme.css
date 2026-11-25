@@ -1,0 +1,39 @@
+/* Check Before Share: shared look for the verdict card, result page and landing page.
+   The world: a Bengaluru conductor's ticket. Verdict = the colour of the ticket stock,
+   type = ticket ink, the clip's seconds = numbered stages, the AI-sounding ones punched out.
+   Fonts are bundled (static/fonts) so venue Wi-Fi can't break Kannada/Hindi rendering. */
+@font-face { font-family: "Noto Sans"; font-weight: 500; src: url("fonts/noto-sans-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans"; font-weight: 700; src: url("fonts/noto-sans-700.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans"; font-weight: 800; src: url("fonts/noto-sans-800.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Kannada"; font-weight: 500; src: url("fonts/noto-sans-kannada-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Kannada"; font-weight: 700; src: url("fonts/noto-sans-kannada-700.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Kannada"; font-weight: 800; src: url("fonts/noto-sans-kannada-800.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Devanagari"; font-weight: 500; src: url("fonts/noto-sans-devanagari-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Devanagari"; font-weight: 700; src: url("fonts/noto-sans-devanagari-700.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Devanagari"; font-weight: 800; src: url("fonts/noto-sans-devanagari-800.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Mono"; font-weight: 500; src: url("fonts/noto-sans-mono-500.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Mono"; font-weight: 700; src: url("fonts/noto-sans-mono-700.woff2") format("woff2"); }
+
+:root {
+  /* ticket ink and paper */
+  --ink: #18203a;
+  --ink-soft: #3a4462;
+  --paper: #eef0eb;
+  --paper-2: #e2e5df;
+  --rule: #c7ccc4;
+
+  /* ticket stock, one per verdict; ink on every stock is >= 4.5:1 */
+  --stock-likely_fake: #ff7a6b;
+  --stock-partly_fake: #ffae4d;
+  --stock-unclear: #ffdf5e;
+  --stock-no_signs: #8ddbac;
+  --stock-error: #c9cfd8;
+
+  /* the punched part, drawn in ink on the stock */
+  --punch: #18203a;
+
+  --font: "Noto Sans", "Noto Sans Kannada", "Noto Sans Devanagari", sans-serif;
+  --mono: "Noto Sans Mono", "Noto Sans", monospace;
+
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}

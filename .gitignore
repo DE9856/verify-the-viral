@@ -30,3 +30,6 @@ Thumbs.db
 
 # our own recordings (voices of team members, not public)
 research/real-audio/
+
+# design review captures (regenerated)
+.impeccable/review/

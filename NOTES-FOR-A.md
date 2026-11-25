@@ -27,3 +27,18 @@ Real Hindi notice + 6.5 s cloned sentence at 17.95–24.48 s: Aletheia's overall
 with score 0.319 (threshold 0.62); windows flagged 12–26 s. Our band → 🔴 likely_fake for the whole
 clip, so the timeline/"which seconds" is lost. Idea: when overall is fake but under ~half the
 windows are fake, keep `core_regions` (or return partly_fake). Details: `research/real-world.md`.
+
+## 2026-11-25 — UI redesign touched your pages (user's call: one new look everywhere)
+New "ticket" look across card, `result.html` and `index.html`. What changed on your side:
+- Fonts moved to `app/web/static/fonts/`; shared stylesheet is now `app/web/static/theme.css`
+  (served at `/static/theme.css`, also used by the card). Old `app/web/theme.css` + `app/web/fonts/` are gone.
+- `result.html`: same data slots (`__LANG__`, `__DATA__`, `__I18N__`), manifest link with
+  `crossorigin="use-credentials"`, `/media/<id>`, `/api/feedback/<id>` and wavesurfer 7.12.12 all kept.
+  New: per-second "stages" you can tap to hear, "Hear the AI-sounding part" button, all labels from
+  `i18n.json` (new `page_*` keys, `label_error`). Kept your `?lang=` support.
+- `index.html`: same form (`/share`, field `media`), service worker registration and manifest link.
+- `manifest.webmanifest`: only `background_color` / `theme_color` changed to the new palette.
+- Bot timeline button now adds `?lang=<chat language>` (your suggestion).
+- `radar.html` (now "AI-clip radar") redesigned in the same ticket look (2026-11-25): your polling, `/api/radar` data use,
+  privacy text and "+N" bump logic are unchanged; each clip is now a ticket in its verdict colour with
+  a "×N in M chats" stub that gets re-punched when the count grows. Landing page radar link kept (new style).

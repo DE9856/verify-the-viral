@@ -4,67 +4,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101418">
+<meta name="theme-color" content="#18203a">
 <title>AI-clip radar — Check Before Share</title>
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><!-- send cookies: ngrok free answers cookie-less requests with its warning page -->
 <link rel="icon" href="/static/icons/icon-192.png">
+<link rel="stylesheet" href="/static/theme.css">
 <style>
-  :root { --bg:#f5f6f8; --card:#fff; --text:#14181d; --muted:#5c6773; --line:#e3e6ea;
-          --red:#e5484d; --orange:#f76b15; --amber:#f5a524; --neutral:#d5dae0; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#0d1014; --card:#161b21; --text:#e8ebee; --muted:#9aa6b2; --line:#252c34; --neutral:#2a323b; }
+  :root { --bg: var(--paper); --fg: var(--ink); --fg-soft: var(--ink-soft); --line: var(--rule); }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11172b; --fg: #eef0eb; --fg-soft: #b9c0d0; --line: #2c3552; } }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font: 500 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--stock-unclear); color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--stock-partly_fake); outline-offset: 3px; border-radius: 4px; }
+  main { max-width: 820px; margin: 0 auto; padding: 18px 16px 44px; }
+
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px;
+          letter-spacing: .14em; text-transform: uppercase; text-decoration: none; color: inherit; }
+  .mark svg { width: 26px; height: 26px; }
+  .live { display: inline-flex; align-items: center; gap: 8px; font: 700 13px/1 var(--mono); color: var(--fg-soft); }
+  .live i { width: 10px; height: 10px; border-radius: 50%; background: var(--stock-likely_fake); border: 2px solid var(--fg);
+            animation: blink 1.6s steps(1) infinite; }
+  .live.off i { background: transparent; animation: none; }
+  @keyframes blink { 50% { background: transparent; } }
+
+  h1 { margin: 34px 0 0; font-size: clamp(40px, 10vw, 68px); line-height: 1.02; font-weight: 800; letter-spacing: -.03em; }
+  .sub { margin: 12px 0 0; font-size: clamp(18px, 4.4vw, 21px); color: var(--fg-soft); max-width: 40ch; }
+
+  /* the counter: three totals like the meters on a ticket machine */
+  .counter { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 26px; border: 2px solid var(--fg); border-radius: 8px; }
+  .counter div { padding: 12px 14px; }
+  .counter div + div { border-left: 2px solid var(--fg); }
+  .counter b { display: block; font: 700 clamp(24px, 6.4vw, 34px)/1.1 var(--mono); letter-spacing: -.03em;
+               font-variant-numeric: tabular-nums; }
+  .counter span { display: block; margin-top: 4px; font-size: 14px; line-height: 1.3; color: var(--fg-soft); }
+
+  #list { display: grid; gap: 14px; margin-top: 28px; }
+
+  /* one ticket per circulating clip */
+  .item { --stock: var(--stock-likely_fake); position: relative; display: grid; grid-template-columns: 1fr;
+          background: var(--stock); color: var(--ink); text-decoration: none; border-radius: 10px; overflow: hidden;
+          box-shadow: 0 1px 0 rgba(24,32,58,.25), 0 12px 26px -18px rgba(24,32,58,.6);
+          transition: transform .3s var(--ease-out); }
+  .item:hover { transform: translateY(-2px); }
+  .item::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08;
+    background: repeating-linear-gradient(-18deg, var(--ink) 0 1px, transparent 1px 11px); }
+  .i-main { position: relative; padding: 16px 18px 14px; min-width: 0; }
+  .i-head { display: flex; align-items: center; gap: 10px; font: 700 12px/1 var(--mono); }
+  .i-head .rule { flex: 1; height: 2px; background: var(--ink); opacity: .7; }
+  .label { margin: 8px 0 0; font-size: 22px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; }
+  .meta { margin: 4px 0 0; font-size: 15px; font-weight: 500; }
+  .row { display: flex; gap: 2px; height: 22px; margin-top: 12px; }
+  .row i { flex: 1 1 0; min-width: 0; border: 2px solid var(--ink); border-radius: 2px; position: relative; }
+  .row i.o { background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 6px); }
+  .row i.p { background: var(--ink); }
+  .go { margin-top: 10px; font-size: 15px; font-weight: 800; }
+  .go::after { content: " →"; }
+  .i-stub { position: relative; padding: 12px 18px 14px; display: flex; align-items: baseline; gap: 14px; }
+  .i-stub::before { content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 13px); }
+  .times { font: 700 34px/1 var(--mono); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .places { font-size: 15px; font-weight: 700; }
+  .plus { display: inline-block; margin-left: 8px; padding: 2px 7px; border: 2px solid var(--ink); border-radius: 4px;
+          font: 700 14px/1.2 var(--mono); background: var(--paper); }
+  @media (min-width: 640px) {
+    .item { grid-template-columns: 1fr 168px; }
+    .i-main { padding: 18px 22px 16px; }
+    .i-stub { flex-direction: column; justify-content: center; gap: 4px; padding: 16px 20px; }
+    .i-stub::before { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto;
+      background: repeating-linear-gradient(var(--ink) 0 6px, transparent 6px 13px); }
+    .times { font-size: 44px; }
   }
-  * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--text);
-         font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans",sans-serif }
-  main { max-width:720px; margin:0 auto; padding:16px }
-  .top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px }
-  .brand { font-weight:700; font-size:15px; color:var(--muted); text-decoration:none }
-  .live { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted) }
-  .live i { width:8px; height:8px; border-radius:50%; background:var(--red); animation:pulse 1.6s infinite }
-  .live.off i { background:var(--muted); animation:none }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 60%,transparent)} 100%{box-shadow:0 0 0 8px transparent} }
-  h1 { font-size:28px; line-height:1.2; margin:8px 0 2px }
-  .sub { color:var(--muted); margin:0 0 14px }
-  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px }
-  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px }
-  .stat b { display:block; font-size:22px; line-height:1.2; font-variant-numeric:tabular-nums }
-  .stat span { font-size:12px; color:var(--muted) }
-  .item { display:block; color:inherit; text-decoration:none; background:var(--card); border:1px solid var(--line);
-          border-left:6px solid var(--band); border-radius:14px; padding:14px 16px; margin-bottom:10px }
-  .item:hover { border-color:var(--band) }
-  .item.bump { animation:bump 1.2s ease-out }
-  @keyframes bump { 0%{transform:scale(1.02); box-shadow:0 0 0 3px color-mix(in srgb,var(--band) 45%,transparent)} 100%{transform:none; box-shadow:none} }
-  .row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap }
-  .label { font-weight:700; color:var(--band) }
-  .count { font-size:15px; font-variant-numeric:tabular-nums }
-  .count b { font-size:20px }
-  .plus { display:inline-block; margin-left:6px; font-size:12px; font-weight:700; color:var(--band) }
-  .meta { color:var(--muted); font-size:14px; margin-top:2px }
-  .strip { display:flex; height:10px; border-radius:3px; overflow:hidden; background:var(--neutral); margin-top:10px }
-  .strip div { flex:1 1 0 }
-  .go { margin-top:8px; font-size:14px; font-weight:600 }
-  .empty { background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:20px; color:var(--muted); text-align:center }
-  footer { color:var(--muted); font-size:13px; margin-top:18px }
-  @media (max-width:420px) { .stat b { font-size:18px } h1 { font-size:24px } }
+  /* a new check arrives: the ticket gets punched again */
+  .item.bump { animation: punch .9s var(--ease-out); }
+  .item.bump .times { animation: count .9s var(--ease-out); }
+  @keyframes punch { 0% { transform: translateY(-6px) rotate(-.6deg); box-shadow: 0 0 0 4px var(--fg); } 100% { transform: none; } }
+  @keyframes count { 0% { transform: scale(1.35); } 100% { transform: none; } }
+
+  .empty { border: 2px dashed var(--fg); border-radius: 10px; padding: 26px 20px; text-align: center; color: var(--fg-soft); }
+  .empty strong { display: block; color: var(--fg); font-size: 19px; margin-bottom: 4px; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 2px solid var(--fg); font-size: 14px; color: var(--fg-soft); }
+  footer p { margin: 0 0 8px; max-width: 70ch; }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <main>
-  <div class="top">
-    <a class="brand" href="/">✓ Check Before Share</a>
+  <div class="bar">
+    <a class="mark" href="/">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 13.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Check Before Share
+    </a>
     <span class="live" id="live"><i></i><span id="updated">connecting…</span></span>
   </div>
+
   <h1>AI-clip radar</h1>
   <p class="sub">AI-sounding voice clips going around right now, as people check them.</p>
 
-  <div class="stats">
-    <div class="stat"><b id="s-checks">–</b><span>checks</span></div>
-    <div class="stat"><b id="s-repeats">–</b><span>instant repeats</span></div>
-    <div class="stat"><b id="s-saved">–</b><span>credits saved (≈)</span></div>
+  <div class="counter">
+    <div><b id="s-checks">–</b><span>checks</span></div>
+    <div><b id="s-repeats">–</b><span>instant repeats</span></div>
+    <div><b id="s-saved">–</b><span>credits saved (≈)</span></div>
   </div>
 
-  <div id="list"></div>
+  <div id="list" aria-live="polite"></div>
 
   <footer>
     <p id="rules"></p>
@@ -74,7 +118,6 @@
 </main>
 <script>
 const I18N = __I18N__;
-const BAND = { likely_fake: 'var(--red)', partly_fake: 'var(--orange)' };
 const seen = {};          // id → times_checked at the last poll, to animate new checks
 let first = true;
 
@@ -92,15 +135,19 @@ function ago(ts) {
 }
 const clock = (ts) => new Date(ts * 1000).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
 
-function strip(segments, duration) {
+// about one punched box per second (at most 40), counting fake 4-second windows
+function row(segments, duration) {
   if (!segments.length || !duration) return '';
-  const n = 60, cells = [];
+  const n = Math.max(1, Math.min(40, Math.round(duration))), cells = [];
   for (let i = 0; i < n; i++) {
-    const mid = (i + 0.5) * duration / n;
-    const k = segments.filter((s) => s.verdict === 'fake' && s.start <= mid && mid < s.end).length;
-    cells.push(`<div style="background:${k >= 2 ? 'var(--red)' : k === 1 ? 'var(--amber)' : 'transparent'}"></div>`);
+    let k = 0
+    for (let j = 0; j < 4; j++) {
+      const m = (i + (j + .5) / 4) * duration / n;
+      k = Math.max(k, segments.filter((s) => s.verdict === 'fake' && s.start <= m && m < s.end).length);
+    }
+    cells.push(`<i${k >= 2 ? ' class="p"' : k === 1 ? ' class="o"' : ''}></i>`);
   }
-  return `<div class="strip" aria-hidden="true">${cells.join('')}</div>`;
+  return `<div class="row" aria-hidden="true">${cells.join('')}</div>`;
 }
 
 function render(data) {
@@ -111,20 +158,26 @@ function render(data) {
   $('rules').textContent = `A flagged clip appears here once it has been checked in ${data.rules.min_places}+ different chats ` +
     `or ${data.rules.min_checks}+ times in the last ${data.rules.days} days, so a private voice note checked once never shows up.`;
   if (!data.items.length) {
-    $('list').innerHTML = '<div class="empty">Nothing circulating right now. Flagged clips appear here when people keep checking them.</div>';
+    $('list').innerHTML = '<div class="empty"><strong>Nothing circulating right now.</strong>Flagged clips appear here when people keep checking them.</div>';
     return;
   }
   $('list').innerHTML = data.items.map((it) => {
     const grew = !first && seen[it.id] !== undefined && it.times_checked > seen[it.id];
     const plus = grew ? `<span class="plus">+${it.times_checked - seen[it.id]}</span>` : '';
     const where = it.core_regions.length
-      ? `AI-sounding part: ${it.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')} · ` : '';
-    return `<a class="item${grew ? ' bump' : ''}" href="/r/${esc(it.id)}" style="--band:${BAND[it.band] || 'var(--red)'}">
-      <div class="row"><span class="label">${esc(label(it.band))}</span>
-        <span class="count">Checked <b>${it.times_checked}</b>× · in <b>${it.places}</b> chat${it.places === 1 ? '' : 's'}${plus}</span></div>
-      <div class="meta">${where}${it.duration ? Math.round(it.duration) + ' s clip · ' : ''}first seen ${esc(clock(it.first_seen))} · last checked ${ago(it.last_seen)}</div>
-      ${strip(it.segments, it.duration)}
-      <div class="go">Hear it and see where →</div></a>`;
+      ? `AI-sounding part ${it.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')} · ` : '';
+    return `<a class="item${grew ? ' bump' : ''}" href="/r/${esc(it.id)}" style="--stock:var(--stock-${esc(it.band)})">
+      <div class="i-main">
+        <div class="i-head"><span>No. ${esc(it.id)}</span><span class="rule"></span><span>${it.duration ? Math.round(it.duration) + ' s' : ''}</span></div>
+        <p class="label">${esc(label(it.band))}</p>
+        <p class="meta">${where}first seen ${esc(clock(it.first_seen))} · last checked ${ago(it.last_seen)}</p>
+        ${row(it.segments, it.duration)}
+        <div class="go">Hear it and see where</div>
+      </div>
+      <div class="i-stub">
+        <span class="times">×${it.times_checked}${plus}</span>
+        <span class="places">in ${it.places} chat${it.places === 1 ? '' : 's'}</span>
+      </div></a>`;
   }).join('');
   data.items.forEach((it) => { seen[it.id] = it.times_checked; });
   first = false;
@@ -136,7 +189,7 @@ async function poll() {
     if (!r.ok) throw new Error(r.status);
     render(await r.json());
     $('live').classList.remove('off');
-    $('updated').textContent = 'Live · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    $('updated').textContent = 'LIVE · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   } catch (e) {
     $('live').classList.add('off');
     $('updated').textContent = 'reconnecting…';

@@ -45,12 +45,32 @@ def timeline_bins(segments: list, duration: float, step: float = BIN_SECONDS) ->
     return bins
 
 
+MAX_STAGES = 40
+
+
+def ticket_stages(bins: list[int], max_stages: int = MAX_STAGES, step: float = BIN_SECONDS) -> list[int]:
+    """Group the fine bins into ticket 'stages' of about one second (at most max_stages)."""
+    if not bins:
+        return []
+    seconds = len(bins) * step
+    n = max(1, min(max_stages, round(seconds)))
+    per = len(bins) / n
+    return [max(bins[int(i * per):max(int((i + 1) * per), int(i * per) + 1)]) for i in range(n)]
+
+
 def card_data(result: dict, lang: str) -> dict:
     """Everything card.html needs, already translated. Pure function, easy to test."""
     band = result["band"]
     unit = _t("seconds", lang)
     regions = ", ".join(f"{a:g}–{b:g} {unit}" for a, b in result.get("core_regions", []))
     duration = result.get("duration") or 0
+    first = (result.get("core_regions") or [None])[0]
+    if band == "partly_fake" and first:
+        stub_big, stub_small = f"{first[0]:g}–{first[1]:g} {unit}", _t("legend_ai", lang)
+    elif duration:
+        stub_big, stub_small = f"{_fmt_s(duration)} {unit}", _t("card_checked_len", lang)
+    else:
+        stub_big = stub_small = ""
     return {
         "lang": lang,
         "band": band,
@@ -65,7 +85,10 @@ def card_data(result: dict, lang: str) -> dict:
         "disclaimer": _t("disclaimer", lang),
         "checked_by": _t("checked_by", lang),
         "test": _t("card_test", lang) if config.MOCK_ALETHEIA else "",
-        "bins": timeline_bins(result.get("segments", []), duration),
+        "bins": ticket_stages(timeline_bins(result.get("segments", []), duration)),
+        "serial": result.get("id", ""),
+        "stub_big": stub_big,
+        "stub_small": stub_small,
         "axis_mid": f"{_fmt_s(duration / 2)} {unit}" if duration else "",
         "axis_end": f"{_fmt_s(duration)} {unit}" if duration else "",
     }

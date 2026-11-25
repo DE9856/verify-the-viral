@@ -3,84 +3,180 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101418">
+<meta name="theme-color" content="#18203a">
 <title>Check Before Share — result</title>
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"><!-- send cookies: ngrok free answers cookie-less requests with its warning page -->
 <link rel="icon" href="/static/icons/icon-192.png">
+<link rel="stylesheet" href="/static/theme.css">
 <style>
-  :root { --bg:#f5f6f8; --card:#fff; --text:#14181d; --muted:#5c6773; --line:#e3e6ea;
-          --red:#e5484d; --amber:#f5a524; --green:#2f9e66; --wave:#9aa6b2; --wave2:#5c6773; }
+  :root { --bg: var(--paper); --fg: var(--ink); --fg-soft: var(--ink-soft); --line: var(--rule); --raised: #f8f9f6; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#0d1014; --card:#161b21; --text:#e8ebee; --muted:#9aa6b2; --line:#252c34; --wave:#55616d; --wave2:#9aa6b2; }
+    :root { --bg: #11172b; --fg: #eef0eb; --fg-soft: #b9c0d0; --line: #2c3552; --raised: #182040; }
   }
-  * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--text);
-         font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Kannada","Noto Sans Devanagari","Nirmala UI",sans-serif }
-  main { max-width:720px; margin:0 auto; padding:16px }
-  .top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px }
-  .brand { font-weight:700; font-size:15px; color:var(--muted); text-decoration:none }
-  .langs button { border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px;
-                  padding:4px 10px; font:inherit; font-size:14px; cursor:pointer }
-  .langs button[aria-pressed=true] { border-color:var(--text); font-weight:600 }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px }
-  .verdict { border-left:6px solid var(--band) }
-  .badge { display:inline-block; font-weight:700; font-size:13px; letter-spacing:.04em; text-transform:uppercase;
-           color:var(--band); margin-bottom:6px }
-  .message { font-size:19px; margin:0 }
-  .meta { color:var(--muted); font-size:14px; margin-top:8px }
-  #wave { margin:4px 0 6px; min-height:96px }
-  .strip { display:flex; height:14px; border-radius:4px; overflow:hidden; background:var(--line) }
-  .axis { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:4px }
-  .controls { display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap }
-  .play { border:0; background:var(--text); color:var(--card); border-radius:999px; padding:8px 16px; font:inherit; font-weight:600; cursor:pointer }
-  .legend { display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:13px }
-  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px }
-  dl { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; margin:0; font-size:14px }
-  dt { color:var(--muted) } dd { margin:0 }
-  .fb { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
-  .fb button { border:1px solid var(--line); background:var(--card); border-radius:10px; font-size:20px; padding:4px 14px; cursor:pointer }
-  .disclaimer { color:var(--muted); font-size:13px; text-align:center; margin:16px 0 4px }
-  .hidden { display:none }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font: 500 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--stock-unclear); color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--stock-partly_fake); outline-offset: 3px; border-radius: 4px; }
+  a { color: inherit; text-underline-offset: 3px; }
+  main { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  /* top bar: wordmark + language stages */
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px;
+          letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+  .mark svg { width: 26px; height: 26px; }
+  .langs { display: inline-flex; border: 2px solid var(--fg); border-radius: 6px; overflow: hidden; }
+  .langs button { border: 0; background: transparent; color: var(--fg); font: 700 15px/1 var(--font);
+                  padding: 9px 12px; cursor: pointer; min-height: 40px; }
+  .langs button + button { border-left: 2px solid var(--fg); }
+  .langs button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+
+  /* the verdict ticket */
+  .ticket { position: relative; margin-top: 18px; background: var(--stock); color: var(--ink); border-radius: 10px;
+            display: grid; grid-template-columns: 1fr; overflow: hidden;
+            box-shadow: 0 1px 0 rgba(24,32,58,.25), 0 14px 30px -18px rgba(24,32,58,.55); }
+  .ticket::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08;
+    background: repeating-linear-gradient(-18deg, var(--ink) 0 1px, transparent 1px 11px); }
+  .t-main { position: relative; padding: 22px 22px 20px; }
+  .serial { margin-left: auto; align-self: flex-end; font: 700 13px/1 var(--mono); letter-spacing: .03em; }
+  h1 { margin: 0; font-size: clamp(32px, 8.6vw, 52px); line-height: 1.08; font-weight: 800;
+       letter-spacing: -.02em; text-wrap: balance; }
+  :lang(kn) h1, :lang(hi) h1 { line-height: 1.22; letter-spacing: 0; }
+  .message { margin: 12px 0 0; font-size: clamp(18px, 4.6vw, 21px); line-height: 1.45; max-width: 60ch; }
+  .note { margin: 10px 0 0; font-size: 15px; font-weight: 700; line-height: 1.4; }
+  .meta { margin: 10px 0 0; font-size: 15px; font-weight: 700; }
+  .meta:empty, .note:empty { display: none; }
+  .t-stub { position: relative; padding: 18px 22px 20px; display: flex; align-items: center; gap: 16px; }
+  .t-stub::before { content: ""; position: absolute; left: 14px; right: 14px; top: 0; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 13px); }
+  .notch { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: var(--bg); top: -13px; }
+  .notch.l { left: -13px; } .notch.r { right: -13px; }
+  .glyph { flex: none; width: 64px; height: 64px; border: 3px solid var(--ink); border-radius: 50%;
+           display: grid; place-items: center; }
+  .glyph svg { width: 36px; height: 36px; stroke: var(--ink); stroke-width: 9; fill: none;
+               stroke-linecap: round; stroke-linejoin: round; }
+  .big { font-family: var(--mono); font-weight: 700; font-size: 26px; line-height: 1.1; letter-spacing: -.02em; }
+  .big small { display: block; font-family: var(--font); font-size: 14px; font-weight: 700; letter-spacing: 0; margin-top: 2px; }
+  @media (min-width: 620px) {
+    .ticket { grid-template-columns: 1fr 200px; }
+    .t-main { padding: 28px 30px 26px 32px; }
+    .t-stub { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+    .t-stub::before { left: 0; right: auto; top: 14px; bottom: 14px; width: 2px; height: auto;
+      background: repeating-linear-gradient(var(--ink) 0 6px, transparent 6px 13px); }
+    .notch { left: -13px; } .notch.l { top: -13px; } .notch.r { top: auto; bottom: -13px; }
+    .glyph { width: 84px; height: 84px; } .glyph svg { width: 46px; height: 46px; }
+    .big { margin-top: 8px; }
+    .serial { margin: auto 0 0; align-self: flex-start; }
+  }
+
+  /* sections on paper */
+  section.part { margin-top: 34px; }
+  h2 { margin: 0 0 4px; font-size: 22px; line-height: 1.25; font-weight: 800; letter-spacing: -.01em; }
+  .hint { margin: 0 0 14px; color: var(--fg-soft); font-size: 15px; }
+
+  .stages { display: flex; gap: 3px; }
+  .stages button { flex: 1 1 0; min-width: 0; height: 44px; padding: 0; border: 2px solid var(--fg); border-radius: 3px;
+                   background: transparent; cursor: pointer; position: relative; color: var(--fg);
+                   transition: transform .25s var(--ease-out), background-color .2s; }
+  .stages button.one { background: repeating-linear-gradient(135deg, var(--fg) 0 2px, transparent 2px 7px); }
+  .stages button.punched { background: var(--fg); }
+  .stages button.punched::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px;
+    margin: -7px 0 0 -7px; border-radius: 50%; background: var(--stock); }
+  .stages button:hover { transform: translateY(-2px); }
+  .stages button.now { box-shadow: 0 0 0 3px var(--stock); }
+  .axis { display: flex; justify-content: space-between; margin-top: 6px; font: 700 13px/1 var(--mono); color: var(--fg-soft); }
+
+  #wave { margin-top: 18px; min-height: 84px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; padding: 0 18px; border-radius: 8px;
+         border: 2px solid var(--fg); background: transparent; color: var(--fg); font: 700 16px/1 var(--font);
+         cursor: pointer; text-decoration: none; transition: transform .2s var(--ease-out); }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .btn.solid { background: var(--fg); color: var(--bg); }
+  .btn.stock { background: var(--stock); color: var(--ink); border-color: var(--ink); }
+  .btn[disabled] { opacity: .5; cursor: default; transform: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; font-size: 14px; color: var(--fg-soft); }
+  .legend i { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--fg); border-radius: 2px;
+              vertical-align: -3px; margin-right: 7px; }
+  .legend i.p { background: var(--fg); } .legend i.o { background: repeating-linear-gradient(135deg, var(--fg) 0 2px, transparent 2px 6px); }
+
+  dl { margin: 12px 0 0; border-top: 2px solid var(--fg); }
+  dl div { display: grid; grid-template-columns: minmax(130px, 38%) 1fr; gap: 14px; padding: 12px 0;
+           border-bottom: 1px dashed var(--line); }
+  dt { color: var(--fg-soft); font-size: 15px; }
+  dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .fb { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .fb p { margin: 0; font-weight: 800; font-size: 19px; flex-basis: 100%; }
+  .fb .thanks { font-weight: 700; font-size: 16px; color: var(--fg-soft); }
+  .foot { margin-top: 40px; padding-top: 14px; border-top: 2px solid var(--fg); display: flex; flex-wrap: wrap;
+          justify-content: space-between; gap: 8px 20px; font-size: 14px; color: var(--fg-soft); }
+  .hidden { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 <main>
-  <div class="top">
-    <a class="brand" href="/">✓ Check Before Share</a>
-    <div class="langs" id="langs"></div>
+  <div class="bar">
+    <a class="mark" href="/">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 13.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Check Before Share
+    </a>
+    <div class="langs" id="langs" role="group" aria-label="Language"></div>
   </div>
 
-  <section class="card verdict" id="verdict">
-    <div class="badge" id="badge"></div>
-    <p class="message" id="message"></p>
-    <div class="meta" id="meta"></div>
-  </section>
+  <article class="ticket" id="ticket">
+    <div class="t-main">
+      <h1 id="label"></h1>
+      <p class="message" id="message"></p>
+      <p class="note" id="note"></p>
+      <p class="meta" id="meta"></p>
+    </div>
+    <div class="t-stub">
+      <span class="notch l"></span><span class="notch r"></span>
+      <div class="glyph" id="glyph" aria-hidden="true"></div>
+      <div class="big" id="big"></div>
+      <span class="serial" id="serial"></span>
+    </div>
+  </article>
 
-  <section class="card" id="timeline">
+  <section class="part" id="timeline">
+    <h2 id="tl-title"></h2>
+    <p class="hint" id="tl-hint"></p>
+    <div class="stages" id="stages"></div>
+    <div class="axis"><span>0:00</span><span id="axis-mid"></span><span id="axis-end"></span></div>
     <div id="wave"></div>
-    <div class="strip" id="strip" title="Aletheia score for each part of the clip"></div>
-    <div class="axis"><span>0:00</span><span id="axis-end"></span></div>
     <div class="controls">
-      <button class="play" id="play">▶ Play</button>
-      <div class="legend">
-        <span><i style="background:var(--red)"></i>sounds AI-generated</span>
-        <span><i style="background:var(--amber)"></i>one window flagged</span>
-        <span><i style="background:var(--green)"></i>no signs</span>
-      </div>
+      <button class="btn stock" id="play-part" type="button"><svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z"/></svg><span></span></button>
+      <button class="btn" id="play" type="button"><svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z"/></svg><span></span></button>
+    </div>
+    <div class="legend">
+      <span><i class="p"></i><span id="leg-ai"></span></span>
+      <span><i class="o"></i><span id="leg-one"></span></span>
+      <span><i></i><span id="leg-human"></span></span>
     </div>
   </section>
 
-  <section class="card" id="details">
+  <section class="part">
+    <h2 id="facts-title"></h2>
     <dl id="facts"></dl>
   </section>
 
-  <section class="card fb" id="feedback">
-    <span id="fb-q"></span>
-    <button data-correct="true" aria-label="Yes">👍</button>
-    <button data-correct="false" aria-label="No">👎</button>
+  <section class="part fb" id="feedback">
+    <p id="fb-q"></p>
+    <button class="btn solid" type="button" data-correct="true"><span class="yes"></span></button>
+    <button class="btn" type="button" data-correct="false"><span class="no"></span></button>
+    <span class="thanks hidden" id="fb-thanks"></span>
   </section>
 
-  <p class="disclaimer" id="disclaimer"></p>
+  <div class="foot">
+    <span id="disclaimer"></span>
+    <span id="by"></span>
+  </div>
+  <p><a class="btn" href="/" id="another"></a></p>
 </main>
 
 <script id="data" type="application/json">__DATA__</script>
@@ -91,35 +187,85 @@ import Regions from '/static/vendor/wavesurfer-7.12.12/plugins/regions.esm.js'
 
 const R = JSON.parse(document.getElementById('data').textContent)
 const T = JSON.parse(document.getElementById('i18n').textContent)
-const LANGS = { kn: 'ಕನ್ನಡ', hi: 'हिन्दी', en: 'English' }
-const BAND = { likely_fake: ['Likely AI-generated', 'var(--red)'], partly_fake: ['Partly AI-generated', 'var(--red)'],
-               unclear: ['Unclear', 'var(--amber)'], no_signs: ['No signs found', 'var(--green)'],
-               error: ['Could not check', 'var(--muted)'] }
-let lang = document.documentElement.lang
+const LANGS = { en: 'EN', hi: 'हिन्दी', kn: 'ಕನ್ನಡ' }
+const GLYPHS = {
+  likely_fake: '<path d="M16 16 44 44M44 16 16 44"/>',
+  partly_fake: '<path d="M30 12v22"/><path d="M30 46v1"/>',
+  unclear: '<path d="M21 22a9 9 0 1 1 13 8c-3 2-4 4-4 7"/><path d="M30 47v1"/>',
+  no_signs: '<path d="M15 31l10 10 20-22"/>',
+  error: '<path d="M18 30h24"/>',
+}
+const PLAY = '<path d="M5 3l12 7-12 7z"/>', PAUSE = '<path d="M5 3h3.5v14H5zM11.5 3H15v14h-3.5z"/>'
+let lang = ['en', 'hi', 'kn'].includes(document.documentElement.lang) ? document.documentElement.lang : 'en'
+let ws = null, regionsPlugin = null
 const $ = id => document.getElementById(id)
 const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 const t = (key, vars = {}) => {
   const e = T[key] || {}
   return (e[lang] || e.en || '').replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
 }
+const secs = ([a, b]) => `${+a.toFixed(1)}–${+b.toFixed(1)} ${t('seconds')}`
+const band = R.band in GLYPHS ? R.band : 'error'
+
+// ---- stages: about one box per second (max 40), counting fake 4-second windows ----
+function stages() {
+  const segs = R.segments || [], d = R.duration || 0
+  if (!segs.length || !d) return []
+  const n = Math.max(1, Math.min(40, Math.round(d)))
+  return Array.from({ length: n }, (_, i) => {
+    const a = i * d / n, b = (i + 1) * d / n
+    let lvl = 0
+    for (let k = 0; k < 4; k++) {
+      const m = a + (k + .5) * (b - a) / 4
+      lvl = Math.max(lvl, segs.filter(s => s.verdict === 'fake' && s.start <= m && m < s.end).length)
+    }
+    return { a, b, lvl: Math.min(lvl, 2) }
+  })
+}
+const ST = stages()
 
 function renderText() {
-  const [label, color] = BAND[R.band] || BAND.error
   document.documentElement.lang = lang
-  $('verdict').style.setProperty('--band', color)
-  $('badge').textContent = label
-  const regions = R.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')
-  $('message').textContent = R.band === 'error' ? (t('error_' + R.error.code) || t('error_failed')) : t(R.band, { regions })
+  $('ticket').style.setProperty('--stock', `var(--stock-${band})`)
+  document.documentElement.style.setProperty('--stock', `var(--stock-${band})`)
+  $('serial').textContent = `No. ${R.id}`
+  $('label').textContent = t('label_' + band)
+  const regions = (R.core_regions || []).map(secs).join(', ')
+  $('message').textContent = (band === 'error' ? (t('error_' + R.error?.code) || t('error_failed')) : t(R.band, { regions }))
+    .replace(/^\p{Extended_Pictographic}️?\s*/u, '')  // the ticket colour already says it
+  $('note').textContent = band === 'partly_fake' && R.overall?.verdict === 'real' ? t('card_overall_note') : ''
   const meta = []
-  if (R.cache.times_checked > 1) meta.push(t('cache_hit', { n: R.cache.times_checked }))
+  if (R.cache?.times_checked > 1) meta.push(t('cache_hit', { n: R.cache.times_checked }))
   if (R.trimmed) meta.push(t('trimmed'))
   $('meta').textContent = meta.join(' · ')
+  $('glyph').innerHTML = `<svg viewBox="0 0 60 60">${GLYPHS[band]}</svg>`
+  const first = (R.core_regions || [])[0]
+  $('big').innerHTML = ''
+  if (band === 'partly_fake' && first) { $('big').textContent = secs(first); small(t('legend_ai')) }
+  else if (R.duration) { $('big').textContent = `${Math.round(R.duration)} ${t('seconds')}`; small(t('card_checked_len')) }
+
+  $('tl-title').textContent = t('card_timeline')
+  $('tl-hint').textContent = t('page_tap_hint')
+  $('leg-ai').textContent = t('legend_ai'); $('leg-one').textContent = t('page_one_window'); $('leg-human').textContent = t('legend_human')
+  $('play-part').querySelector('span').textContent = t('page_play_part')
+  setPlayLabel(ws?.isPlaying())
+  $('facts-title').textContent = t('page_facts')
   $('fb-q').textContent = t('feedback_question')
-  $('disclaimer').textContent = t('disclaimer') + ' · DetectifAI ' + (R.model || 'Aletheia')
+  document.querySelector('#feedback .yes').textContent = t('page_yes')
+  document.querySelector('#feedback .no').textContent = t('page_no')
+  $('fb-thanks').textContent = t('feedback_thanks')
+  $('disclaimer').textContent = t('disclaimer')
+  $('by').textContent = `${t('checked_by')} · ${R.model || 'Aletheia'}`
+  $('another').textContent = t('page_check_another')
+  renderFacts(); renderLangs()
+}
+function small(text) { const s = document.createElement('small'); s.textContent = text; $('big').append(s) }
+
+function renderLangs() {
   $('langs').innerHTML = ''
   for (const [code, name] of Object.entries(LANGS)) {
     const b = document.createElement('button')
-    b.textContent = name; b.setAttribute('aria-pressed', code === lang)
+    b.type = 'button'; b.textContent = name; b.lang = code; b.setAttribute('aria-pressed', code === lang)
     b.onclick = () => { lang = code; history.replaceState(null, '', `?lang=${code}`); renderText() }
     $('langs').append(b)
   }
@@ -127,49 +273,59 @@ function renderText() {
 
 function renderFacts() {
   const rows = []
-  if (R.overall.verdict) rows.push(['Overall verdict', `${R.overall.verdict} (score ${R.overall.score?.toFixed(2)})` +
-    (R.band === 'partly_fake' ? ' — the clip as a whole sounds real, but the part below doesn’t' : '')])
-  if (R.core_regions.length) rows.push(['AI-sounding part', R.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')])
-  if (R.duration) rows.push(['Length checked', `${R.duration.toFixed(1)} s` + (R.scored_seconds < 10 ? ' (short: less reliable)' : '')])
-  rows.push(['Times checked', String(R.cache.times_checked)])
-  if (R.error) rows.push(['Problem', R.error.message])
-  $('facts').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd></dd>`).join('')
-  ;[...$('facts').querySelectorAll('dd')].forEach((dd, i) => dd.textContent = rows[i][1])
-  if (R.band === 'error') $('feedback').classList.add('hidden')
-}
-
-function renderStrip() {
-  const segs = R.segments || []
-  if (!segs.length || !R.duration) { $('timeline').classList.add('hidden'); return }
-  $('axis-end').textContent = mmss(R.duration)
-  const pts = [...new Set(segs.flatMap(s => [s.start, s.end]).concat([0, R.duration]))].sort((a, b) => a - b)
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i], b = pts[i + 1], mid = (a + b) / 2
-    const cover = segs.filter(s => s.start <= mid && mid < s.end)
-    const fakes = cover.filter(s => s.verdict === 'fake').length
-    const score = Math.max(0, ...cover.map(s => s.score))
-    const d = document.createElement('div')
-    d.style.flex = String(b - a)
-    d.style.background = fakes >= 2 ? 'var(--red)' : fakes === 1 ? 'var(--amber)' : 'var(--green)'
-    d.style.opacity = fakes ? 1 : 0.35 + 0.4 * (1 - score)
-    d.title = `${mmss(a)}–${mmss(b)} · score ${score.toFixed(2)}`
-    $('strip').append(d)
+  if (R.overall?.verdict) rows.push([t('page_overall'),
+    `${R.overall.verdict === 'fake' ? t('page_fake') : t('page_real')} · ${t('page_score')} ${R.overall.score?.toFixed(2)}`])
+  if (R.core_regions?.length) rows.push([t('page_part'), R.core_regions.map(secs).join(', ')])
+  if (R.duration) rows.push([t('page_length'), `${R.duration.toFixed(1)} ${t('seconds')}` + (R.scored_seconds < 10 ? ` · ${t('page_short')}` : '')])
+  if (R.cache) rows.push([t('page_times'), String(R.cache.times_checked)])
+  if (R.error) rows.push([t('page_problem'), R.error.message])
+  $('facts').innerHTML = ''
+  for (const [k, v] of rows) {
+    const div = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd')
+    dt.textContent = k; dd.textContent = v; div.append(dt, dd); $('facts').append(div)
   }
 }
 
+function renderStages() {
+  if (!ST.length) { $('timeline').classList.add('hidden'); return }
+  $('axis-mid').textContent = mmss(R.duration / 2); $('axis-end').textContent = mmss(R.duration)
+  ST.forEach((s, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    if (s.lvl >= 2) b.className = 'punched'; else if (s.lvl === 1) b.className = 'one'
+    b.setAttribute('aria-label', `${mmss(s.a)}–${mmss(s.b)}`)
+    b.onclick = () => playRange(s.a, s.b)
+    $('stages').append(b)
+  })
+  if (!(R.core_regions || []).length) $('play-part').classList.add('hidden')
+}
+
+function setPlayLabel(playing) {
+  $('play').querySelector('svg').innerHTML = playing ? PAUSE : PLAY
+  $('play').querySelector('span').textContent = playing ? t('page_pause') : t('page_play')
+}
+
+function playRange(a, b) {
+  if (!ws) return
+  ws.setTime(a); ws.play()
+  const stop = () => { if (ws.getCurrentTime() >= b) { ws.pause(); ws.un('timeupdate', stop) } }
+  ws.on('timeupdate', stop)
+}
+
 function renderWave() {
-  if (!R.has_audio) { $('wave').classList.add('hidden'); $('play').classList.add('hidden'); return }
-  const regions = Regions.create()
+  if (!R.has_audio) { $('wave').classList.add('hidden'); $('play').classList.add('hidden'); $('play-part').classList.add('hidden'); return }
+  regionsPlugin = Regions.create()
   const css = getComputedStyle(document.documentElement)
-  const ws = WaveSurfer.create({ container: '#wave', url: `/media/${R.id}`, height: 96, normalize: true,
-    waveColor: css.getPropertyValue('--wave').trim(), progressColor: css.getPropertyValue('--wave2').trim(),
-    cursorColor: css.getPropertyValue('--text').trim(), plugins: [regions] })
-  ws.on('decode', () => R.core_regions.forEach(([start, end]) =>
-    regions.addRegion({ start, end, color: 'rgba(229,72,77,.32)', drag: false, resize: false })))
-  regions.on('region-clicked', (region, e) => { e.stopPropagation(); region.play() })
-  ws.on('play', () => $('play').textContent = '❚❚ Pause')
-  ws.on('pause', () => $('play').textContent = '▶ Play')
+  ws = WaveSurfer.create({ container: '#wave', url: `/media/${R.id}`, height: 84, normalize: true, barWidth: 3, barGap: 2, barRadius: 2,
+    waveColor: css.getPropertyValue('--fg-soft').trim(), progressColor: css.getPropertyValue('--fg').trim(),
+    cursorColor: css.getPropertyValue('--fg').trim(), cursorWidth: 2, plugins: [regionsPlugin] })
+  ws.on('decode', () => (R.core_regions || []).forEach(([start, end]) =>
+    regionsPlugin.addRegion({ start, end, color: 'rgba(255,174,77,.42)', drag: false, resize: false })))
+  regionsPlugin.on('region-clicked', (region, e) => { e.stopPropagation(); region.play() })
+  ws.on('play', () => setPlayLabel(true)); ws.on('pause', () => setPlayLabel(false)); ws.on('finish', () => setPlayLabel(false))
+  ws.on('timeupdate', now => [...$('stages').children].forEach((b, i) => b.classList.toggle('now', ws.isPlaying() && ST[i].a <= now && now < ST[i].b)))
   $('play').onclick = () => ws.playPause()
+  $('play-part').onclick = () => { const [a, b] = R.core_regions[0]; playRange(a, b) }
 }
 
 document.querySelectorAll('#feedback button').forEach(b => b.onclick = async () => {
@@ -178,10 +334,11 @@ document.querySelectorAll('#feedback button').forEach(b => b.onclick = async () 
   try {
     await fetch(`/api/feedback/${R.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({ correct }) })
-  } finally { $('fb-q').textContent = t('feedback_thanks') }
+  } finally { $('fb-thanks').classList.remove('hidden') }
 })
+if (band === 'error') $('feedback').classList.add('hidden')
 
-renderText(); renderFacts(); renderStrip(); renderWave()
+renderStages(); renderText(); renderWave()
 </script>
 </body>
 </html>

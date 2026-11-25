@@ -142,7 +142,7 @@ def keyboard(result: dict, lang: str, with_feedback: bool = True) -> InlineKeybo
         rows.append([InlineKeyboardButton("👍", callback_data=f"fb:1:{code}:{op}"),
                      InlineKeyboardButton("👎", callback_data=f"fb:0:{code}:{op}")])
     if public_link(result.get("result_url", "")):
-        rows.append([InlineKeyboardButton(t("view_timeline", lang), url=result["result_url"])])
+        rows.append([InlineKeyboardButton(t("view_timeline", lang), url=f"{result['result_url']}?lang={lang}")])
     return InlineKeyboardMarkup(rows) if rows else None
 
 
