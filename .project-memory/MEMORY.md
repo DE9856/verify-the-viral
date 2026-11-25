@@ -7,12 +7,12 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 
 ## Current work
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
-- Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. Lane A = demo laptop (engine+web, runs bot+server at Sync 2); Lane B = teammate PC (bot+card+story).
+- Setup (since 2026-11-25): no more Lane A/B. All changes on this Windows laptop; the Fedora laptop is the server (bot + API). Commit + push to branch `testing`; merge into `master` only when it works. Plan: `PLAN.md`; status in `.project-memory/PLAN.md`.
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed; U2 'hear the fake part' + U3 AI-clip radar (/radar) live.
-- In progress: UI redesign (ticket world) committed + pushed to master: card, result, landing, AI-clip radar. Demo laptop runs ngrok + uvicorn + bot (live, English, credits ~3040).
-- Next: 1) friend pulls master on demo laptop + restarts bot/server 2) B6 backup video + B7 demo script last (user's call) 3) F1 rehearse x3 incl. hotspot; Sync 3 freeze; hi/kn review incl. new page_* strings.
-- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
-- Updated: 2026-11-25, Claude (Lane A, Sync 2)
+- In progress: demo video (PLAN.md step V): friend's kit + title cards done on demo laptop; Lane B phone clips 3-7 next; files in ~/Downloads/demo-clips (WA0011 spliced hero, WA0012 real, WA0013 clone).
+- Next: 1) user confirms own voice OK in video + sends hero-* files to friend 2) phone setup + 2 extra Telegram groups 3) 'start recording session' (fresh DB) -> clips 3-7 -> 'done'; rough cut 4) B6 Reddit + B7 demo script last.
+- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best; asked organizers for ~10k extra credits (efficiency experiments), awaiting reply.
+- Updated: 2026-11-25, Claude (Windows dev laptop)
 
 ## Rules & gotchas
 - Voice notes go to Aletheia unchanged (passthrough); only odd formats are transcoded. `fpcalc.exe` in `bin/` (gitignored); without it only exact cache tiers work.
@@ -31,6 +31,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Only clone voices with the owner's consent (own/teammate); no cloning of public figures.
 
 ## Topics
+- `submission/engine-flow.html`: engine workflow diagram (published artifact https://claude.ai/artifact/6rn99xKVfsqftwRxKNbMox); update it if check() flow changes.
 - `PLAN.md` (root): the build plan with test evidence; `.project-memory/PLAN.md` tracks step status. Read before starting or finishing a step.
 - `research/README.md`: what each spike tests and how to rerun.
 - `history/`: what happened and why, one file per day; `history/SUMMARY.md` is one line per month. Search it, don't read it all (see RULES.md).

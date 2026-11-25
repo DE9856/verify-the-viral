@@ -1,18 +1,10 @@
 # Check Before Share — hackathon repo (CMRIT × DetectifAI, Track 4)
 
-- Plan: `PLAN.md` (§5 = the two-lane split and every step's "done when"). Interface: `CONTRACT.md`.
-- **Ask the user "Lane A or Lane B?" at the start of a session if they haven't said.**
-- Lane A (engine + web) owns: `app/core/{normalize,aletheia,verdict,fingerprint,store,check,excerpt}.py`,
-  `app/api.py`, `app/web/{result,index,radar}.html`, `app/web/pwa/`, `app/web/static/`, `scripts/smoke_real.py`,
-  `tests/test_{verdict,cache,normalize,api,excerpt,radar}.py`.
-- Lane B (bot + card + story) owns: `app/bot.py`, `app/core/card.py`, `app/web/card.html`,
-  `app/web/theme.css`, `app/web/fonts/`, `app/i18n.json`, `README.md`, `submission/`,
-  `tests/test_bot*.py`, `tests/test_card*.py`.
-- Shared (change only together): `CONTRACT.md`, `CLAUDE.md`, `requirements*.txt`, `env.example`,
-  `app/config.py`, `app/fixtures/`, `tests/test_contract.py`, `tests/conftest.py`.
-- Only edit files your lane owns. Need something from the other lane? Write it in
-  `NOTES-FOR-A.md` / `NOTES-FOR-B.md` and tell the user.
-- Work on branch `lane-a` or `lane-b`; merge to `main` only at the sync points in `PLAN.md` §5.4.
+- Plan: `PLAN.md`. Interface: `CONTRACT.md`.
+- No more lanes (Lane A / Lane B ended 2026-11-25): all code changes happen on this Windows laptop;
+  any file may be edited. The Fedora laptop is now the server (runs the bot + API).
+- Commit and push to branch `testing`; merge `testing` into `master` only once it works
+  (tests pass and it runs on the server).
 - Develop with `MOCK_ALETHEIA` set (no credits). Use the real API only for a step's "done when" check.
 - REST API in the product (`app/core/aletheia.py`). The DetectifAI MCP server is for exploring in
   Claude Code only.

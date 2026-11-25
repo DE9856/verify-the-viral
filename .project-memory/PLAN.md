@@ -15,6 +15,7 @@ This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bo
 - [x] Sync 2: reply + card + live `/r/<id>` timeline over https, 👍 forwarded (demo laptop, real API, 2026-11-25)
 - [ ] Phase 3 — [x] A5 PWA (Android install + share passed 2026-11-25) · [x] U2 "hear the fake part": voice note of the flagged seconds + card line (live-tested) · [x] U3 AI-clip radar /radar (live-tested: 7x in 2 chats) · [ ] A6 transcript (stretch, cut) · [x] A7 hardening | [x] B5 README (Sync 2 screenshot + links still to add) · [ ] B6 Reddit draft + backup video · [ ] B7 demo script
 - [ ] Sync 3 freeze → F1 rehearse ×3 · F2 final video + Reddit post live (required) · F3 tag repo + Google form
+- [ ] V. Demo video (1:55, friend's SHOTLIST.md on demo laptop `data/demo-video/`): title cards ✅ (friend) · hero clip = Deepesh's spliced notice (`~/Downloads/demo-clips/AUD-20261125-WA0011.ogg`, fake 10.05–13.77 s) · fresh DB + radar recording (friend) · phone clips 3 hero, 4 timeline tap, 5 spread to 2nd/3rd chat, 6 WhatsApp share, 7 honest results (Deepesh) · rough cut + narration
 
 ## Constraints and decisions
 - See root `PLAN.md` §2 and "Constraints and decisions". REST API in product, MCP for dev only.
