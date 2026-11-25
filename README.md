@@ -32,7 +32,7 @@ cousin, a class rep) can't run a deepfake detector from a group chat.
 
 1. **Add the bot to a group** (or forward it a clip in a private chat). It checks every voice note,
    audio file, video and round video message, up to Telegram's 20 MB limit for bots.
-2. **It replies with a verdict** in the group's language (`/lang en | hi | kn`, Kannada by default):
+2. **It replies with a verdict** in the group's language (`/lang en | hi | kn`, English by default):
 
    | Band | When | What people see |
    |---|---|---|

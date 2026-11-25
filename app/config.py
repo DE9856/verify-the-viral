@@ -12,7 +12,7 @@ DETECTIF_BASE_URL = os.getenv("DETECTIF_BASE_URL", "https://platform.detectif.ai
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
 MOCK_ALETHEIA = os.getenv("MOCK_ALETHEIA", "").strip()
-DEFAULT_LANG = os.getenv("DEFAULT_LANG", "kn")
+DEFAULT_LANG = os.getenv("DEFAULT_LANG", "en")
 DB_PATH = ROOT / os.getenv("DB_PATH", "data/app.db")
 FPCALC_PATH = os.getenv("FPCALC_PATH", "fpcalc")
 

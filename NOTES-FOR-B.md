@@ -35,3 +35,9 @@ after `/lang en`. The page accepts `?lang=en|hi|kn`, so `result_url + "?lang=" +
 would open it in the chat's language.
 - Update: the Android share target now passes on a real phone too (installed from the ngrok URL,
   WhatsApp-style share → result page). README can drop "pending" for the PWA.
+
+## 2026-11-25 — default language is now English (user's call)
+`config.DEFAULT_LANG` falls back to `en` and `env.example` says `DEFAULT_LANG=en`; set it in your
+`.env` too. Chats that already used `/lang` keep their choice. I changed one phrase in your
+`README.md` to match ("English by default"). `card.py`'s `render_card(..., lang="kn")` default is
+unused (the bot always passes the chat language), so I left it.
