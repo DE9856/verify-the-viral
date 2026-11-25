@@ -58,3 +58,14 @@ regions land ~0–0.8 s early (smoothing).
 `unclear` ("edited copy of a clip we checked before"). Edits 2 and 4 above would now get an AI
 region only if Aletheia flagged at least one window on them; their stored segments can be re-read
 with the new rule to check.
+
+### Re-read of the stored edit results with `apply_edits` (server, 1d589d0, read-only, 0 credits)
+| Check | Before | After | Fake segments on the changed seconds |
+|---|---|---|---|
+| edit 1 (TA0Q5Q) | partly_fake 2–6, 10–14 | same (change already inside 2–6) | 0–4, 2–6, 4–8 |
+| edit 2 (_UYQGw), 2 s TTS insert | partly_fake 10–14 | **partly_fake 10–14 + 16.6–19.2** | 16–20 (one window: not enough alone) |
+| edit 3 (txlvag), cut | partly_fake 10–14 | same | — |
+| edit 4 (vw16XA), 1 s TTS swap | partly_fake 10–14 | same; only the edited-copy line | none |
+
+The 2 s AI insert that Aletheia's own two-window rule missed is now marked, from one fake window
+plus the diff. The 1 s swap had no fake window at all, so only the "edited copy" line covers it.
