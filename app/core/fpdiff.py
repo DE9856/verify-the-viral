@@ -99,6 +99,11 @@ def _anchors(M: np.ndarray) -> list[int]:
     return picked
 
 
+def _sec(frames) -> float:
+    """Frame index → seconds, as a plain float (numpy floats print as np.float64(…) in logs)."""
+    return round(float(frames) * FRAME_S, 2)
+
+
 def _runs(mask: np.ndarray) -> list[tuple[int, int]]:
     """[start, end) index runs where mask is True."""
     edges = np.flatnonzero(np.diff(np.concatenate([[0], mask.astype(np.int8), [0]])))
@@ -136,7 +141,7 @@ def diff(new_fp, stored_fp, mode: Mode = DEFAULT) -> Diff:
     matched = best >= typical - mode.drop
     shared = float(matched.mean())
     if shared < MIN_SHARED:
-        return Diff("different", shared, round(typical, 3))
+        return Diff("different", round(float(shared), 3), round(float(typical), 3))
 
     changed = []
     for a, b in _runs(~matched):
@@ -144,7 +149,7 @@ def diff(new_fp, stored_fp, mode: Mode = DEFAULT) -> Diff:
             continue
         if (a == 0 or b == len(q)) and b - a <= EDGE:        # padding / codec edge at either end
             continue
-        changed.append([round(a * FRAME_S, 2), round(b * FRAME_S, 2)])
+        changed.append([_sec(a), _sec(b)])
 
     covered = np.zeros(len(s), dtype=bool)
     j = i[matched] + best_k[matched]
@@ -155,9 +160,9 @@ def diff(new_fp, stored_fp, mode: Mode = DEFAULT) -> Diff:
         first, last = np.flatnonzero(covered)[[0, -1]]          # outside this = a trim: allowed
         for a, b in _runs(~covered[first:last + 1]):
             if b - a >= mode.min_run + REMOVED_EXTRA:
-                removed.append([round((first + a) * FRAME_S, 2), round((first + b) * FRAME_S, 2)])
+                removed.append([_sec(first + a), _sec(first + b)])
     if not changed and not removed and typical < TYPICAL_MIN:
         # nothing stands out because nothing matches well: when half a clip is replaced, the median
         # itself sinks into the fake's range. Not the same clip, whatever the runs say.
-        return Diff("edited", round(shared, 3), round(typical, 3), [[0.0, round(len(q) * FRAME_S, 2)]], [])
-    return Diff("edited" if changed or removed else "same", round(shared, 3), round(typical, 3), changed, removed)
+        return Diff("edited", round(float(shared), 3), round(float(typical), 3), [[0.0, _sec(len(q))]], [])
+    return Diff("edited" if changed or removed else "same", round(float(shared), 3), round(float(typical), 3), changed, removed)

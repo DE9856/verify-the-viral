@@ -132,6 +132,9 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 - **Edited copies of a clip we already checked** are caught when the edit is about 2 s or longer
   (128 true copies and 69 such edits tested, 0 wrong). A swap of ~1 s or less, like one word, can
   still pass as the same clip and get its stored result. See `research/fp_diff.md`.
+- **Very short AI pieces (1–2 s) are often missed by the detector itself** (our rule needs two
+  overlapping 4 s windows). In a server test, Aletheia missed a 2 s and a 1 s AI insert in a known
+  clip; only our "edited copy, 17–19 s are different" line pointed at them.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).

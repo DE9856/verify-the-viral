@@ -35,3 +35,20 @@ same words, the hardest case), research test clips, real phone-WhatsApp copies, 
 - Tuned on 3 speakers (all male), 3 languages, our codecs. A larger synthetic set from public
   speech corpora (option 7) is the way to set these numbers with a real margin.
 - Fails safe where it can: a wrongly flagged "edited" only costs one Aletheia check.
+
+## Server test (Fedora, 8d0ebff, clean test DB, 2026-11-26 00:49) — real API
+Original spliced_whatsapp.mp3 stored as LmBubg (partly_fake 10–14 s). Files in ~/Downloads/edit-test,
+donor = fake_en.mp3 (Edge TTS, i.e. AI speech):
+
+| File | Edit | Diff (server) | Aletheia band | Credits |
+|---|---|---|---|---|
+| 5_control_reencode_only | 16 kbps Opus, no edit | same → cache hit | (stored) partly_fake 10–14 | 0 |
+| 1_replace_3s_at_2s | 2–5 s → TTS | changed 1.2–4.6 s | partly_fake **2–6 s** + 10–14 s | 50 |
+| 2_insert_2s_at_18s | +2 s TTS at 18 s | changed 16.6–19.2 s | partly_fake 10–14 only — **missed the insert** | 54 |
+| 3_cut_3s_at_16s | 16–19 s cut | cut 15.4–18.2 s | partly_fake 10–14 | 44 |
+| 4_replace_1s_at_20s | 20–21 s → TTS | changed 19.0–20.6 s | partly_fake 10–14 only — **missed the swap** | 50 |
+
+Before the diff all four edits would have been cache hits (whole-clip 0.85–0.97) with LmBubg's result.
+**Aletheia did not flag the 1–2 s AI pieces** (our partly-fake rule needs 2 overlapping 4 s windows);
+for those, the diff's "edited copy, 17–19 s / 19–21 s are different" was the only warning. Changed
+regions land ~0–0.8 s early (smoothing). Next step idea: make the band reflect a diff-found change.
