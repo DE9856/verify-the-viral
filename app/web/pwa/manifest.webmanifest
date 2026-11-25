@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "Check Before Share",
+  "short_name": "CheckShare",
+  "description": "Check a voice note or video for AI-generated speech before you forward it.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101418",
+  "theme_color": "#101418",
+  "icons": [
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [{"name": "media", "accept": ["audio/*", "video/*", ".ogg", ".opus", ".m4a", ".mp4", ".mp3", ".aac", ".wav"]}]
+    }
+  }
+}

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101418">
+<title>Check Before Share — result</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/icons/icon-192.png">
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#14181d; --muted:#5c6773; --line:#e3e6ea;
+          --red:#e5484d; --amber:#f5a524; --green:#2f9e66; --wave:#9aa6b2; --wave2:#5c6773; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1014; --card:#161b21; --text:#e8ebee; --muted:#9aa6b2; --line:#252c34; --wave:#55616d; --wave2:#9aa6b2; }
+  }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:16px/1.5 system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Kannada","Noto Sans Devanagari","Nirmala UI",sans-serif }
+  main { max-width:720px; margin:0 auto; padding:16px }
+  .top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px }
+  .brand { font-weight:700; font-size:15px; color:var(--muted); text-decoration:none }
+  .langs button { border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:999px;
+                  padding:4px 10px; font:inherit; font-size:14px; cursor:pointer }
+  .langs button[aria-pressed=true] { border-color:var(--text); font-weight:600 }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px }
+  .verdict { border-left:6px solid var(--band) }
+  .badge { display:inline-block; font-weight:700; font-size:13px; letter-spacing:.04em; text-transform:uppercase;
+           color:var(--band); margin-bottom:6px }
+  .message { font-size:19px; margin:0 }
+  .meta { color:var(--muted); font-size:14px; margin-top:8px }
+  #wave { margin:4px 0 6px; min-height:96px }
+  .strip { display:flex; height:14px; border-radius:4px; overflow:hidden; background:var(--line) }
+  .axis { display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:4px }
+  .controls { display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap }
+  .play { border:0; background:var(--text); color:var(--card); border-radius:999px; padding:8px 16px; font:inherit; font-weight:600; cursor:pointer }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; color:var(--muted); font-size:13px }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px }
+  dl { display:grid; grid-template-columns:auto 1fr; gap:4px 16px; margin:0; font-size:14px }
+  dt { color:var(--muted) } dd { margin:0 }
+  .fb { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+  .fb button { border:1px solid var(--line); background:var(--card); border-radius:10px; font-size:20px; padding:4px 14px; cursor:pointer }
+  .disclaimer { color:var(--muted); font-size:13px; text-align:center; margin:16px 0 4px }
+  .hidden { display:none }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <a class="brand" href="/">✓ Check Before Share</a>
+    <div class="langs" id="langs"></div>
+  </div>
+
+  <section class="card verdict" id="verdict">
+    <div class="badge" id="badge"></div>
+    <p class="message" id="message"></p>
+    <div class="meta" id="meta"></div>
+  </section>
+
+  <section class="card" id="timeline">
+    <div id="wave"></div>
+    <div class="strip" id="strip" title="Aletheia score for each part of the clip"></div>
+    <div class="axis"><span>0:00</span><span id="axis-end"></span></div>
+    <div class="controls">
+      <button class="play" id="play">▶ Play</button>
+      <div class="legend">
+        <span><i style="background:var(--red)"></i>sounds AI-generated</span>
+        <span><i style="background:var(--amber)"></i>one window flagged</span>
+        <span><i style="background:var(--green)"></i>no signs</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="details">
+    <dl id="facts"></dl>
+  </section>
+
+  <section class="card fb" id="feedback">
+    <span id="fb-q"></span>
+    <button data-correct="true" aria-label="Yes">👍</button>
+    <button data-correct="false" aria-label="No">👎</button>
+  </section>
+
+  <p class="disclaimer" id="disclaimer"></p>
+</main>
+
+<script id="data" type="application/json">__DATA__</script>
+<script id="i18n" type="application/json">__I18N__</script>
+<script type="module">
+import WaveSurfer from '/static/vendor/wavesurfer-7.12.12/wavesurfer.esm.js'
+import Regions from '/static/vendor/wavesurfer-7.12.12/plugins/regions.esm.js'
+
+const R = JSON.parse(document.getElementById('data').textContent)
+const T = JSON.parse(document.getElementById('i18n').textContent)
+const LANGS = { kn: 'ಕನ್ನಡ', hi: 'हिन्दी', en: 'English' }
+const BAND = { likely_fake: ['Likely AI-generated', 'var(--red)'], partly_fake: ['Partly AI-generated', 'var(--red)'],
+               unclear: ['Unclear', 'var(--amber)'], no_signs: ['No signs found', 'var(--green)'],
+               error: ['Could not check', 'var(--muted)'] }
+let lang = document.documentElement.lang
+const $ = id => document.getElementById(id)
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+const t = (key, vars = {}) => {
+  const e = T[key] || {}
+  return (e[lang] || e.en || '').replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
+}
+
+function renderText() {
+  const [label, color] = BAND[R.band] || BAND.error
+  document.documentElement.lang = lang
+  $('verdict').style.setProperty('--band', color)
+  $('badge').textContent = label
+  const regions = R.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')
+  $('message').textContent = R.band === 'error' ? (t('error_' + R.error.code) || t('error_failed')) : t(R.band, { regions })
+  const meta = []
+  if (R.cache.times_checked > 1) meta.push(t('cache_hit', { n: R.cache.times_checked }))
+  if (R.trimmed) meta.push(t('trimmed'))
+  $('meta').textContent = meta.join(' · ')
+  $('fb-q').textContent = t('feedback_question')
+  $('disclaimer').textContent = t('disclaimer') + ' · DetectifAI ' + (R.model || 'Aletheia')
+  $('langs').innerHTML = ''
+  for (const [code, name] of Object.entries(LANGS)) {
+    const b = document.createElement('button')
+    b.textContent = name; b.setAttribute('aria-pressed', code === lang)
+    b.onclick = () => { lang = code; history.replaceState(null, '', `?lang=${code}`); renderText() }
+    $('langs').append(b)
+  }
+}
+
+function renderFacts() {
+  const rows = []
+  if (R.overall.verdict) rows.push(['Overall verdict', `${R.overall.verdict} (score ${R.overall.score?.toFixed(2)})` +
+    (R.band === 'partly_fake' ? ' — the clip as a whole sounds real, but the part below doesn’t' : '')])
+  if (R.core_regions.length) rows.push(['AI-sounding part', R.core_regions.map(([a, b]) => `${mmss(a)}–${mmss(b)}`).join(', ')])
+  if (R.duration) rows.push(['Length checked', `${R.duration.toFixed(1)} s` + (R.scored_seconds < 10 ? ' (short: less reliable)' : '')])
+  rows.push(['Times checked', String(R.cache.times_checked)])
+  if (R.error) rows.push(['Problem', R.error.message])
+  $('facts').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd></dd>`).join('')
+  ;[...$('facts').querySelectorAll('dd')].forEach((dd, i) => dd.textContent = rows[i][1])
+  if (R.band === 'error') $('feedback').classList.add('hidden')
+}
+
+function renderStrip() {
+  const segs = R.segments || []
+  if (!segs.length || !R.duration) { $('timeline').classList.add('hidden'); return }
+  $('axis-end').textContent = mmss(R.duration)
+  const pts = [...new Set(segs.flatMap(s => [s.start, s.end]).concat([0, R.duration]))].sort((a, b) => a - b)
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], mid = (a + b) / 2
+    const cover = segs.filter(s => s.start <= mid && mid < s.end)
+    const fakes = cover.filter(s => s.verdict === 'fake').length
+    const score = Math.max(0, ...cover.map(s => s.score))
+    const d = document.createElement('div')
+    d.style.flex = String(b - a)
+    d.style.background = fakes >= 2 ? 'var(--red)' : fakes === 1 ? 'var(--amber)' : 'var(--green)'
+    d.style.opacity = fakes ? 1 : 0.35 + 0.4 * (1 - score)
+    d.title = `${mmss(a)}–${mmss(b)} · score ${score.toFixed(2)}`
+    $('strip').append(d)
+  }
+}
+
+function renderWave() {
+  if (!R.has_audio) { $('wave').classList.add('hidden'); $('play').classList.add('hidden'); return }
+  const regions = Regions.create()
+  const css = getComputedStyle(document.documentElement)
+  const ws = WaveSurfer.create({ container: '#wave', url: `/media/${R.id}`, height: 96, normalize: true,
+    waveColor: css.getPropertyValue('--wave').trim(), progressColor: css.getPropertyValue('--wave2').trim(),
+    cursorColor: css.getPropertyValue('--text').trim(), plugins: [regions] })
+  ws.on('decode', () => R.core_regions.forEach(([start, end]) =>
+    regions.addRegion({ start, end, color: 'rgba(229,72,77,.32)', drag: false, resize: false })))
+  regions.on('region-clicked', (region, e) => { e.stopPropagation(); region.play() })
+  ws.on('play', () => $('play').textContent = '❚❚ Pause')
+  ws.on('pause', () => $('play').textContent = '▶ Play')
+  $('play').onclick = () => ws.playPause()
+}
+
+document.querySelectorAll('#feedback button').forEach(b => b.onclick = async () => {
+  const correct = b.dataset.correct === 'true'
+  $('feedback').querySelectorAll('button').forEach(x => x.disabled = true)
+  try {
+    await fetch(`/api/feedback/${R.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ correct }) })
+  } finally { $('fb-q').textContent = t('feedback_thanks') }
+})
+
+renderText(); renderFacts(); renderStrip(); renderWave()
+</script>
+</body>
+</html>

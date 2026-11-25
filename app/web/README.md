@@ -1,8 +1,11 @@
 # app/web
 
-| File | Owner | Step |
+| File | Owner | What |
 |---|---|---|
-| `result.html` | Lane A | A4: result page with wavesurfer.js 7.8.6 + regions (prototype: `research/spikes/timeline_test.py`) |
-| `pwa/manifest.webmanifest`, `pwa/sw.js` | Lane A | A5: share target (tested manifest shape: `research/spikes/spike_server.py`) |
+| `result.html` | Lane A | Result page `/r/<id>`: waveform with the AI-sounding part in red, segment heat strip, verdict in kn/hi/en, feedback |
+| `index.html` | Lane A | Landing page `/`: upload form + install hint |
+| `pwa/manifest.webmanifest`, `pwa/sw.js` | Lane A | Installable app + Android share target (`POST /share`) |
+| `static/vendor/wavesurfer-7.12.12/` | Lane A | wavesurfer.js + regions plugin, bundled locally (BSD-3, see LICENSE) so venue Wi-Fi can't break it |
+| `static/icons/` | Lane A | App icons (192, 512) |
 | `card.html`, `theme.css` | Lane B | B3: verdict card template (prototype: `research/spikes/card_test.py`) |
 | `fonts/` | Lane B | Noto Sans Kannada + Noto Sans Devanagari (woff2), served locally |

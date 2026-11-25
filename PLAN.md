@@ -133,7 +133,7 @@ Bundle Noto Sans Kannada + Devanagari font files locally (don't depend on venue 
 ### 2.5 Timeline (idea 1)
 | Approach | Total /20 |
 |---|---|
-| ✅ **wavesurfer.js 7.8.6 + regions** on the result page (click the red region → hear the fake) | **18** |
+| ✅ **wavesurfer.js 7.12.12 + regions** (bundled locally) on the result page (click the red region → hear the fake) | **18** |
 | ✅ Plain heat strip — inside the card only | 15 |
 | Chart.js score line | 10 (less intuitive; not built) |
 
@@ -256,8 +256,8 @@ Change it only together. `tests/test_contract.py` keeps the mock honest.
 **Phase 1 — parallel (to the MVP)**
 | Lane A | Lane B |
 |---|---|
-| - [ ] A1. `normalize.py` (ffmpeg: drop video, mono 16 kHz Opus, cap 300 s) + `aletheia.py` (REST, Idempotency-Key = sha256 of normalised audio, error mapping). Done when all 6 `research/test-audio/` clips return real API results | - [ ] B1. `bot.py` on the mock: handlers for voice, audio, video, video_note, document in groups + DMs; download (refuse > 20 MB politely); call `check()`; reply with the band text. Done when the mock reply appears in the test group for a voice note **and** a video |
-| - [ ] A2. `verdict.py`: four bands + core regions (§3) + `tests/test_verdict.py` on the 6 fixtures. Done when spliced → `partly_fake` with `[[10.0, 14.0]]` | - [ ] B2. `i18n.json`: all four bands + errors in en/hi/kn (get the Kannada/Hindi checked by a native speaker); bot picks the language (default kn, `/lang en|hi|kn` per group) |
+| - [x] A1. `normalize.py` (ffmpeg: drop video, mono 16 kHz Opus, cap 300 s) + `aletheia.py` (REST, Idempotency-Key = sha256 of normalised audio, error mapping). Done when all 6 `research/test-audio/` clips return real API results | - [ ] B1. `bot.py` on the mock: handlers for voice, audio, video, video_note, document in groups + DMs; download (refuse > 20 MB politely); call `check()`; reply with the band text. Done when the mock reply appears in the test group for a voice note **and** a video |
+| - [x] A2. `verdict.py`: four bands + core regions (§3) + `tests/test_verdict.py` on the 6 fixtures. Done when spliced → `partly_fake` with `[[10.0, 14.0]]` | - [ ] B2. `i18n.json`: all four bands + errors in en/hi/kn (get the Kannada/Hindi checked by a native speaker); bot picks the language (default kn, `/lang en|hi|kn` per group) |
 
 **🔁 Sync 1 — MVP:** merge both into `main`; turn the mock off; drop real clips in the group.
 *Done when the spliced clip gets a 🟠 "partly AI-generated 10–14 s" reply from the real API.*
@@ -266,8 +266,8 @@ After this you always have a demo that works.
 **Phase 2 — parallel (the wow)**
 | Lane A | Lane B |
 |---|---|
-| - [ ] A3. `store.py` (SQLite) + `fingerprint.py` (tier 1 `file_unique_id`, tier 2 Chromaprint ≥ 0.80) + `times_checked`; plus `send_feedback()` (store the 👍/👎 too). Done when the Opus copy of the spliced clip is a cache hit with `credits_charged: 0` | - [ ] B3. `card.html` + `theme.css` + `card.py` (Playwright, browser launched once at startup, ~25 ms per card); bot sends the card as a photo with the band text as caption |
-| - [ ] A4. `api.py` + `result.html`: `/r/<id>` with wavesurfer 7.8.6, red core regions (click → plays the fake part), band text from `i18n.json`, honesty notes. Serve over the ngrok static domain | - [ ] B4. Cache-hit wording: "Already checked N times" + button linking to `result_url`; group etiquette: full reply for 🔴🟠🟡, short ✅ reply for 🟢; **"Was this right? 👍 / 👎" inline buttons** → `send_feedback()` (sends our users' corrections back to DetectifAI — mention it in the pitch) |
+| - [x] A3. `store.py` (SQLite) + `fingerprint.py` (tier 1 `file_unique_id`, tier 2 Chromaprint ≥ 0.80) + `times_checked`; plus `send_feedback()` (store the 👍/👎 too). Done when the Opus copy of the spliced clip is a cache hit with `credits_charged: 0` | - [ ] B3. `card.html` + `theme.css` + `card.py` (Playwright, browser launched once at startup, ~25 ms per card); bot sends the card as a photo with the band text as caption |
+| - [x] A4. `api.py` + `result.html`: `/r/<id>` with wavesurfer 7.12.12 (bundled locally), red core regions (click → plays the fake part), band text from `i18n.json`, honesty notes. Serve over the ngrok static domain | - [ ] B4. Cache-hit wording: "Already checked N times" + button linking to `result_url`; group etiquette: full reply for 🔴🟠🟡, short ✅ reply for 🟢; **"Was this right? 👍 / 👎" inline buttons** → `send_feedback()` (sends our users' corrections back to DetectifAI — mention it in the pitch) |
 
 **🔁 Sync 2 — full flow:** merge; the card and the reply link to a live `/r/<id>` page.
 *Done when one voice note in the group produces reply + card + working timeline link.*
@@ -275,9 +275,9 @@ After this you always have a demo that works.
 **Phase 3 — parallel (finish + story)**
 | Lane A | Lane B |
 |---|---|
-| - [ ] A5. PWA: `manifest.webmanifest` with `share_target`, `sw.js`, `POST /share` → `check()` → redirect to `/r/<id>`; install on the Android phone. **Cut first if behind** | - [ ] B5. `README.md`: problem, how it works, how Aletheia is used (segments + core rule; MCP for dev), results table from `research/` + `research/real-world.md`, honest limits |
+| - [x] A5. (code done; Chrome reports it installable; **Android install test still to do**) PWA: `manifest.webmanifest` with `share_target`, `sw.js`, `POST /share` → `check()` → redirect to `/r/<id>`; install on the Android phone. **Cut first if behind** | - [ ] B5. `README.md`: problem, how it works, how Aletheia is used (segments + core rule; MCP for dev), results table from `research/` + `research/real-world.md`, honest limits |
 | - [ ] A6. Stretch: English transcript on the result page with the fake sentence highlighted (faster-whisper `base`) | - [ ] B6. Reddit post draft + screenshots/GIF; record a **backup demo video** from the Sync 2 build |
-| - [ ] A7. Hardening: errors (422, 402, 429/503 retry), > 300 s trim message, startup checks (keys present, `fpcalc` found, Chromium warm) | - [ ] B7. Write the 2-minute demo script into `submission/demo.md`; prepare the demo clips on both phones |
+| - [x] A7. Hardening: errors (422, 402, 429/503 retry), > 300 s trim message, startup checks (keys present, `fpcalc` found, Chromium warm) | - [ ] B7. Write the 2-minute demo script into `submission/demo.md`; prepare the demo clips on both phones |
 
 **🔁 Sync 3 — freeze:** merge; no new features after this.
 - [ ] F1. Both: 3 full rehearsals on the venue network **and** on a mobile hotspot (A runs the server laptop, B drives the phones)
@@ -294,6 +294,36 @@ consent, facts not to re-test). Each person starts their session with one line:
 - **B:** "I'm Lane B. Read PLAN.md §5 and CONTRACT.md, then do step B1 against the mock. Stop when its *done when* check passes."
 
 Then just move to the next step in your lane after each one passes.
+
+### 5.7 Lane A — status, improvements and how to run (2026-11-25, branch `lane-a`)
+**Done:** A1–A5 and A7 in code, 47 offline tests (fake Aletheia via `httpx.MockTransport`), plus a browser
+end-to-end run: share upload → `/r/<id>` renders the waveform with the red region, Kannada text, feedback;
+Chrome's installability check returns no errors. **Not done:** A6 (English transcript, stretch); the
+real-API run (needs your key: `python -m scripts.smoke_real`, ≈ 200 credits); the Android install test.
+
+**Improvements over the original plan (all tested):**
+| Change | Why | Evidence |
+|---|---|---|
+| Send the original file when Aletheia accepts it; stream-copy audio out of videos; transcode only odd formats | no re-compression of evidence, much faster | voice note 48 ms vs 358 ms; MP4 94 ms vs 361 ms |
+| Cache order: Telegram id (before decoding) → exact SHA-256 → fingerprint only if a stored clip has similar length; otherwise fingerprint **in parallel** with the API call | repeats cost nothing; new clips don't wait for fingerprinting | `tests/test_cache.py` |
+| Single-flight for identical clips arriving together | one API call when a group forwards the same clip at once | `test_simultaneous_identical_clips_share_one_call` (also found and fixed a Windows file race) |
+| Exact sweep over segment edges for the AI-sounding part (no time grid) | precise regions | spliced → `[[10.0, 14.0]]` |
+| Retries reuse the Idempotency-Key (429/503/409/5xx/network), max 2 uploads at once | never charged twice, no 429 bursts | `test_rate_limit_is_retried_with_same_key` |
+| SQLite in WAL mode with busy timeout | bot + web server are two processes on one DB | — |
+| Mock results are stored too | Lane B's links open real pages without credits | `test_mock_mode_results_are_stored` |
+| wavesurfer.js 7.12.12 bundled locally (not 8.1.1, published yesterday) | venue Wi-Fi / CDN can't break the demo; mature version | browser run, no console errors |
+| `/health` lists demo-breaking problems (no key, no fpcalc, localhost URL) + DetectifAI status | 10-second pre-demo check | `test_health_reports_problems` |
+| Feedback from the result page as well as the bot | more feedback for DetectifAI | `test_feedback_endpoint` |
+
+**Run (Lane A machine = demo server):**
+```bash
+python -m pytest -q                         # 47 pass
+python -m scripts.credits                   # key works? balance?
+python -m scripts.smoke_real                # real API, ≈ 200 credits, expect ALL GOOD
+uvicorn app.api:app --host 127.0.0.1 --port 8000
+ngrok http --url=<your-static-domain> 8000  # then PUBLIC_BASE_URL=https://<your-static-domain> in .env
+# open https://<your-static-domain>/health → "ok": true, "issues": []
+```
 
 ### 5.6 Submission checklist (owner in brackets)
 - [ ] S1. Repo + README [B writes, A reviews]

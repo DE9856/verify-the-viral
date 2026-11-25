@@ -3,11 +3,13 @@
 - Plan: `PLAN.md` (§5 = the two-lane split and every step's "done when"). Interface: `CONTRACT.md`.
 - **Ask the user "Lane A or Lane B?" at the start of a session if they haven't said.**
 - Lane A (engine + web) owns: `app/core/{normalize,aletheia,verdict,fingerprint,store,check}.py`,
-  `app/api.py`, `app/web/result.html`, `app/web/pwa/`, `tests/test_verdict.py`, `tests/test_cache.py`.
+  `app/api.py`, `app/web/{result,index}.html`, `app/web/pwa/`, `app/web/static/`, `scripts/smoke_real.py`,
+  `tests/test_{verdict,cache,normalize,api}.py`.
 - Lane B (bot + card + story) owns: `app/bot.py`, `app/core/card.py`, `app/web/card.html`,
-  `app/web/theme.css`, `app/i18n.json`, `README.md`, `submission/`.
+  `app/web/theme.css`, `app/web/fonts/`, `app/i18n.json`, `README.md`, `submission/`,
+  `tests/test_bot*.py`, `tests/test_card*.py`.
 - Shared (change only together): `CONTRACT.md`, `CLAUDE.md`, `requirements*.txt`, `env.example`,
-  `app/config.py`, `app/fixtures/`, `tests/test_contract.py`.
+  `app/config.py`, `app/fixtures/`, `tests/test_contract.py`, `tests/conftest.py`.
 - Only edit files your lane owns. Need something from the other lane? Write it in
   `NOTES-FOR-A.md` / `NOTES-FOR-B.md` and tell the user.
 - Work on branch `lane-a` or `lane-b`; merge to `main` only at the sync points in `PLAN.md` §5.4.
