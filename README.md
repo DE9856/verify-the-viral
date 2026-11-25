@@ -123,6 +123,12 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 - **WhatsApp compression was simulated** with ffmpeg, not taken from WhatsApp itself.
 - **Hindi runs "hotter"** than English and Kannada on real voices (one window scored 0.88 and was
   still labelled real by the model). Aletheia's docs say it works best on English and Hindi.
+- **Sped-up or slowed-down copies:** between 0.75× and 1.75× the fake part was still found in the
+  right place; at 0.5× the whole clip was called fake, and at 2× the fake part was too short to
+  flag. Once the original has been checked, such a copy is recognised and gets the original's
+  result for free (tested offline: speed copies ≥ 0.84, pitch copies ≥ 0.86, different clips
+  ≤ 0.67). Not recognised: a copy that is both pitch-changed and trimmed, or changed beyond
+  0.5–2× / ±6 semitones. See `research/speed-test.md`.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).
@@ -137,7 +143,7 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 ## Architecture
 
 ```
- Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (Telegram file id, same bytes, same decoded audio, then audio fingerprint)
+ Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (Telegram file id, same bytes, same decoded audio, audio fingerprint, speed/pitch copy)
                                ├─► core.check(audio) ────┤        └─► yes: stored result, "checked N times", 0 credits
  Android share sheet ─► api.py ┘   (normalise with ffmpeg └─► no: POST /v1/deepfake/detect
    (PWA share target)               mono 16 kHz, ≤ 300 s)           └─► verdict bands + core regions → SQLite
@@ -182,8 +188,10 @@ say loudly if it's missing.
 **How a repeat clip is recognised (0 credits), cheapest first:** the same Telegram file id → the
 same bytes → the same decoded audio (catches another container or lossless format, a renamed or
 re-tagged file, a voice note inside a video; works without `fpcalc`) → an audio fingerprint
-(Chromaprint ≥ 0.80, catches lossy re-encodes like WhatsApp Opus, MP3 and AAC). Only then is
-Aletheia called.
+(Chromaprint ≥ 0.80, catches lossy re-encodes like WhatsApp Opus, MP3 and AAC) → a copy at
+another speed or pitch (0.5–2× with the pitch kept or changed with it, or the voice made higher or
+deeper at the same length: the change is undone with ffmpeg and the clip fingerprinted again;
+about 1 s, only when everything before it missed). Only then is Aletheia called.
 
 ## Team and how we built it
 

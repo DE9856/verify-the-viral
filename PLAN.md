@@ -124,6 +124,16 @@ re-tagged, a voice note inside a video), never mis-matches, and works when `fpca
 Order: Telegram id → file sha → decoded-audio sha → Chromaprint → API. Tests: `tests/test_cache.py`
 (`test_same_audio_in_another_format_hits_decoded_layer`, `test_lossy_reencode_does_not_hit_decoded_layer`).
 
+**Update 2026-11-25 (built): speed / pitch copies, `app/core/variants.py`,** after Chromaprint and
+before the API. Speed (atempo, pitch kept) and tape (asetrate, speed+pitch together) copies: the
+length ratio gives the speed; speed copies are pre-screened by stretching the stored fingerprint
+(~1 ms, also finds the speed after a trim), then the change is undone with ffmpeg and fingerprinted
+again (≥ 0.80 = same clip). Pitch-only copies (same length): undo −6…+6 semitones in parallel, then
+half-steps next to the best. Hits return the original's result + `cache.variant`; times stay the
+original's. Evidence: `research/speed-test.md` (server run 295 credits; offline matching 0 credits).
+~1 s extra on a miss. Tests: `test_speed_copy_is_a_free_repeat`, `test_pitch_shifted_copy_is_a_free_repeat`,
+`test_speed_copy_of_a_different_clip_is_checked`.
+
 Bonus: use SHA-256 of the *normalised* audio as the Idempotency-Key, so retries and identical
 re-uploads within 24 h cost 0 credits.
 
@@ -194,7 +204,7 @@ the same Idempotency-Key after `Retry-After`.
 ## 4. Architecture
 
 ```
- Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (file_unique_id, file sha, decoded-audio sha, then Chromaprint ≥ 0.80)
+ Telegram group/DM ──► bot.py ─┐                         ┌─► cache hit? (file_unique_id, file sha, decoded-audio sha, Chromaprint ≥ 0.80, speed/pitch copy)
                                ├─► core.check(audio) ────┤        └─► yes: stored result, "checked N times", 0 credits
  Android share sheet ─► api.py ┘   (normalise: ffmpeg     └─► no: POST /v1/deepfake/detect (Idempotency-Key = sha256)
    POST /share (PWA)                -vn mono 16 kHz Opus,            └─► verdict.py: band + core regions
@@ -312,7 +322,7 @@ real-API run (needs your key: `python -m scripts.smoke_real`, ≈ 200 credits); 
 | Change | Why | Evidence |
 |---|---|---|
 | Send the original file when Aletheia accepts it; stream-copy audio out of videos; transcode only odd formats | no re-compression of evidence, much faster | voice note 48 ms vs 358 ms; MP4 94 ms vs 361 ms |
-| Cache order: Telegram id (before decoding) → exact SHA-256 → SHA-256 of the decoded audio (added 2026-11-25: other container / lossless format / renamed file) → fingerprint only if a stored clip has similar length; otherwise fingerprint **in parallel** with the API call | repeats cost nothing; new clips don't wait for fingerprinting | `tests/test_cache.py` |
+| Cache order: Telegram id (before decoding) → exact SHA-256 → SHA-256 of the decoded audio (added 2026-11-25: other container / lossless format / renamed file) → fingerprint, then speed/pitch copies (`variants.py`, added 2026-11-25), only if a stored clip has a fitting length; otherwise fingerprint **in parallel** with the API call | repeats cost nothing; new clips don't wait for fingerprinting | `tests/test_cache.py` |
 | Single-flight for identical clips arriving together | one API call when a group forwards the same clip at once | `test_simultaneous_identical_clips_share_one_call` (also found and fixed a Windows file race) |
 | Exact sweep over segment edges for the AI-sounding part (no time grid) | precise regions | spliced → `[[10.0, 14.0]]` |
 | Retries reuse the Idempotency-Key (429/503/409/5xx/network), max 2 uploads at once | never charged twice, no 429 bursts | `test_rate_limit_is_retried_with_same_key` |

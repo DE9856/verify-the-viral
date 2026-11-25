@@ -80,6 +80,16 @@ def format_regions(regions: list, lang: str = "en") -> str:
     return ", ".join(f"{a:g}–{b:g} {unit}" for a, b in regions)
 
 
+def variant_note(cache: dict, lang: str) -> str | None:
+    """'This is a 1.5× speed copy…' when the cache matched a sped-up / slowed / pitch-shifted copy."""
+    v = cache.get("variant") or {}
+    if v.get("kind") in ("speed", "tape") and v.get("speed"):
+        return t("cache_variant_speed", lang, speed=f"{v['speed']:g}")
+    if v.get("kind") == "pitch":
+        return t("cache_variant_pitch", lang)
+    return None
+
+
 def format_reply(result: dict, lang: str) -> str:
     """The chat reply for one check() result (also the card caption later)."""
     if result["band"] == "error":
@@ -91,6 +101,8 @@ def format_reply(result: dict, lang: str) -> str:
     cache = result.get("cache") or {}
     if cache.get("hit"):
         lines.append(t("cache_hit", lang, n=cache.get("times_checked", 2)))
+        if note := variant_note(cache, lang):
+            lines.append(note)
     if config.MOCK_ALETHEIA:
         # mock mode replays recorded results, unrelated to the clip sent: say so
         lines.append(t("mock_note", lang))
@@ -225,6 +237,8 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         line = t("short_no_signs", lang)
         if cache.get("hit"):
             line += " " + t("cache_hit", lang, n=cache.get("times_checked", 2))
+            if note := variant_note(cache, lang):
+                line += " " + note
         await msg.reply_text(line, do_quote=True,
                              reply_markup=keyboard(result, lang, with_feedback=False))
         return

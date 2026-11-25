@@ -115,8 +115,20 @@ def find_exact(*, tg_file_unique_id: str | None = None, sha256: str | None = Non
     return None
 
 
-def has_candidates(duration: float) -> bool:
-    lo, hi = _duration_window(duration)
+def fp_candidates(lo: float, hi: float) -> list[tuple[str, list[int], float, int]]:
+    """Stored (non-error) clips with a fingerprint and a length in [lo, hi]:
+    (id, fingerprint, duration, times_checked), most-checked first. Used by variants.py."""
+    with _db() as con:
+        rows = con.execute("SELECT id, fp, duration, times_checked FROM checks WHERE fp IS NOT NULL AND band!='error' "
+                           "AND duration BETWEEN ? AND ? ORDER BY times_checked DESC, last_checked_at DESC",
+                           (lo, hi)).fetchall()
+    return [(r["id"], json.loads(r["fp"]), r["duration"], r["times_checked"]) for r in rows]
+
+
+def has_candidates(duration: float, lo: float | None = None, hi: float | None = None) -> bool:
+    """Any stored clip to compare against: of similar length, or in [lo, hi] when given."""
+    if lo is None or hi is None:
+        lo, hi = _duration_window(duration)
     with _db() as con:
         return con.execute("SELECT 1 FROM checks WHERE fp IS NOT NULL AND band!='error' "
                            "AND duration BETWEEN ? AND ? LIMIT 1", (lo, hi)).fetchone() is not None

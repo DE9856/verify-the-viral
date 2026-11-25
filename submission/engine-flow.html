@@ -130,8 +130,9 @@
       <div class="body">
         <div><h2>Re-compressed copy of a known clip?</h2>
           <p>WhatsApp re-encodes every forward, so bytes change. An audio fingerprint (Chromaprint) still matches: re-encodes score 0.89 or more, different clips 0.71 or less, and we accept 0.80. This needs Chromaprint's fpcalc on the server; without it the bot warns at startup and only stops 1 and 2 catch repeats. If no stored clip has a similar length, the fingerprint is computed alongside the API call instead of before it.</p>
-          <p class="file">app/core/fingerprint.py · fpcalc</p></div>
+          <p class="file">app/core/fingerprint.py · app/core/variants.py · fpcalc</p></div>
         <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Similarity ≥ 0.80: stored answer, 0 credits</b><span>the same fake keeps its ID as it spreads between groups</span></div></div>
+        <div class="exit"><svg viewBox="0 0 26 26"><path d="M4 13h15M13 6l7 7-7 7"/></svg><div><b>Sped up, slowed down or pitch-shifted copy: stored answer, 0 credits</b><span>0.5–2× speed (pitch kept or changed with it), or the voice made higher or deeper: the change is undone with ffmpeg and fingerprinted again. Speed copies 0.84 or more, pitch copies 0.86 or more, different clips 0.67 or less. The reply says it's a copy and that the times are the original's</span></div></div>
       </div>
     </li>
     <li class="stop api">
@@ -188,7 +189,7 @@
       <span class="dot">7</span>
       <div class="body">
         <div><h2>Remember it</h2>
-          <p>Result, both sha256 hashes (file and decoded audio), fingerprint and the audio go into SQLite, so the next forward exits at stop 1, 2 or 4. Chats are stored only as a salted hash, to count how many chats a clip reached.</p>
+          <p>Result, both sha256 hashes (file and decoded audio), fingerprint and the audio go into SQLite, so the next forward, or a re-encoded, sped-up or pitch-shifted copy of it, exits at stop 1, 2 or 4. Chats are stored only as a salted hash, to count how many chats a clip reached.</p>
           <p class="file">app/core/store.py · data/app.db</p></div>
       </div>
     </li>

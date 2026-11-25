@@ -25,7 +25,9 @@ Returns this dict (and `POST /api/check` returns the same JSON):
   "duration": 24.8,
   "scored_seconds": 24.8,
   "trimmed": false,                  // true if only the first 300 s were checked
-  "cache": {"hit": false, "times_checked": 1},
+  "cache": {"hit": false, "times_checked": 1},  // on a hit of a sped-up / slowed / pitch-shifted copy,
+                                     // also "variant": {"kind": "speed"|"tape"|"pitch", "speed": 1.5|null,
+                                     //   "semitones": 2.5|null, "score": 0.88} (added 2026-11-25, optional)
   "credits_charged": 50,             // 0 on a cache hit or in mock mode
   "error": null,                     // or {"code": "insufficient_speech" | "too_large" | "out_of_credits" | "failed", "message": "…"}
   "result_url": "https://<PUBLIC_BASE_URL>/r/k7f3q2"
@@ -78,6 +80,10 @@ fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
   file — other container, lossless format, renamed or re-tagged (added 2026-11-25) — or a re-encoded
   forward with fingerprint ≥ 0.80) → the **same `id`**, `cache.hit: true`, `times_checked` + 1,
   `credits_charged: 0`.
+- A copy at another speed (0.5–2×, pitch kept or changed with it) or with the voice pitch moved
+  (same length) → also the original's result, plus `cache.variant`. `core_regions`, the excerpt and
+  the result page stay in the **original's** seconds; the bot says so (`cache_variant_speed`,
+  `cache_variant_pitch`).
 - Two identical clips arriving together → one API call; the second gets the cache-hit result.
 - `check()` can take a few seconds on a cold API; show a "checking…" message first.
 

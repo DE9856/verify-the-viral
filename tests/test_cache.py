@@ -181,3 +181,53 @@ def test_mock_mode_results_are_stored(monkeypatch):
     r = run("anything.ogg")
     assert store.get(r["id"])["band"] == "partly_fake"
     assert store.audio_path(r["id"]).endswith("spliced_en.wav")
+
+
+# --------------------------------------------------------------------------- layer 5: speed / pitch copies
+needs_fpcalc = pytest.mark.skipif(fingerprint.fpcalc_path() is None, reason="fpcalc not installed")
+
+
+def _variant(src, tmp_path, name, filt):
+    return _convert(src, tmp_path / name, "-filter:a", filt, "-b:a", "64k")
+
+
+@needs_fpcalc
+@pytest.mark.parametrize("name, filt, kind, speed", [
+    ("fast.mp3", "atempo=1.5", "speed", 1.5),                                        # pitch kept
+    ("slow.mp3", "atempo=0.5", "speed", 0.5),
+    ("tape.mp3", "aresample=44100,asetrate=44100*1.25,aresample=44100", "tape", 1.25),  # faster + higher
+])
+def test_speed_copy_is_a_free_repeat(fake, tmp_path, name, filt, kind, speed):
+    a = run(AUDIO / "spliced_whatsapp.mp3")
+    b = run(_variant(AUDIO / "spliced_whatsapp.mp3", tmp_path, name, filt))
+    assert fake.calls == 1 and b["id"] == a["id"] and b["credits_charged"] == 0
+    v = b["cache"]["variant"]
+    assert v["kind"] == kind and abs(v["speed"] - speed) < 0.03 and v["score"] >= fingerprint.SAME_CLIP
+    assert b["core_regions"] == a["core_regions"]          # times stay those of the original
+
+
+@needs_fpcalc
+def test_pitch_shifted_copy_is_a_free_repeat(fake, tmp_path):
+    r = 2 ** (2.5 / 12)                                     # +2.5 semitones, same length
+    a = run(AUDIO / "spliced_whatsapp.mp3")
+    b = run(_variant(AUDIO / "spliced_whatsapp.mp3", tmp_path, "high.mp3",
+                     f"aresample=44100,asetrate={44100 * r:.3f},aresample=44100,atempo={1 / r:.6f}"))
+    assert fake.calls == 1 and b["id"] == a["id"]
+    assert b["cache"]["variant"]["kind"] == "pitch" and abs(b["cache"]["variant"]["semitones"] - 2.5) <= 0.5
+
+
+@needs_fpcalc
+def test_speed_copy_of_a_different_clip_is_checked(fake, tmp_path):
+    """real_en shares its first 10 s with the spliced clip: its speed copies must not match it."""
+    run(AUDIO / "spliced_whatsapp.mp3")
+    b = run(_variant(AUDIO / "real_en.wav", tmp_path, "real_fast.mp3", "atempo=1.25"))
+    assert fake.calls == 2 and "variant" not in b["cache"]
+
+
+def test_variant_note_in_reply():
+    from app import bot
+    hit = {"hit": True, "times_checked": 3}
+    assert "1.5× speed copy" in bot.variant_note({**hit, "variant": {"kind": "speed", "speed": 1.5}}, "en")
+    assert "1.25×" in bot.variant_note({**hit, "variant": {"kind": "tape", "speed": 1.25}}, "en")
+    assert "higher or deeper" in bot.variant_note({**hit, "variant": {"kind": "pitch", "semitones": -2}}, "en")
+    assert bot.variant_note(hit, "en") is None

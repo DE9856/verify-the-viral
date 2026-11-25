@@ -50,6 +50,16 @@
   "hi": "पहले ही {n} बार जाँचा जा चुका है।",
   "kn": "ಈಗಾಗಲೇ {n} ಬಾರಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ."
  },
+ "cache_variant_speed": {
+  "en": "This is a {speed}× speed copy of a clip we already checked. Times refer to the original.",
+  "hi": "यह पहले जाँची गई क्लिप की {speed}× स्पीड वाली कॉपी है। समय मूल क्लिप के हिसाब से हैं।",
+  "kn": "ಇದು ಈಗಾಗಲೇ ಪರಿಶೀಲಿಸಿದ ಕ್ಲಿಪ್‌ನ {speed}× ವೇಗದ ಪ್ರತಿ. ಸಮಯಗಳು ಮೂಲ ಕ್ಲಿಪ್‌ನವು."
+ },
+ "cache_variant_pitch": {
+  "en": "This is a copy of a clip we already checked, with the voice made higher or deeper.",
+  "hi": "यह पहले जाँची गई क्लिप की कॉपी है, जिसमें आवाज़ ऊँची या भारी की गई है।",
+  "kn": "ಇದು ಈಗಾಗಲೇ ಪರಿಶೀಲಿಸಿದ ಕ್ಲಿಪ್‌ನ ಪ್ರತಿ, ಧ್ವನಿಯನ್ನು ಎತ್ತರ ಅಥವಾ ಗಡುಸಾಗಿ ಮಾಡಲಾಗಿದೆ."
+ },
  "disclaimer": {
   "en": "A score is evidence, not proof. Works best on English and Hindi.",
   "hi": "स्कोर एक संकेत है, सबूत नहीं। अंग्रेज़ी और हिंदी पर सबसे अच्छा काम करता है।",

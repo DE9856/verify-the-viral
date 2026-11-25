@@ -8,8 +8,11 @@ Pipeline, cheapest step first (layers of "have we checked this clip before?"):
      format / renamed file: .ogg vs .opus, WAV vs FLAC, voice note inside a video)
   4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80
      (lossy re-encodes: WhatsApp Opus, MP3, AAC; needs fpcalc)
-     (no candidates: skip the lookup and fingerprint in parallel with the API call)
-  5. Aletheia REST call (Idempotency-Key = sha256)     → verdict bands → store
+  5. a copy at another speed or pitch of a stored clip? → cached result, cache.variant says how
+     (variants.py: undo the change with ffmpeg, fingerprint again; only runs when 1-4 missed)
+     (no stored clip from half to double the length: skip 4-5 and fingerprint in parallel
+      with the API call)
+  6. Aletheia REST call (Idempotency-Key = sha256)     → verdict bands → store
 Identical clips arriving at the same moment share one API call (single-flight).
 Mock mode (MOCK_ALETHEIA) replays recorded real results and also stores them, so result links work.
 """
@@ -22,7 +25,7 @@ import time
 from pathlib import Path
 
 from app import config
-from app.core import aletheia, fingerprint, normalize, store, verdict
+from app.core import aletheia, fingerprint, normalize, store, variants, verdict
 from app.core.aletheia import AletheiaError
 from app.core.normalize import NormalizeError
 
@@ -108,11 +111,17 @@ async def _check_file(audio_path: str, source: dict, t0: float) -> dict:
 
 async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float) -> dict:
     tg = source.get("tg_file_unique_id")
-    if store.has_candidates(norm.duration):
+    if store.has_candidates(norm.duration, *variants.window(norm.duration)):
         fp = await asyncio.to_thread(fingerprint.compute, norm.path)
         match = store.find_similar(fp, norm.duration)
         if match:
             return _done(store.hit(match[0], tg_file_unique_id=tg, source=source), f"cache:fingerprint({match[1]:.2f})", t0, norm)
+        if v := await asyncio.to_thread(variants.find, norm.path, fp, norm.duration):
+            # no tg_file_unique_id: a re-forward of this copy should get the same "copy of" note,
+            # which only this layer can give (it's free either way)
+            r = store.hit(v.check_id, source=source)
+            r["cache"]["variant"] = v.as_cache_info()
+            return _done(r, f"cache:{v.kind}({v.score:.2f}, speed={v.speed}, semitones={v.semitones})", t0, norm)
         raw = await aletheia.detect(norm.path, idempotency_key=norm.sha256)
     else:
         raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),

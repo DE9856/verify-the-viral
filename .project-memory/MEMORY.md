@@ -11,7 +11,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed; U2 'hear the fake part' + U3 AI-clip radar (/radar) live.
 - In progress: demo video (PLAN.md step V): friend's kit + title cards done on demo laptop; Lane B phone clips 3-7 next; files in ~/Downloads/demo-clips (WA0011 spliced hero, WA0012 real, WA0013 clone).
 - Next: 1) user confirms own voice OK in video + sends hero-* files to friend 2) phone setup + 2 extra Telegram groups 3) 'start recording session' (fresh DB) -> clips 3-7 -> 'done'; rough cut 4) B6 Reddit + B7 demo script last.
-- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best; asked organizers for ~10k extra credits (efficiency experiments), awaiting reply; cross-format cache layers pushed to `testing`; Fedora server still needs `sudo dnf install chromaprint-tools` + pull + restart, then merge testing → master.
+- Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best; asked organizers for ~10k extra credits (efficiency experiments), awaiting reply; cross-format cache layers live on server and merged to master (276fd58, merged from Fedora); speed/tape/pitch copies = cache layer 5 (`app/core/variants.py`) built on testing (uncommitted until pushed), ~1 s extra on a miss; needs server test; maybe real_en at 0.5x false-alarm check.
 - Updated: 2026-11-25, Claude (Windows dev laptop)
 
 ## Rules & gotchas
@@ -25,6 +25,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Pillow can't shape Kannada/Hindi (no raqm): render cards as HTML via Playwright.
 - Whisper: English transcripts only; Kannada output is garbage.
 - Telegram groups: disable privacy mode AND re-add bot; 20 MB download cap. Bot = @verifytheviralbot; httpx logger must stay at WARNING (URLs carry the token).
+- Speed/pitch-changed copies hit cache layer 5 (variants.py: undo with ffmpeg + re-fingerprint; times stay the original's); detection OK 0.75-1.75x, 0.5x calls the whole clip fake, 2x unclear (`research/speed-test.md`).
 - Aletheia limits per docs: <=300 s, >=2 s speech (422 not charged), 2 credits/s, min 20.
 - PWA share target: Android Chrome only, installed + HTTPS on a STABLE origin (URL change breaks it). ngrok free shows a one-time "Visit Site" page in browsers (cookie abuse_interstitial); cookie-less fetches like the manifest get that page, so manifest links need crossorigin="use-credentials". Fallback: Tailscale Funnel. Start (repo root): `ngrok http --url=spirits-bauble-astronomy.ngrok-free.dev 8000`, `uvicorn app.api:app --host 127.0.0.1 --port 8000`, `python -m app.bot`; PUBLIC_BASE_URL needs `https://`.
 - OGG/Opus accepted directly; ffmpeg only to strip video/normalise.
