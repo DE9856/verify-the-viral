@@ -203,6 +203,12 @@
     <div><b>AI-clip radar /radar</b><span>Flagged clips seen in 2+ chats or checked 3+ times, counting up live as people forward them.</span></div>
   </div>
 
+  <div class="never" style="margin-top:30px">
+    <h2>Live listen: the same check while a call is on speaker</h2>
+    <p>The /live page sends the microphone as 0.1-second 16 kHz chunks to our server (WS /ws/live), which opens Aletheia's live stream with the API key, so the key never reaches the browser. Aletheia answers after about 5 seconds of speech, then every 10 seconds; the page turns green or red. On Stop, the final result for the whole call, with its 4-second windows, goes through the same verdict rules (stop 6) and is stored (stop 7) as a private check that never appears on the radar. Only seconds of speech are billed.</p>
+    <p class="file" style="margin:4px 0 0">app/core/live.py · app/web/live.html · wss://platform.detectif.ai/v1/stream</p>
+  </div>
+
   <div class="never">
     <h2>A bad clip never crashes the bot</h2>
     <p>Not enough speech (Aletheia's 422, not charged), out of credits (402), a failed download or a broken file all come back as a polite reply in the chat's language instead of an error.</p>

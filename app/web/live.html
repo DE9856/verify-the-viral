@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#18203a">
+<title>Live listen · Check Before Share</title>
+<meta name="description" content="Check the voice on a call while it talks: put the call on speaker and see if it sounds AI-generated.">
+<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
+<link rel="icon" href="/static/icons/icon-192.png">
+<link rel="stylesheet" href="/static/theme.css">
+<style>
+  :root { --bg: var(--paper); --fg: var(--ink); --fg-soft: var(--ink-soft); --line: var(--rule); }
+  @media (prefers-color-scheme: dark) { :root { --bg: #11172b; --fg: #eef0eb; --fg-soft: #b9c0d0; --line: #2c3552; } }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--fg); -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font: 500 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+  :focus-visible { outline: 3px solid var(--stock-partly_fake); outline-offset: 3px; border-radius: 4px; }
+  main { max-width: 640px; margin: 0 auto; padding: 18px 16px 48px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; letter-spacing: .14em;
+          text-transform: uppercase; color: inherit; text-decoration: none; }
+  .mark svg { width: 26px; height: 26px; }
+  .langs { display: flex; gap: 4px; font: 700 14px/1 var(--mono); }
+  .langs a { color: inherit; text-decoration: none; padding: 8px 9px; border-radius: 6px; border: 2px solid transparent; }
+  .langs a[aria-current] { border-color: var(--fg); }
+  h1 { margin: 30px 0 0; font-size: clamp(38px, 10vw, 60px); line-height: 1.02; font-weight: 800; letter-spacing: -.03em; }
+  .lede { margin: 12px 0 0; font-size: clamp(17px, 4.4vw, 20px); color: var(--fg-soft); max-width: 40ch; }
+  .consent { margin: 14px 0 0; font-weight: 700; font-size: 15px; }
+
+  /* the live ticket: its stock colour is the verdict right now */
+  .ticket { --stock: var(--paper-2); margin-top: 26px; position: relative; background: var(--stock); color: var(--ink);
+            border-radius: 10px; padding: 22px 20px 20px; overflow: hidden; transition: background-color .5s var(--ease-out);
+            box-shadow: 0 1px 0 rgba(24,32,58,.25), 0 14px 30px -18px rgba(24,32,58,.55); }
+  .ticket::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08;
+    background: repeating-linear-gradient(-18deg, var(--ink) 0 1px, transparent 1px 11px); }
+  .ticket[data-state="listening"] { --stock: var(--stock-unclear); }
+  .ticket[data-state="real"] { --stock: var(--stock-no_signs); }
+  .ticket[data-state="fake"] { --stock: var(--stock-likely_fake); }
+  .ticket[data-state="error"] { --stock: var(--stock-error); }
+  .t-head { position: relative; display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800;
+            letter-spacing: .14em; text-transform: uppercase; }
+  .t-head .rule { flex: 1; height: 2px; background: var(--ink); opacity: .8; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); opacity: .25; }
+  .ticket[data-state="listening"] .dot, .ticket[data-state="real"] .dot, .ticket[data-state="fake"] .dot {
+    opacity: 1; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(.6); opacity: .5; } }
+  .status { position: relative; margin: 14px 0 0; font-size: clamp(24px, 6.4vw, 32px); line-height: 1.15; font-weight: 800;
+            letter-spacing: -.02em; min-height: 2.3em; }
+  .ticket[data-state="idle"] .status { min-height: 0; margin: 0; }
+  .advice { position: relative; margin: 8px 0 0; font-size: 16px; line-height: 1.45; font-weight: 700; }
+  .advice:empty { display: none; }
+  .meta { position: relative; display: flex; justify-content: space-between; gap: 12px; margin-top: 16px;
+          font: 700 13px/1.3 var(--mono); }
+  .level { position: relative; height: 10px; margin-top: 10px; border: 2px solid var(--ink); border-radius: 3px; overflow: hidden; }
+  .level i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .1s linear; }
+
+  button { margin-top: 18px; width: 100%; min-height: 56px; border: 2px solid var(--ink); border-radius: 8px;
+           background: var(--stock-partly_fake); color: var(--ink); font: 800 19px/1 var(--font); cursor: pointer;
+           transition: transform .2s var(--ease-out); }
+  button:hover { transform: translateY(-1px); }
+  button.stop { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  button:disabled { opacity: .7; cursor: progress; transform: none; }
+  .done { display: none; margin-top: 14px; padding: 16px 18px; border: 2px solid var(--fg); border-radius: 10px;
+          color: inherit; text-decoration: none; font-weight: 800; font-size: 18px; }
+  .note { margin-top: 26px; font-size: 14px; color: var(--fg-soft); }
+  .mock { display: inline-block; margin-top: 10px; padding: 4px 8px; border: 2px dashed var(--fg); border-radius: 6px;
+          font: 700 13px/1.3 var(--mono); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <a class="mark" href="/">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 13.5l3.5 3.5 7-8" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Check Before Share
+    </a>
+    <nav class="langs" aria-label="Language"><a href="?lang=en" lang="en">EN</a><a href="?lang=hi" lang="hi">हि</a><a href="?lang=kn" lang="kn">ಕ</a></nav>
+  </div>
+
+  <h1 data-t="live_title"></h1>
+  <p class="lede" data-t="live_lede"></p>
+  <p class="consent" data-t="live_consent"></p>
+  <p class="mock" id="mock" hidden data-t="live_test_mode"></p>
+
+  <section class="ticket" id="ticket" data-state="idle" aria-live="polite">
+    <div class="t-head"><span class="dot"></span><span data-t="live_title"></span><span class="rule"></span><span id="clock">0:00</span></div>
+    <p class="status" id="status"></p>
+    <p class="advice" id="advice"></p>
+    <div class="level" aria-hidden="true"><i id="level"></i></div>
+    <div class="meta"><span id="checked"></span><span>Aletheia · DetectifAI</span></div>
+  </section>
+
+  <button id="go" type="button"></button>
+  <a class="done" id="done" href="#"></a>
+
+  <p class="note" data-t="live_note"></p>
+</main>
+
+<script id="i18n" type="application/json">__I18N__</script>
+<script>
+const T = JSON.parse(document.getElementById('i18n').textContent)
+const LANG = '__LANG__', MOCK = __MOCK__
+const t = (k, v = {}) => ((T[k] && (T[k][LANG] || T[k].en)) || '').replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '')
+const $ = id => document.getElementById(id)
+document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t) })
+document.querySelectorAll('.langs a').forEach(a => { if (a.getAttribute('lang') === LANG) a.setAttribute('aria-current', 'true') })
+document.title = t('live_title') + ' · Check Before Share'
+$('mock').hidden = !MOCK
+
+// AudioWorklet: microphone samples → 16 kHz 16-bit mono, posted in 0.1 s frames (3200 bytes), plus a level
+const WORKLET = `
+class PCM16k extends AudioWorkletProcessor {
+  constructor () { super(); this.step = sampleRate / 16000; this.phase = 0; this.sum = 0; this.cnt = 0;
+                   this.buf = new Int16Array(1600); this.n = 0; this.peak = 0 }
+  process (inputs) {
+    const ch = inputs[0] && inputs[0][0]
+    if (!ch) return true
+    for (let i = 0; i < ch.length; i++) {
+      const v = ch[i]; this.sum += v; this.cnt++; this.phase += 1
+      if (Math.abs(v) > this.peak) this.peak = Math.abs(v)
+      if (this.phase >= this.step) {          // average the input samples that fall in one output sample
+        this.phase -= this.step
+        const s = Math.max(-1, Math.min(1, this.sum / this.cnt)); this.sum = 0; this.cnt = 0
+        this.buf[this.n++] = s < 0 ? s * 32768 : s * 32767
+        if (this.n === this.buf.length) {
+          this.port.postMessage({ pcm: this.buf.buffer, peak: this.peak }, [this.buf.buffer])
+          this.buf = new Int16Array(1600); this.n = 0; this.peak = 0
+        }
+      }
+    }
+    return true
+  }
+}
+registerProcessor('pcm16k', PCM16k)`
+
+let ws = null, ctx = null, mic = null, wakeLock = null, running = false, finished = false, started = 0, timer = null
+
+function show (state, status, advice = '') {
+  $('ticket').dataset.state = state
+  $('status').textContent = status
+  $('advice').textContent = advice
+}
+function button (label, stop, disabled = false) {
+  const b = $('go'); b.textContent = label; b.classList.toggle('stop', stop); b.disabled = disabled
+}
+function idle () { show('idle', ''); button(t('live_start'), false) }
+
+async function start () {
+  finished = false
+  $('done').style.display = 'none'; $('checked').textContent = ''
+  try {
+    mic = await navigator.mediaDevices.getUserMedia({ audio: {
+      channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: false } })
+  } catch (e) { show('error', t('live_mic_denied')); return }
+  ctx = new AudioContext()
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'text/javascript' })))
+  const node = new AudioWorkletNode(ctx, 'pcm16k')
+  const silent = ctx.createGain(); silent.gain.value = 0          // keeps the node running, plays nothing
+  ctx.createMediaStreamSource(mic).connect(node).connect(silent).connect(ctx.destination)
+
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/live')
+  ws.binaryType = 'arraybuffer'
+  const pending = []
+  node.port.onmessage = ({ data }) => {
+    $('level').style.width = Math.min(100, Math.round(data.peak * 140)) + '%'
+    if (!running) return
+    if (ws.readyState === WebSocket.OPEN) { while (pending.length) ws.send(pending.shift()); ws.send(data.pcm) }
+    else if (ws.readyState === WebSocket.CONNECTING) pending.push(data.pcm)
+  }
+  ws.onmessage = ev => handle(JSON.parse(ev.data))
+  ws.onclose = () => { if (!finished) { show('error', t('live_error_failed')); finish() } }
+  running = true; started = Date.now()
+  timer = setInterval(() => { const s = Math.floor((Date.now() - started) / 1000)
+                              $('clock').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') }, 500)
+  try { wakeLock = await navigator.wakeLock?.request('screen') } catch (e) {}
+  show('listening', t('live_listening'))
+  button(t('live_stop'), true)
+}
+
+function stopMic () {
+  running = false
+  clearInterval(timer)
+  mic?.getTracks().forEach(tr => tr.stop()); mic = null
+  ctx?.close(); ctx = null
+  $('level').style.width = '0'
+  wakeLock?.release?.(); wakeLock = null
+}
+
+function stop () {
+  stopMic()
+  if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'stop' }))
+  show($('ticket').dataset.state, t('live_finishing'), $('advice').textContent)
+  button(t('live_finishing'), true, true)
+}
+
+function finish () {
+  finished = true; stopMic(); button(t('live_start'), false)
+  try { ws?.close() } catch (e) {}
+}
+
+function handle (m) {
+  if (m.type === 'update') {
+    $('checked').textContent = t('live_checked', { n: Math.round(m.speech_seconds || 0) })
+    if (!running) return
+    if (m.verdict === 'fake') show('fake', t('live_fake', { n: Math.round(m.window_seconds || 0) }), t('live_fake_advice'))
+    else show('real', t('live_no_signs'))
+  } else if (m.type === 'limit') {
+    stop(); $('advice').textContent = t('live_limit', { n: m.seconds })
+  } else if (m.type === 'result') {
+    finished = true
+    const band = m.band
+    show(band === 'no_signs' ? 'real' : band === 'unclear' ? 'listening' : 'fake', t('label_' + band))
+    const a = $('done'); a.href = m.result_url + '?lang=' + LANG
+    a.textContent = t('live_done') + ' →'; a.style.display = 'block'
+    finish()
+  } else if (m.type === 'error') {
+    show('error', t('live_error_' + m.code) || t('live_error_failed'))
+    finish()
+  }
+}
+
+$('go').addEventListener('click', () => (running ? stop() : start()))
+idle()
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js')
+</script>
+</body>
+</html>

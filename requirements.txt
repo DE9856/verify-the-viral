@@ -3,6 +3,7 @@ fastapi==0.165.0
 uvicorn==0.54.0
 python-multipart==0.0.34
 httpx==0.28.1
+websockets==15.0.1        # live listen: serves WS /ws/live (uvicorn) and opens Aletheia's live stream
 python-telegram-bot==22.8
 playwright==1.65.2
 imageio-ffmpeg==0.8.1

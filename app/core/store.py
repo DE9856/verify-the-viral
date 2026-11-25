@@ -278,6 +278,7 @@ def radar(*, days: float = 7, limit: int = 30) -> dict:
             f"SELECT c.id, c.band, c.created_at, c.last_checked_at, c.times_checked, c.duration, c.result,"
             f" (SELECT COUNT(DISTINCT place) FROM sightings s WHERE s.check_id = c.id) AS places"
             f" FROM checks c WHERE c.band IN ({marks}) AND c.last_checked_at >= ?"
+            f" AND COALESCE(c.channel, '') != 'live'"                      # a live call is private, never public
             f" AND json_extract(c.result, '$.operation_id') IS NOT NULL"   # mock results have none
             f" ORDER BY c.last_checked_at DESC", (*RADAR_BANDS, since)).fetchall()
         totals = con.execute(

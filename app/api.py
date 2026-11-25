@@ -8,6 +8,7 @@
   GET  /r/{id}               result page (waveform, AI-sounding part in red, verdict in kn/hi/en)
   GET  /media/{id}           the checked audio, for the waveform
   GET  /radar, /api/radar    AI-clip radar: flagged clips that are circulating (2+ chats or 3+ checks)
+  GET  /live, WS /ws/live    live listen: the mic streams to Aletheia's live check (app/core/live.py)
   GET  /manifest.webmanifest, /sw.js, /offline, /static/*   PWA + assets
   GET  /health               self-check: mock mode, key, fpcalc, public URL, DetectifAI status, stats
 """
@@ -18,13 +19,13 @@ import tempfile
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app import config
-from app.core import aletheia, check as check_mod, fingerprint, store
+from app.core import aletheia, check as check_mod, fingerprint, live, store
 
 log = logging.getLogger("app.api")
 WEB = config.WEB_DIR
@@ -132,6 +133,26 @@ def result_page(check_id: str, lang: str | None = None):
 def radar_page():
     return HTMLResponse((WEB / "radar.html").read_text(encoding="utf-8")
                         .replace("__I18N__", _embed({k: v for k, v in _i18n().items() if k.startswith("label_")})))
+
+
+@app.get("/live", response_class=HTMLResponse)
+def live_page(lang: str | None = None):
+    lang = lang if lang in LANGS else (config.DEFAULT_LANG if config.DEFAULT_LANG in LANGS else "en")
+    texts = {k: v for k, v in _i18n().items() if k.startswith(("live_", "label_"))}
+    html = ((WEB / "live.html").read_text(encoding="utf-8")
+            .replace("__I18N__", _embed(texts)).replace("__LANG__", lang)
+            .replace("__MOCK__", "true" if config.MOCK_ALETHEIA else "false"))
+    return HTMLResponse(html, headers=NO_STORE)
+
+
+@app.websocket("/ws/live")
+async def ws_live(ws: WebSocket):
+    await ws.accept()
+    await live.run(ws)
+    try:
+        await ws.close()      # a clean close frame, so the page doesn't take it for a dropped connection
+    except Exception:  # noqa: BLE001 — the page already left
+        pass
 
 
 @app.get("/api/radar")

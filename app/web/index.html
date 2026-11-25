@@ -76,6 +76,7 @@
   li::before { content: counter(stage); display: grid; place-items: center; width: 44px; height: 44px;
                border: 2px solid var(--fg); border-radius: 50%; font: 700 18px/1 var(--mono); }
   li p { margin: 9px 0 0; }
+  .radar + .radar { margin-top: 14px; }
   .radar { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 16px; margin-top: 44px;
            padding: 18px 20px; border: 2px solid var(--fg); border-radius: 10px; color: inherit; text-decoration: none;
            transition: transform .2s var(--ease-out); }
@@ -145,6 +146,12 @@
       <li><p>Pick <strong>Check Before Share</strong>. The answer opens in a few seconds.</p></li>
     </ol>
   </section>
+
+  <a class="radar" href="/live">
+    <strong>Live listen</strong>
+    <span>On a call? Put it on speaker and check the voice while it talks.</span>
+    <svg viewBox="0 0 30 30" aria-hidden="true"><path d="M6 15h17M16 8l7 7-7 7"/></svg>
+  </a>
 
   <a class="radar" href="/radar">
     <strong>AI-clip radar</strong>

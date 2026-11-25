@@ -52,6 +52,13 @@ cousin, a class rep) can't run a deepfake detector from a group chat.
    to hear exactly the suspicious sentence.
 8. *(Sync 2)* **Android share sheet:** WhatsApp → Share → *Check Before Share*, for people who
    don't use Telegram.
+9. **Live listen** (`/live`, added after a judge's question in round 1): on a call, put it on
+   speaker near a phone or laptop and press *Start listening*. The page streams the microphone to
+   **Aletheia's live stream** and shows the verdict as the voice talks: a first answer after about
+   5 seconds of speech, then an update every 10 seconds (🟢 "no signs of an AI voice so far",
+   🔴 "AI-sounding voice in the last 20 seconds: hang up and call the person back on a number you
+   know"). On *Stop* the whole call gets the usual verdict, timeline and 👍/👎 at `/r/<id>`.
+   Only seconds of speech are billed (2 credits a second, silence is free).
 
 ## How we use Aletheia, and why the timeline matters
 
@@ -135,6 +142,9 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 - **Very short AI pieces (1–2 s) are often missed by the detector itself** (our rule needs two
   overlapping 4 s windows). In a server test, Aletheia missed a 2 s and a 1 s AI insert in a known
   clip; only our "edited copy, 17–19 s are different" line pointed at them.
+- **Live listen hears through a microphone, not inside the call:** Android and iOS don't let apps
+  capture call audio, so the call has to be on speaker. Speaker-to-microphone audio is noisier than
+  a voice note; we haven't yet measured how that affects accuracy.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).
@@ -145,6 +155,9 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
 - Every cloned voice in our tests is **our own**, cloned with consent, for testing only. We never
   clone public figures.
 - API keys and the bot token live only in `.env`, which is never committed.
+- **Live listen** asks for the permission of everyone on the call before it starts. A live check is
+  private: it never appears on the public AI-clip radar. The API key stays on our server (the page
+  talks to our server, which opens the Aletheia stream), never in the browser or a URL.
 
 ## Architecture
 
@@ -155,6 +168,10 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
    (PWA share target)               mono 16 kHz, ≤ 300 s)           └─► verdict bands + core regions → SQLite
                                                            ▼
      reply in en/hi/kn + verdict card (HTML → PNG with Playwright) + link to /r/<id> timeline page
+
+ /live page: mic → 16 kHz PCM, 0.1 s frames ─► WS /ws/live (api.py → core/live.py, adds the API key)
+     ─► wss://platform.detectif.ai/v1/stream?checks=deepfake ─► early verdict, update every 10 s
+     ─► on Stop: final result with 4 s segments → same verdict bands → SQLite → /r/<id>
 ```
 
 Python 3.11 · python-telegram-bot · FastAPI · Playwright/Chromium (cards, so Kannada and Hindi

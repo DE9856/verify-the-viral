@@ -65,6 +65,106 @@
   "hi": "पहले जाँची गई क्लिप की बदली हुई कॉपी। भेजने वाले से असली क्लिप माँगें।",
   "kn": "ಹಿಂದೆ ಪರಿಶೀಲಿಸಿದ ಕ್ಲಿಪ್‌ನ ಬದಲಾಯಿಸಿದ ಪ್ರತಿ. ಕಳುಹಿಸಿದವರಿಂದ ಮೂಲ ಕ್ಲಿಪ್ ಕೇಳಿ."
  },
+ "live_title": {
+  "en": "Live listen",
+  "hi": "लाइव सुनें",
+  "kn": "ಲೈವ್ ಆಲಿಸಿ"
+ },
+ "live_lede": {
+  "en": "Is the voice on this call real? Put the call on speaker near this phone or laptop. We check the voice as it talks.",
+  "hi": "क्या इस कॉल की आवाज़ असली है? कॉल को स्पीकर पर इस फ़ोन या लैपटॉप के पास रखें। आवाज़ बोलते समय ही जाँच होती है।",
+  "kn": "ಈ ಕರೆಯ ಧ್ವನಿ ನಿಜವೇ? ಕರೆಯನ್ನು ಸ್ಪೀಕರ್‌ನಲ್ಲಿ ಇಟ್ಟು ಈ ಫೋನ್ ಅಥವಾ ಲ್ಯಾಪ್‌ಟಾಪ್ ಹತ್ತಿರ ಇಡಿ. ಧ್ವನಿ ಮಾತನಾಡುತ್ತಿರುವಾಗಲೇ ಪರಿಶೀಲಿಸುತ್ತೇವೆ."
+ },
+ "live_consent": {
+  "en": "Only listen with the permission of everyone on the call.",
+  "hi": "कॉल पर मौजूद सभी लोगों की अनुमति से ही सुनें।",
+  "kn": "ಕರೆಯಲ್ಲಿರುವ ಎಲ್ಲರ ಅನುಮತಿಯಿದ್ದರೆ ಮಾತ್ರ ಆಲಿಸಿ."
+ },
+ "live_start": {
+  "en": "Start listening",
+  "hi": "सुनना शुरू करें",
+  "kn": "ಆಲಿಸಲು ಪ್ರಾರಂಭಿಸಿ"
+ },
+ "live_stop": {
+  "en": "Stop and see the result",
+  "hi": "रोकें और नतीजा देखें",
+  "kn": "ನಿಲ್ಲಿಸಿ ಮತ್ತು ಫಲಿತಾಂಶ ನೋಡಿ"
+ },
+ "live_listening": {
+  "en": "Listening… the first result comes after about 5 seconds of speech.",
+  "hi": "सुन रहे हैं… लगभग 5 सेकंड की बातचीत के बाद पहला नतीजा आएगा।",
+  "kn": "ಆಲಿಸುತ್ತಿದ್ದೇವೆ… ಸುಮಾರು 5 ಸೆಕೆಂಡುಗಳ ಮಾತಿನ ನಂತರ ಮೊದಲ ಫಲಿತಾಂಶ ಬರುತ್ತದೆ."
+ },
+ "live_no_signs": {
+  "en": "No signs of an AI voice so far",
+  "hi": "अब तक AI आवाज़ के कोई संकेत नहीं",
+  "kn": "ಇಲ್ಲಿಯವರೆಗೆ AI ಧ್ವನಿಯ ಯಾವುದೇ ಸೂಚನೆ ಇಲ್ಲ"
+ },
+ "live_fake": {
+  "en": "AI-sounding voice in the last {n} seconds",
+  "hi": "पिछले {n} सेकंड में AI जैसी आवाज़",
+  "kn": "ಕಳೆದ {n} ಸೆಕೆಂಡುಗಳಲ್ಲಿ AI ನಂತೆ ಕೇಳುವ ಧ್ವನಿ"
+ },
+ "live_fake_advice": {
+  "en": "Don't act on what it says. Hang up and call the person back on a number you know.",
+  "hi": "इसकी बात पर अमल न करें। कॉल काटें और उस व्यक्ति को अपने जाने-पहचाने नंबर पर वापस कॉल करें।",
+  "kn": "ಅದು ಹೇಳಿದಂತೆ ಮಾಡಬೇಡಿ. ಕರೆ ಕಡಿತಗೊಳಿಸಿ, ನಿಮಗೆ ಗೊತ್ತಿರುವ ಸಂಖ್ಯೆಗೆ ಆ ವ್ಯಕ್ತಿಗೆ ಮತ್ತೆ ಕರೆ ಮಾಡಿ."
+ },
+ "live_checked": {
+  "en": "{n} s of speech checked",
+  "hi": "{n} सेकंड की बातचीत जाँची गई",
+  "kn": "{n} ಸೆಕೆಂಡು ಮಾತು ಪರಿಶೀಲಿಸಲಾಗಿದೆ"
+ },
+ "live_finishing": {
+  "en": "Finishing the check of the whole call…",
+  "hi": "पूरी कॉल की जाँच पूरी कर रहे हैं…",
+  "kn": "ಇಡೀ ಕರೆಯ ಪರಿಶೀಲನೆ ಮುಗಿಸುತ್ತಿದ್ದೇವೆ…"
+ },
+ "live_done": {
+  "en": "Done. See which seconds sounded AI-generated",
+  "hi": "हो गया। देखें कौन से सेकंड AI जैसे लगे",
+  "kn": "ಮುಗಿದಿದೆ. ಯಾವ ಸೆಕೆಂಡುಗಳು AI ನಂತೆ ಕೇಳಿಸಿದವು ಎಂದು ನೋಡಿ"
+ },
+ "live_limit": {
+  "en": "Stopped after {n} seconds to save credits.",
+  "hi": "क्रेडिट बचाने के लिए {n} सेकंड बाद रोका गया।",
+  "kn": "ಕ್ರೆಡಿಟ್ ಉಳಿಸಲು {n} ಸೆಕೆಂಡುಗಳ ನಂತರ ನಿಲ್ಲಿಸಲಾಗಿದೆ."
+ },
+ "live_mic_denied": {
+  "en": "We need the microphone to listen. Allow it in the browser and try again.",
+  "hi": "सुनने के लिए माइक्रोफ़ोन चाहिए। ब्राउज़र में अनुमति दें और फिर कोशिश करें।",
+  "kn": "ಆಲಿಸಲು ಮೈಕ್ರೋಫೋನ್ ಬೇಕು. ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಅನುಮತಿ ನೀಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+ },
+ "live_error_insufficient_speech": {
+  "en": "Not enough speech to check. Nothing was charged.",
+  "hi": "जाँचने के लिए पर्याप्त बातचीत नहीं। कोई क्रेडिट नहीं कटा।",
+  "kn": "ಪರಿಶೀಲಿಸಲು ಸಾಕಷ್ಟು ಮಾತು ಇಲ್ಲ. ಯಾವುದೇ ಶುಲ್ಕ ಇಲ್ಲ."
+ },
+ "live_error_out_of_credits": {
+  "en": "The checker is out of credits right now.",
+  "hi": "जाँचने वाले के क्रेडिट अभी ख़त्म हैं।",
+  "kn": "ಪರಿಶೀಲಕದಲ್ಲಿ ಈಗ ಕ್ರೆಡಿಟ್ ಮುಗಿದಿದೆ."
+ },
+ "live_error_busy": {
+  "en": "Too many live checks right now. Try again in a minute.",
+  "hi": "अभी बहुत सारी लाइव जाँचें चल रही हैं। एक मिनट बाद कोशिश करें।",
+  "kn": "ಈಗ ಹಲವು ಲೈವ್ ಪರಿಶೀಲನೆಗಳು ನಡೆಯುತ್ತಿವೆ. ಒಂದು ನಿಮಿಷದ ನಂತರ ಪ್ರಯತ್ನಿಸಿ."
+ },
+ "live_error_failed": {
+  "en": "The live check didn't work. Try again, or record the call and share the file.",
+  "hi": "लाइव जाँच नहीं हो पाई। फिर कोशिश करें, या कॉल रिकॉर्ड करके फ़ाइल शेयर करें।",
+  "kn": "ಲೈವ್ ಪರಿಶೀಲನೆ ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ಕರೆಯನ್ನು ರೆಕಾರ್ಡ್ ಮಾಡಿ ಫೈಲ್ ಹಂಚಿಕೊಳ್ಳಿ."
+ },
+ "live_note": {
+  "en": "Phones don't let apps hear calls, so this listens through the microphone. A score is evidence, not proof.",
+  "hi": "फ़ोन ऐप्स को कॉल सुनने नहीं देते, इसलिए यह माइक्रोफ़ोन से सुनता है। स्कोर एक संकेत है, सबूत नहीं।",
+  "kn": "ಫೋನ್‌ಗಳು ಆ್ಯಪ್‌ಗಳಿಗೆ ಕರೆ ಕೇಳಲು ಬಿಡುವುದಿಲ್ಲ, ಆದ್ದರಿಂದ ಇದು ಮೈಕ್ರೋಫೋನ್ ಮೂಲಕ ಆಲಿಸುತ್ತದೆ. ಸ್ಕೋರ್ ಒಂದು ಸೂಚನೆ, ಪುರಾವೆಯಲ್ಲ."
+ },
+ "live_test_mode": {
+  "en": "Test mode: simulated results, the microphone is not really checked.",
+  "hi": "टेस्ट मोड: नकली नतीजे, माइक्रोफ़ोन की असली जाँच नहीं होती।",
+  "kn": "ಪರೀಕ್ಷಾ ಮೋಡ್: ಅನುಕರಿಸಿದ ಫಲಿತಾಂಶಗಳು, ಮೈಕ್ರೋಫೋನ್ ನಿಜವಾಗಿ ಪರಿಶೀಲಿಸಲ್ಪಡುವುದಿಲ್ಲ."
+ },
  "edited_copy": {
   "en": "Parts of this clip match one we checked before, but {regions} are different: this looks like an edited copy.",
   "hi": "इस क्लिप के हिस्से पहले जाँची गई एक क्लिप से मिलते हैं, लेकिन {regions} अलग हैं: यह एक बदली हुई कॉपी लगती है।",
