@@ -77,3 +77,13 @@ fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
   fingerprint ≥ 0.80) → the **same `id`**, `cache.hit: true`, `times_checked` + 1, `credits_charged: 0`.
 - Two identical clips arriving together → one API call; the second gets the cache-hit result.
 - `check()` can take a few seconds on a cold API; show a "checking…" message first.
+
+## 7. The flagged seconds as audio (added 2026-11-25, Lane A → Lane B)
+```python
+from app.core import excerpt
+part = await excerpt.fake_part(result)   # result from check()
+# None unless band == "partly_fake" and the audio is stored; else (path, [start, end]):
+# an OGG/Opus file of exactly the longest core region (max 30 s), playable as a Telegram voice note.
+```
+Cached on disk (`data/audio/excerpts/`); calling it again for the same result is instant. The bot
+sends it after the card (`send_fake_part` in `app/bot.py`).

@@ -56,6 +56,9 @@ def card_data(result: dict, lang: str) -> dict:
         "band": band,
         "label": _t(f"label_{band}", lang),
         "advice": _t(f"advice_{band}", lang, regions=regions),
+        # the splice story in one line: the whole-clip verdict said real, the segments caught it
+        "note": _t("card_overall_note", lang)
+        if band == "partly_fake" and (result.get("overall") or {}).get("verdict") == "real" else "",
         "timeline_label": _t("card_timeline", lang),
         "legend_ai": _t("legend_ai", lang),
         "legend_human": _t("legend_human", lang),

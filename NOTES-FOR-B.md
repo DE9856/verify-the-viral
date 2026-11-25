@@ -41,3 +41,15 @@ would open it in the chat's language.
 `.env` too. Chats that already used `/lang` keep their choice. I changed one phrase in your
 `README.md` to match ("English by default"). `card.py`'s `render_card(..., lang="kn")` default is
 unused (the bot always passes the chat language), so I left it.
+
+## 2026-11-25 — "Hear the fake part" (user's call; I edited some of your files, please pull first)
+For 🟠 partly fake, the bot now replies to the card with the flagged seconds as a voice note
+("🔊 The part that sounds AI-generated (10–14 s). Listen before you forward."), and the card has
+one extra line: "Whole-clip verdict alone: real. The 4-second scores caught this part."
+- Engine: `app/core/excerpt.py` (mine), contract in `CONTRACT.md` §7.
+- Your files I touched: `app/bot.py` (`send_fake_part`, called after the card), `app/core/card.py`
+  (`note` in `card_data`), `app/web/card.html` (`.note` line; checked en/hi/kn fit, no overflow),
+  `app/i18n.json` (`fake_part_caption`, `card_overall_note`), `tests/test_bot.py`, `tests/test_card.py`.
+- hi/kn of the two new strings are my drafts: add them to the native-speaker review.
+- README/Reddit/video: this is the demo moment. Suggested tagline: "Other detectors say real or
+  fake. We show you, and let you hear, the 4 seconds that lie."

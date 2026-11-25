@@ -10,6 +10,8 @@ B4: "Already checked N times" on cache hits; a button to the timeline page (only
 PUBLIC_BASE_URL is a public https address: Telegram rejects localhost links); in groups a
 one-line ✅ for 🟢 instead of the full card; "Was this right? 👍 / 👎" → send_feedback().
 Sync 1: a "⏳ Checking…" message if check() takes over 1.5 s (deleted when the answer arrives).
+"Hear the fake part": for 🟠 partly fake, the flagged seconds follow the card as a voice note
+(app/core/excerpt.py), so people hear what was edited in without opening a link.
 Gotcha: the bot only sees group media if privacy mode is disabled in @BotFather AND it was re-added.
 """
 import asyncio
@@ -24,7 +26,7 @@ from telegram.ext import (Application, CallbackQueryHandler, CommandHandler, Con
                           MessageHandler, filters)
 
 from app import config
-from app.core import card
+from app.core import card, excerpt
 from app.core.check import check, send_feedback
 
 log = logging.getLogger("bot")
@@ -152,6 +154,20 @@ def parse_feedback(data: str):
     return parts[1] == "1", CODE_BAND[parts[2]], parts[3]
 
 
+async def send_fake_part(reply_to: Message, result: dict, lang: str) -> None:
+    """🟠 partly fake: reply with the flagged seconds as a voice note. Never breaks the reply."""
+    try:
+        part = await excerpt.fake_part(result)
+        if not part:
+            return
+        path, region = part
+        caption = t("fake_part_caption", lang, regions=format_regions([region], lang))
+        with open(path, "rb") as f:
+            await reply_to.reply_voice(f, caption=caption, do_quote=True)
+    except Exception:
+        log.exception("could not send the fake part for %s", result.get("id"))
+
+
 CHECKING_AFTER_S = 1.5
 
 
@@ -215,10 +231,12 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     markup = keyboard(result, lang)
     try:
         png = await card.render_card(result, lang)
-        await msg.reply_photo(png, caption=text, do_quote=True, reply_markup=markup)
+        sent = await msg.reply_photo(png, caption=text, do_quote=True, reply_markup=markup)
     except Exception:
         log.exception("card failed, sending text only")
-        await msg.reply_text(text, do_quote=True, reply_markup=markup)
+        sent = await msg.reply_text(text, do_quote=True, reply_markup=markup)
+    if result["band"] == "partly_fake":
+        await send_fake_part(sent, result, lang)
 
 
 async def on_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

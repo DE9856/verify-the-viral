@@ -54,3 +54,10 @@ def test_render_png(monkeypatch):
 def test_no_card_for_errors(monkeypatch):
     with pytest.raises(ValueError):
         asyncio.run(card.render_card(mock_result(monkeypatch, "error_failed"), "en"))
+
+
+def test_partly_fake_card_says_the_whole_clip_verdict_missed_it(monkeypatch):
+    note = card.card_data(mock_result(monkeypatch, "spliced_en"), "en")["note"]
+    assert "Whole-clip verdict alone: real" in note
+    for name in ("fake_en", "real_en"):
+        assert card.card_data(mock_result(monkeypatch, name), "en")["note"] == ""

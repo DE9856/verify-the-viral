@@ -114,3 +114,30 @@ def test_feedback_labels():
     assert bot.feedback_label("likely_fake", False) == "real"
     assert bot.feedback_label("no_signs", False) == "fake"
     assert bot.feedback_label("unclear", False) is None
+
+
+class _FakeMessage:
+    """Stands in for a Telegram Message: records reply_voice calls."""
+    def __init__(self, fail=False):
+        self.voices, self.fail = [], fail
+
+    async def reply_voice(self, voice, caption=None, do_quote=None):
+        if self.fail:
+            raise RuntimeError("telegram down")
+        self.voices.append({"bytes": voice.read(), "caption": caption})
+
+
+def test_partly_fake_sends_the_flagged_seconds_as_voice(monkeypatch):
+    msg = _FakeMessage()
+    asyncio.run(bot.send_fake_part(msg, mock_result(monkeypatch, "spliced_en"), "en"))
+    assert len(msg.voices) == 1
+    assert msg.voices[0]["bytes"][:4] == b"OggS"                 # Telegram plays OGG/Opus as a voice note
+    assert "10–14 s" in msg.voices[0]["caption"] and msg.voices[0]["caption"].startswith("🔊")
+
+
+def test_no_voice_for_other_bands_and_errors_never_raise(monkeypatch):
+    msg = _FakeMessage()
+    for name in ("fake_en", "real_en"):
+        asyncio.run(bot.send_fake_part(msg, mock_result(monkeypatch, name), "en"))
+    assert msg.voices == []
+    asyncio.run(bot.send_fake_part(_FakeMessage(fail=True), mock_result(monkeypatch, "spliced_en"), "kn"))
