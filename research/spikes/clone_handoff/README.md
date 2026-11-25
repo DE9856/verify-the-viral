@@ -76,6 +76,7 @@ Right-click the `output` folder → **Send to → Compressed (zipped) folder** �
 - **IndicF5 asks for a login or says "gated" / 401:** make a free account on huggingface.co, open
   the page `huggingface.co/ai4bharat/IndicF5`, accept the terms, then in a terminal run
   `venv-indicf5\Scripts\huggingface-cli login`, paste a read token, and run the .bat again.
+- **Nothing in `output/`:** open `run_log.txt` (next to the .bat); the last lines say what failed. Send that file back.
 - **Only one model works:** fine. Send back whatever is in `output/` plus `output/log.txt`.
 - **Anything else:** if this laptop has Claude Code, open this folder in it and say
   "Read README.md and get setup_and_run.bat working". Otherwise send back `output/log.txt` and a
