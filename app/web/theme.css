@@ -14,10 +14,10 @@
   --muted: #93a1b0;
   --faint: #8190a0;
   --human: #2b3a4a;
-  --band-likely_fake: #ef4444;
-  --band-partly_fake: #f97316;
+  --band-likely_fake: #e5484d;
+  --band-partly_fake: #f76b15;
   --band-unclear: #eab308;
-  --band-no_signs: #22c55e;
-  --ai: #ef4444;
+  --band-no_signs: #2f9e66;
+  --ai: #e5484d;
   --font: "Noto Sans", "Noto Sans Kannada", "Noto Sans Devanagari", sans-serif;
 }

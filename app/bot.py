@@ -9,8 +9,10 @@ falls back to text if the card can't be drawn. Chromium is warmed up at startup.
 B4: "Already checked N times" on cache hits; a button to the timeline page (only when
 PUBLIC_BASE_URL is a public https address: Telegram rejects localhost links); in groups a
 one-line ✅ for 🟢 instead of the full card; "Was this right? 👍 / 👎" → send_feedback().
+Sync 1: a "⏳ Checking…" message if check() takes over 1.5 s (deleted when the answer arrives).
 Gotcha: the bot only sees group media if privacy mode is disabled in @BotFather AND it was re-added.
 """
+import asyncio
 import json
 import logging
 import tempfile
@@ -150,6 +152,17 @@ def parse_feedback(data: str):
     return parts[1] == "1", CODE_BAND[parts[2]], parts[3]
 
 
+CHECKING_AFTER_S = 1.5
+
+
+async def _delete(message) -> None:
+    if message is not None:
+        try:
+            await message.delete()
+        except Exception:
+            log.debug("could not delete checking message", exc_info=True)
+
+
 # ---- handlers ----
 
 async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -158,6 +171,7 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if media is None:
         return
     lang = chat_lang(msg.chat_id)
+    checking = None
     if (media.file_size or 0) > config.TELEGRAM_MAX_BYTES:
         await msg.reply_text(t("error_too_large", lang), do_quote=True)
         return
@@ -169,13 +183,19 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             path = Path(tmp) / Path(filename).name
             tg_file = await media.get_file()
             await tg_file.download_to_drive(path)
-            result = await check(str(path), source={"channel": "telegram",
-                                                    "tg_file_unique_id": media.file_unique_id,
-                                                    "filename": filename})
+            task = asyncio.create_task(check(str(path), source={
+                "channel": "telegram", "tg_file_unique_id": media.file_unique_id, "filename": filename}))
+            # a cache hit answers at once; a real API call can take seconds → say we're on it
+            done, _ = await asyncio.wait({task}, timeout=CHECKING_AFTER_S)
+            if not done:
+                checking = await msg.reply_text(t("checking", lang), do_quote=True)
+            result = await task
     except Exception:
         log.exception("check failed for %s in chat %s", kind, msg.chat_id)
+        await _delete(checking)
         await msg.reply_text(t("error_failed", lang), do_quote=True)
         return
+    await _delete(checking)
 
     log.info("chat %s %s -> %s (%s)%s", msg.chat_id, kind, result["band"], lang,
              " cache hit" if (result.get("cache") or {}).get("hit") else "")
