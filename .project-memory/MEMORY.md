@@ -3,14 +3,14 @@ Shared memory for this folder. Before editing anything in `.project-memory/`, re
 Asked about the project's past? If the answer isn't below or in a topic file, search `.project-memory/history/` for the key words before saying it isn't recorded.
 
 ## Overview
-Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Lane A engine + web (`app/core/*`, `app/api.py`, result page, PWA) and Lane B bot + card + wording (`app/bot.py`, `app/core/card.py`, `app/i18n.json`) merged on master at Sync 1. Python 3.11, FastAPI, python-telegram-bot. Tests: `.venv/Scripts/python -m pytest -q` (venv on this PC).
+Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Lane A engine + web (`app/core/*`, `app/api.py`, result page, PWA) and Lane B bot + card + wording (`app/bot.py`, `app/core/card.py`, `app/i18n.json`) merged on master at Sync 1. Default language English (`DEFAULT_LANG`). Python 3.11, FastAPI, python-telegram-bot. Tests: `.venv/Scripts/python -m pytest -q` (venv on this PC).
 
 ## Current work
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
 - Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. Lane A = demo laptop (engine+web, runs bot+server at Sync 2); Lane B = teammate PC (bot+card+story).
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7; Lane B B1-B5; Sync 1 + **Sync 2 passed** (demo laptop, real API: reply + card + https /r/<id> red 10-14 s, 👍 forwarded); A5 Android install + share passed.
-- In progress: English default committed to master; this laptop's .env still yields DEFAULT_LANG=kn (user to fix: one line DEFAULT_LANG=en, saved), then restart api + bot. Demo laptop runs ngrok + uvicorn + bot (live, credits 3152).
-- Next: 1) fix .env + restart api/bot, verify English 2) teammate `git pull` on master 3) B6 backup video + B7 demo script (Lane B, needs demo laptop) 4) F1 rehearse x3 incl. hotspot 5) Sync 3 freeze; A6 optional.
+- In progress: none. Demo laptop runs ngrok + uvicorn + bot (live, English default, credits 3152).
+- Next: 1) teammate `git pull` on master 3) B6 backup video + B7 demo script (Lane B, needs demo laptop) 4) F1 rehearse x3 incl. hotspot 5) Sync 3 freeze; A6 optional.
 - Blockers / open questions: build hours; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
 - Updated: 2026-11-25, Claude (Lane A, Sync 2)
 
