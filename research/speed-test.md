@@ -70,3 +70,25 @@ the length ratio (most-checked 8 clips); pitch copies undone at −6…+6 semito
 result plus `cache.variant`; the bot adds "This is a 1.5× speed copy … times refer to the original".
 Cost on a miss: ~1–1.2 s with 5 stored clips (Windows laptop, 8 parallel ffmpeg runs).
 Tests: `tests/test_cache.py` (1.5×, 0.5×, tape 1.25×, +2.5 semitones match; real_en 1.25× doesn't).
+
+## Server test of layer 5 (Fedora, 7d27da1, 2026-11-25 23:42, clean `DB_PATH=data/layer5-test.db`)
+Original spliced_whatsapp.mp3 → check LmBubg via API (partly_fake 10–14 s, 50 credits). Then 9 fresh copies:
+
+| File | Detected | Score | Matched | Variant search / whole check (ms) |
+|---|---|---|---|---|
+| speed_1.1x | speed 1.1× | 0.93 | original ✓ | 153 / 295 |
+| speed_0.9x | speed 0.9× | 0.94 | original ✓ | 150 / 308 |
+| speed_1.4x | speed 1.4× | 0.89 | original ✓ | 160 / 268 |
+| speed_0.6x | speed 0.6× | 0.92 | original ✓ | 149 / 309 |
+| speed_1.8x | speed 1.8× | 0.87 | original ✓ | 153 / 244 |
+| tape_1.3x | tape 1.3× | 1.00 | original ✓ | 98 / 235 |
+| tape_0.8x | tape 0.8× | 1.00 | original ✓ | 94 / 224 |
+| pitch_2semitones | pitch +2 | 0.94 | original ✓ | 287 / 410 |
+| pitch_-3semitones | pitch −3 | 0.92 | original ✓ | 295 / 443 |
+
+**9 / 9 hits, 0 credits, every kind and amount right.** Lowest margins: speed 1.8× (0.87) and 1.4×
+(0.89). Pitch is the slowest (12 ffmpeg runs; 18 runs / 548 ms on the real DB with 7 similar-length
+clips). Earlier run on the real DB (same commit): also 9 / 9, but 4 matched the speed copies stored
+before layer 5 existed (correct clip, but that copy's own result) — those old rows still carry the
+misleading 0.5× "likely fake" and 2× "unclear" results.
+One "hear the fake part" voice note timed out (telegram TimedOut, 5 s default) → uploads now get 30 s.

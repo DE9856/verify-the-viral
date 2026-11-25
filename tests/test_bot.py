@@ -121,7 +121,7 @@ class _FakeMessage:
     def __init__(self, fail=False):
         self.voices, self.fail = [], fail
 
-    async def reply_voice(self, voice, caption=None, do_quote=None):
+    async def reply_voice(self, voice, caption=None, do_quote=None, **timeouts):
         if self.fail:
             raise RuntimeError("telegram down")
         self.voices.append({"bytes": voice.read(), "caption": caption})

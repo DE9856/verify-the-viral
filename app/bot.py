@@ -166,6 +166,11 @@ def parse_feedback(data: str):
     return parts[1] == "1", CODE_BAND[parts[2]], parts[3]
 
 
+# uploads (card, voice note) get longer than python-telegram-bot's 5 s default: a voice note timed
+# out on the server once (2026-11-25). No retry: Telegram may have delivered it anyway (duplicate).
+UPLOAD_TIMEOUTS = {"write_timeout": 30, "read_timeout": 30}
+
+
 async def send_fake_part(reply_to: Message, result: dict, lang: str) -> None:
     """🟠 partly fake: reply with the flagged seconds as a voice note. Never breaks the reply."""
     try:
@@ -175,7 +180,7 @@ async def send_fake_part(reply_to: Message, result: dict, lang: str) -> None:
         path, region = part
         caption = t("fake_part_caption", lang, regions=format_regions([region], lang))
         with open(path, "rb") as f:
-            await reply_to.reply_voice(f, caption=caption, do_quote=True)
+            await reply_to.reply_voice(f, caption=caption, do_quote=True, **UPLOAD_TIMEOUTS)
     except Exception:
         log.exception("could not send the fake part for %s", result.get("id"))
 
@@ -247,7 +252,7 @@ async def on_media(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     markup = keyboard(result, lang)
     try:
         png = await card.render_card(result, lang)
-        sent = await msg.reply_photo(png, caption=text, do_quote=True, reply_markup=markup)
+        sent = await msg.reply_photo(png, caption=text, do_quote=True, reply_markup=markup, **UPLOAD_TIMEOUTS)
     except Exception:
         log.exception("card failed, sending text only")
         sent = await msg.reply_text(text, do_quote=True, reply_markup=markup)
