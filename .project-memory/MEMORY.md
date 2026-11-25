@@ -9,9 +9,9 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
 - Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. This PC = **Lane B** (bot+card+story); teammate = Lane A.
 - Done: research; real-voice test 0/12 false alarms (`research/real-world.md`); Lane A A1-A5+A7 (see `PLAN.md` §5.7); Lane B B1-B4 (bot on Telegram, /lang, card, 👍/👎); Sync 1 merge on master.
-- In progress: Sync 1 done-when: real API test (spliced clip -> 🟠 10-14 s in group); needs `MOCK_ALETHEIA=` empty in `.env`. README draft (B5) stashed on lane-b (`git stash list`), awaiting user review. Clone rerun with `clone-handoff-v2.zip` on GPU laptop.
-- Next: 1) real-API Sync 1 test 2) Sync 2: Lane A server + ngrok static domain, PUBLIC_BASE_URL https -> timeline button + cache live 3) B6 Reddit draft + B7 demo script 4) clone results -> README.
-- Blockers / open questions: build hours; who has the Android phone; Kannada false alarms: 0/4 on our voices (Hindi runs hottest); who reads Kannada best.
+- In progress: Sync 1 PASSED (group, real API). Bot running real mode on Lane B PC (credits ~3241). README + research updates uncommitted on lane-b, awaiting user review.
+- Next: 1) user reviews README -> commit 2) Sync 2: bot + api.py on Lane A laptop (shared SQLite, fpcalc), ngrok static domain, PUBLIC_BASE_URL https -> timeline button live 3) B6 Reddit draft + B7 demo script 4) hi/kn native review.
+- Blockers / open questions: build hours; who has the Android phone; Kannada: 0 false alarms, clone + splice caught; who reads Kannada best.
 - Updated: 2026-11-25, Claude (Lane B, at Sync 1)
 
 ## Rules & gotchas

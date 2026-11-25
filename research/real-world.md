@@ -37,10 +37,55 @@ Scripts read aloud: `research/script.md`. Audio + raw JSON: `research/real-audio
   changed no verdict.
 
 ## Limits (say these in the README)
-- n = 6 recordings, male voices only, 2 speakers, one phone, quiet room.
+- n = 6 recordings, male voices only, one phone, quiet room.
 - WhatsApp compression simulated with ffmpeg, not WhatsApp's own encoder.
 
-## Still to test
-- `clone_en`: AI clone of the notice_en speaker reading Script B → should be `fake`.
-- `spliced_en`: notice_en with one cloned sentence pasted in at ~10 s → overall may say real;
-  the segments should flag only the pasted seconds.
+## AI clones of our own voice (truth: fake) — added 2026-11-25
+
+Consented clones of the Script-B speaker, made locally on an RTX 5060 with open-source models:
+**Chatterbox** (English) and **IndicF5** (Hindi, Kannada), each from ~10 s of the real voice
+(`research/spikes/clone_handoff/`). Each clip checked clean and WhatsApp-quality.
+
+| Clip | Overall (score) | Fake windows | Our band |
+|---|---|---|---|
+| clone_en — clean / WhatsApp | fake (1.000) / fake (1.000) | 7/7 / 7/7 | 🔴 likely_fake ×2 |
+| clone_hi — clean / WhatsApp | fake (1.000) / fake (1.000) | 12/12 / 12/12 | 🔴 likely_fake ×2 |
+| clone_kn — clean / WhatsApp | fake (0.997) / fake (0.937) | 9/9 / 8/9 | 🔴 likely_fake ×2 |
+
+**6 / 6 caught.** WhatsApp-quality compression lowered the Kannada clone's score a little
+(0.997 → 0.937) but changed no verdict.
+
+## Spliced: real notice + one cloned sentence (the dangerous case)
+
+Our real Script-B recording with the cloned sentence "…everyone must send five hundred rupees to this
+number by tonight" pasted in at a natural pause, loudness matched (`clones/splice_truth.json`).
+
+| Clip | Fake really at | Overall (score) | Fake windows | Our band (core region) |
+|---|---|---|---|---|
+| spliced_en — clean | 10.05–13.77 s | **real** (0.311) | 8–12, 10–14, 12–16 | 🟠 partly_fake **10–14 s** |
+| spliced_en — WhatsApp | | **real** (0.314) | same | 🟠 partly_fake **10–14 s** |
+| spliced_hi — clean | 17.95–24.48 s | fake (0.319) | 12–16, 16–26 | 🔴 likely_fake |
+| spliced_hi — WhatsApp | | fake (0.387) | 14–26 | 🔴 likely_fake |
+| spliced_kn — clean | 12.95–17.97 s | **real** (0.236) | 12–16, 14–18 | 🟠 partly_fake **14–16 s** |
+| spliced_kn — WhatsApp | | **real** (0.233) | same | 🟠 partly_fake **14–16 s** |
+
+**6 / 6 flagged** (none called "no signs"). What this shows:
+- **English and Kannada: the overall verdict said *real* both times.** Only the 4-second windows
+  caught the fake sentence, and our core-region rule put it inside the true span (English 10–14 s
+  vs 10.05–13.77 s; Kannada 14–16 s vs 12.95–17.97 s, narrower than the truth).
+- **Hindi:** the fake sentence is longer (6.5 s), and the overall verdict flipped to *fake* even
+  though the score was only 0.32–0.39 (below the 0.62 threshold): the overall verdict isn't just
+  "score > threshold". Our band then says 🔴 "likely AI-generated" for the whole clip, although the
+  windows point at 16–26 s. Suggested to Lane A: show the windows' location on 🔴 too when only part
+  of the clip is fake (`NOTES-FOR-A.md`).
+- Compression changed nothing that matters.
+
+Cost of the clone + splice run: 608 credits (plus ~370 wasted by an accidental re-run of the real
+clips: re-encoded WhatsApp copies get new bytes, so the Idempotency-Key didn't replay them; fixed).
+
+## Overall (n is small — say so)
+| | Clips | Correct |
+|---|---|---|
+| Real voices (en/hi/kn, clean + WhatsApp) | 12 | 12 called real |
+| Full AI clones (en/hi/kn, clean + WhatsApp) | 6 | 6 called fake |
+| Real + one cloned sentence | 6 | 6 flagged (4 🟠 with the right seconds, 2 🔴) |

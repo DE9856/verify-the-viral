@@ -21,3 +21,9 @@ If any of these change or get cut, tell Lane B so the README stays honest.
 - Card uses your red `#e5484d` and green `#2f9e66`. Suggestion: the chat text says 🟠 for
   partly_fake, so the card uses orange `#f76b15` for it (yellow `#eab308` for unclear). If you
   agree, use orange for partly_fake on `result.html` too, so chat, card and page match.
+
+## 2026-11-25 — spliced Hindi clip: overall "fake" at score 0.32 (affects verdict.py, optional)
+Real Hindi notice + 6.5 s cloned sentence at 17.95–24.48 s: Aletheia's overall verdict was **fake**
+with score 0.319 (threshold 0.62); windows flagged 12–26 s. Our band → 🔴 likely_fake for the whole
+clip, so the timeline/"which seconds" is lost. Idea: when overall is fake but under ~half the
+windows are fake, keep `core_regions` (or return partly_fake). Details: `research/real-world.md`.

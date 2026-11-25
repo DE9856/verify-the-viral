@@ -18,6 +18,7 @@ import imageio_ffmpeg
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from app import config  # noqa: E402  (loads .env; the key is never printed)
+from app.core.verdict import decide  # noqa: E402
 
 AUDIO = ROOT / "research" / "real-audio"
 WA = AUDIO / "whatsapp"
@@ -31,9 +32,16 @@ FILES = {
     "notice_en": "Script B - English.m4a",
     "notice_hi": "Script B - Hindi.m4a",
     "notice_kn": "Script 2 - Kannada.m4a",
-    "clone_en": "clone_en.mp3",
-    "spliced_en": "spliced_en.wav",
+    "clone_en": "clones/clone_en.wav",
+    "clone_hi": "clones/clone_hi.wav",
+    "clone_kn": "clones/clone_kn.wav",
+    "spliced_en": "clones/spliced_en.wav",
+    "spliced_hi": "clones/spliced_hi.wav",
+    "spliced_kn": "clones/spliced_kn.wav",
 }
+# `--run name1 name2 ...` limits a run to those clips; plain `--run` runs all of them.
+# WhatsApp copies are made once and reused: re-encoding gives different bytes (random Ogg serial),
+# which defeats the Idempotency-Key and gets charged again.
 
 
 def to_whatsapp(src: Path, dst: Path) -> None:
@@ -68,8 +76,10 @@ def summary(name: str, resp: dict) -> str:
     fake = [f"{s['start']:g}-{s['end']:g}" for s in segs if s.get("verdict") == "fake"]
     top = max((s["score"] for s in segs), default=0)
     verdict = res.get("verdict") or res.get("label")
+    d = decide(res)
+    band = d["band"] + (f" {d['core_regions']}" if d["core_regions"] else "")
     return (f"| {name} | {verdict} ({res.get('score', 0):.3f}) | {top:.3f} | "
-            f"{len(fake)}/{len(segs)} | {', '.join(fake) or '-'} |")
+            f"{len(fake)}/{len(segs)} | {', '.join(fake) or '-'} | {band} |")
 
 
 def main() -> None:
@@ -77,14 +87,18 @@ def main() -> None:
         sys.exit("DETECTIF_API_KEY is empty in .env")
     WA.mkdir(exist_ok=True)
     OUT.mkdir(exist_ok=True)
+    only = sys.argv[sys.argv.index("--run") + 1:] if "--run" in sys.argv else []
     clips = []
     for name, fname in FILES.items():
+        if only and name not in only:
+            continue
         src = AUDIO / fname
         if not src.exists():
             print("missing (skipped):", fname)
             continue
         wa = WA / f"{name}.ogg"
-        to_whatsapp(src, wa)
+        if not wa.exists():
+            to_whatsapp(src, wa)
         clips += [(f"{name} (clean)", src), (f"{name} (whatsapp)", wa)]
     print(f"{len(clips)} clips ready")
 
@@ -100,7 +114,7 @@ def main() -> None:
             rows.append(summary(label, resp))
             print(rows[-1])
         credits(client)
-    print("\n| Clip | Overall | Top segment | Fake windows | Where |\n|---|---|---|---|---|")
+    print("\n| Clip | Overall | Top segment | Fake windows | Where | Our band |\n|---|---|---|---|---|---|")
     print("\n".join(rows))
 
 
