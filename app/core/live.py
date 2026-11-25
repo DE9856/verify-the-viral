@@ -35,7 +35,8 @@ RATE = 16000
 BYTES_PER_S = RATE * 2                 # 16-bit mono
 MAX_FRAME = 64 * 1024                  # Aletheia's limit per binary frame
 LIVE_MAX_SECONDS = int(os.getenv("LIVE_MAX_SECONDS", "300"))   # stop by itself: protects credits
-LIVE_UPDATE_SECONDS = 10               # docs: 5-60, default 10
+LIVE_UPDATE_SECONDS = 5                # docs: 5-60, default 10. 10 felt sparse on stage (2 updates in 25 s);
+                                       # billing is by speech seconds, not by update (phone test: 101 credits for 50 s)
 CLOSE_CODES = {4401: "auth", 4403: "auth", 4402: "out_of_credits", 4429: "busy", 1013: "busy"}
 
 
@@ -253,6 +254,11 @@ def save_result(sid: str, done: dict, res: dict, wav_path: str) -> dict:
     result = check_mod.build_result(raw, verdict.decide(res["result"]))
     result["id"] = sid
     result["result_url"] = check_mod.result_url(sid)
+    # Aletheia's duration_seconds is the SPEECH length, but segment times are stream time (the WAV we
+    # kept includes the silences): the timeline must span the whole stream, or late segments vanish
+    stream_s = float(done.get("seconds") or 0)
+    last_seg = max((float(s.get("end", 0)) for s in res["result"].get("segments") or []), default=0.0)
+    result["duration"] = round(max(stream_s, last_seg, float(result.get("duration") or 0)), 2)
     result["live"] = {"seconds": done.get("seconds"), "speech_seconds": done.get("speech_seconds"),
                       "updates": res.get("updates"), "ended_by": done.get("ended_by")}
     store.save(result, source={"channel": "live"}, sha256=None, fp=None, duration=result["duration"],

@@ -99,6 +99,7 @@ class DocsStream:
 
 
 def test_real_stream_messages_become_a_normal_check(client, monkeypatch):
+    monkeypatch.setattr(config, "MOCK_ALETHEIA", "")      # the real-stream path, whatever the env says
     stream = DocsStream()
 
     async def opener(ref):
@@ -113,9 +114,11 @@ def test_real_stream_messages_become_a_normal_check(client, monkeypatch):
     assert result["band"] == "partly_fake" and result["core_regions"] == [[4.0, 6.0]]
     r = store.get(result["id"])
     assert r["operation_id"] == "op_6f1e" and r["credits_charged"] == 22       # 11 s of speech x 2
+    assert r["duration"] == 12.0          # stream time (segments' clock), not the 11 s of speech
 
 
 def test_stream_closed_for_credits_says_so(client, monkeypatch):
+    monkeypatch.setattr(config, "MOCK_ALETHEIA", "")
     stream = DocsStream(close_code=4402, completed=False)
 
     async def opener(ref):
@@ -139,6 +142,15 @@ def test_live_checks_never_reach_the_radar():
     assert r["band"] == "likely_fake" and store.radar()["items"] == []
 
 
-def test_live_page_renders_in_kannada(client):
+def test_live_page_renders_in_kannada(client, monkeypatch):
+    monkeypatch.setattr(config, "MOCK_ALETHEIA", "")
     html = client.get("/live?lang=kn").text
     assert "ಲೈವ್ ಆಲಿಸಿ" in html and "__I18N__" not in html and "MOCK = false" in html
+
+
+def test_timeline_spans_the_stream_not_just_the_speech():
+    """Phone test o6yz8A: 50.3 s of speech in a 65 s stream, segments up to 60.2 s."""
+    done = {"seconds": 65.0, "speech_seconds": 50.3}
+    res = {"operation_id": "op_x", "result": {"verdict": "fake", "score": 0.57, "duration_seconds": 50.3,
+           "scored_seconds": 50.3, "segments": [{"start": 56.2, "end": 60.2, "score": 0.9, "verdict": "fake"}]}}
+    assert live.save_result("tl1", done, res, "x.wav")["duration"] == 65.0
