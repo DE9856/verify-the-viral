@@ -1,8 +1,8 @@
 # Plan: Build "Check Before Share" (Track 4) — status tracker
-Created 2026-11-24 · Updated 2026-11-25
+Created 2026-11-24 · Updated 2026-11-26
 
 Full plan, scoring, evidence, contract and lane details: `PLAN.md` (project root) §5. Spikes: `research/`.
-This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bot + card + story.
+This file only tracks step status. Lanes ended 2026-11-25: all changes on the Windows laptop, the Fedora laptop is the server; `testing` branch → `master` when it works.
 
 ## Steps
 - [x] 0. Research + smoke tests; write `PLAN.md`; split into two lanes
@@ -14,6 +14,7 @@ This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bo
 - [x] Phase 2 — A3 SQLite + fingerprint cache · A4 FastAPI + result page | B3 card (Playwright) · B4 cache-hit wording
 - [x] Sync 2: reply + card + live `/r/<id>` timeline over https, 👍 forwarded (demo laptop, real API, 2026-11-25)
 - [ ] Phase 3 — [x] A5 PWA (Android install + share passed 2026-11-25) · [x] U2 "hear the fake part": voice note of the flagged seconds + card line (live-tested) · [x] U3 AI-clip radar /radar (live-tested: 7x in 2 chats) · [ ] A6 transcript (stretch, cut) · [x] A7 hardening | [x] B5 README (Sync 2 screenshot + links still to add) · [ ] B6 Reddit draft + backup video · [ ] B7 demo script
+- [x] C. Repeat-clip cache hardening (2026-11-25/26, server-tested, in master dec4bbd): decoded-audio layer (other formats) · fpcalc on both laptops · layer 5 speed/tape/pitch copies (9/9) · false-match test (612 pairs, 0 hits) · fingerprint diff (edits ≥ ~2 s never reuse a verdict; 4/4 on the server) · diff feeds the verdict (`apply_edits`). Known limits in README: edits ≤ ~1 s, tuned on 3 male speakers. Possible follow-ups: check only the changed seconds, English transcript veto, big synthetic test set
 - [ ] Sync 3 freeze → F1 rehearse ×3 · F2 final video + Reddit post live (required) · F3 tag repo + Google form
 - [ ] V. Demo video (1:55, friend's SHOTLIST.md on demo laptop `data/demo-video/`): title cards ✅ (friend) · hero clip = Deepesh's spliced notice (`~/Downloads/demo-clips/AUD-20261125-WA0011.ogg`, fake 10.05–13.77 s) · fresh DB + radar recording (friend) · phone clips 3 hero, 4 timeline tap, 5 spread to 2nd/3rd chat, 6 WhatsApp share, 7 honest results (Deepesh) · rough cut + narration
 
