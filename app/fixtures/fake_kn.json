@@ -1,0 +1,74 @@
+{
+ "request_id": "req_5fc6016567eccf9d93e041e9",
+ "operation_id": "op_0748e55c5b12407b8cf7d571705f6fe0",
+ "object": "deepfake.detection",
+ "result": {
+  "label": "synthetic",
+  "is_synthetic": true,
+  "score": 0.999944,
+  "threshold": 0.62,
+  "score_semantics": "Higher means more likely AI-generated. Decide with the verdict, not the score alone.",
+  "duration_seconds": 15.528,
+  "scored_seconds": 15.528,
+  "segments": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "score": 0.999741,
+    "verdict": "fake"
+   },
+   {
+    "start": 2.0,
+    "end": 6.0,
+    "score": 0.999996,
+    "verdict": "fake"
+   },
+   {
+    "start": 4.0,
+    "end": 8.0,
+    "score": 0.999998,
+    "verdict": "fake"
+   },
+   {
+    "start": 6.0,
+    "end": 10.0,
+    "score": 0.999979,
+    "verdict": "fake"
+   },
+   {
+    "start": 8.0,
+    "end": 12.0,
+    "score": 0.999966,
+    "verdict": "fake"
+   },
+   {
+    "start": 10.0,
+    "end": 14.0,
+    "score": 0.999937,
+    "verdict": "fake"
+   },
+   {
+    "start": 11.528,
+    "end": 15.528,
+    "score": 0.999988,
+    "verdict": "fake"
+   }
+  ],
+  "verdict": "fake"
+ },
+ "model": {
+  "name": "aletheia",
+  "version": "2026.10"
+ },
+ "latency_ms": 235.4,
+ "idempotent_replay": false,
+ "trial": {
+  "object": "trial",
+  "checks_total": 10,
+  "checks_used": 5,
+  "checks_left": 5,
+  "note": "Free trial without an account: 5 of 10 checks left on this network.",
+  "signup_url": "https://platform.detectif.ai"
+ },
+ "_note": "Real Aletheia response recorded via the MCP trial on 2026-11-24 (verdict field added to match the REST shape)."
+}

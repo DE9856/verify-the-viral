@@ -1,0 +1,36 @@
+{
+ "real_en": {
+  "band": "no_signs",
+  "core_regions": []
+ },
+ "fake_en": {
+  "band": "likely_fake",
+  "core_regions": []
+ },
+ "fake_hi": {
+  "band": "likely_fake",
+  "core_regions": []
+ },
+ "fake_kn": {
+  "band": "likely_fake",
+  "core_regions": []
+ },
+ "spliced_en": {
+  "band": "partly_fake",
+  "core_regions": [
+   [
+    10.0,
+    14.0
+   ]
+  ]
+ },
+ "spliced_whatsapp": {
+  "band": "partly_fake",
+  "core_regions": [
+   [
+    10.0,
+    14.0
+   ]
+  ]
+ }
+}

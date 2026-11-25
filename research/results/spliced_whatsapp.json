@@ -1,0 +1,116 @@
+{
+ "jsonrpc": "2.0",
+ "id": 13,
+ "result": {
+  "content": [
+   {
+    "text": "{\"request_id\": \"req_684571ab1c813bbec3de4d6e\", \"operation_id\": \"op_149e0b13364b416f8e0ed1f3c3b8b304\", \"object\": \"deepfake.detection\", \"result\": {\"label\": \"genuine\", \"is_synthetic\": false, \"score\": 0.252103, \"threshold\": 0.62, \"score_semantics\": \"Higher means more likely AI-generated. Decide with the verdict, not the score alone.\", \"duration_seconds\": 24.8, \"scored_seconds\": 24.8, \"segments\": [{\"start\": 0.0, \"end\": 4.0, \"score\": 0.004462, \"verdict\": \"real\"}, {\"start\": 2.0, \"end\": 6.0, \"score\": 0.010221, \"verdict\": \"real\"}, {\"start\": 4.0, \"end\": 8.0, \"score\": 0.004607, \"verdict\": \"real\"}, {\"start\": 6.0, \"end\": 10.0, \"score\": 0.002167, \"verdict\": \"real\"}, {\"start\": 8.0, \"end\": 12.0, \"score\": 0.999015, \"verdict\": \"fake\"}, {\"start\": 10.0, \"end\": 14.0, \"score\": 0.981456, \"verdict\": \"fake\"}, {\"start\": 12.0, \"end\": 16.0, \"score\": 0.997678, \"verdict\": \"fake\"}, {\"start\": 14.0, \"end\": 18.0, \"score\": 0.002885, \"verdict\": \"real\"}, {\"start\": 16.0, \"end\": 20.0, \"score\": 0.011013, \"verdict\": \"real\"}, {\"start\": 18.0, \"end\": 22.0, \"score\": 0.004182, \"verdict\": \"real\"}, {\"start\": 20.0, \"end\": 24.0, \"score\": 0.004417, \"verdict\": \"real\"}, {\"start\": 20.8, \"end\": 24.8, \"score\": 0.003129, \"verdict\": \"real\"}], \"verdict\": \"real\"}, \"model\": {\"name\": \"aletheia\", \"version\": \"2026.10\"}, \"latency_ms\": 388.0, \"idempotent_replay\": false, \"trial\": {\"object\": \"trial\", \"checks_total\": 10, \"checks_used\": 4, \"checks_left\": 6, \"note\": \"Free trial without an account: 6 of 10 checks left on this network.\", \"signup_url\": \"https://platform.detectif.ai\"}}",
+    "type": "text"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "request_id": "req_684571ab1c813bbec3de4d6e",
+   "operation_id": "op_149e0b13364b416f8e0ed1f3c3b8b304",
+   "object": "deepfake.detection",
+   "result": {
+    "label": "genuine",
+    "is_synthetic": false,
+    "score": 0.252103,
+    "threshold": 0.62,
+    "score_semantics": "Higher means more likely AI-generated. Decide with the verdict, not the score alone.",
+    "duration_seconds": 24.8,
+    "scored_seconds": 24.8,
+    "segments": [
+     {
+      "start": 0.0,
+      "end": 4.0,
+      "score": 0.004462,
+      "verdict": "real"
+     },
+     {
+      "start": 2.0,
+      "end": 6.0,
+      "score": 0.010221,
+      "verdict": "real"
+     },
+     {
+      "start": 4.0,
+      "end": 8.0,
+      "score": 0.004607,
+      "verdict": "real"
+     },
+     {
+      "start": 6.0,
+      "end": 10.0,
+      "score": 0.002167,
+      "verdict": "real"
+     },
+     {
+      "start": 8.0,
+      "end": 12.0,
+      "score": 0.999015,
+      "verdict": "fake"
+     },
+     {
+      "start": 10.0,
+      "end": 14.0,
+      "score": 0.981456,
+      "verdict": "fake"
+     },
+     {
+      "start": 12.0,
+      "end": 16.0,
+      "score": 0.997678,
+      "verdict": "fake"
+     },
+     {
+      "start": 14.0,
+      "end": 18.0,
+      "score": 0.002885,
+      "verdict": "real"
+     },
+     {
+      "start": 16.0,
+      "end": 20.0,
+      "score": 0.011013,
+      "verdict": "real"
+     },
+     {
+      "start": 18.0,
+      "end": 22.0,
+      "score": 0.004182,
+      "verdict": "real"
+     },
+     {
+      "start": 20.0,
+      "end": 24.0,
+      "score": 0.004417,
+      "verdict": "real"
+     },
+     {
+      "start": 20.8,
+      "end": 24.8,
+      "score": 0.003129,
+      "verdict": "real"
+     }
+    ],
+    "verdict": "real"
+   },
+   "model": {
+    "name": "aletheia",
+    "version": "2026.10"
+   },
+   "latency_ms": 388.0,
+   "idempotent_replay": false,
+   "trial": {
+    "object": "trial",
+    "checks_total": 10,
+    "checks_used": 4,
+    "checks_left": 6,
+    "note": "Free trial without an account: 6 of 10 checks left on this network.",
+    "signup_url": "https://platform.detectif.ai"
+   }
+  }
+ }
+}

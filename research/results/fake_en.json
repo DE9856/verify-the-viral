@@ -1,0 +1,92 @@
+{
+ "jsonrpc": "2.0",
+ "id": 11,
+ "result": {
+  "content": [
+   {
+    "text": "{\"request_id\": \"req_7a6368244cbb00b3a136bcb3\", \"operation_id\": \"op_2f83807400cb41f6bf096c636b938b0b\", \"object\": \"deepfake.detection\", \"result\": {\"label\": \"synthetic\", \"is_synthetic\": true, \"score\": 0.999519, \"threshold\": 0.62, \"score_semantics\": \"Higher means more likely AI-generated. Decide with the verdict, not the score alone.\", \"duration_seconds\": 17.352, \"scored_seconds\": 17.352, \"segments\": [{\"start\": 0.0, \"end\": 4.0, \"score\": 0.999515, \"verdict\": \"fake\"}, {\"start\": 2.0, \"end\": 6.0, \"score\": 0.999714, \"verdict\": \"fake\"}, {\"start\": 4.0, \"end\": 8.0, \"score\": 0.999116, \"verdict\": \"fake\"}, {\"start\": 6.0, \"end\": 10.0, \"score\": 0.999631, \"verdict\": \"fake\"}, {\"start\": 8.0, \"end\": 12.0, \"score\": 0.999982, \"verdict\": \"fake\"}, {\"start\": 10.0, \"end\": 14.0, \"score\": 0.999972, \"verdict\": \"fake\"}, {\"start\": 12.0, \"end\": 16.0, \"score\": 0.99989, \"verdict\": \"fake\"}, {\"start\": 13.352, \"end\": 17.352, \"score\": 0.998335, \"verdict\": \"fake\"}], \"verdict\": \"fake\"}, \"model\": {\"name\": \"aletheia\", \"version\": \"2026.10\"}, \"latency_ms\": 197.8, \"idempotent_replay\": false, \"trial\": {\"object\": \"trial\", \"checks_total\": 10, \"checks_used\": 2, \"checks_left\": 8, \"note\": \"Free trial without an account: 8 of 10 checks left on this network.\", \"signup_url\": \"https://platform.detectif.ai\"}}",
+    "type": "text"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "request_id": "req_7a6368244cbb00b3a136bcb3",
+   "operation_id": "op_2f83807400cb41f6bf096c636b938b0b",
+   "object": "deepfake.detection",
+   "result": {
+    "label": "synthetic",
+    "is_synthetic": true,
+    "score": 0.999519,
+    "threshold": 0.62,
+    "score_semantics": "Higher means more likely AI-generated. Decide with the verdict, not the score alone.",
+    "duration_seconds": 17.352,
+    "scored_seconds": 17.352,
+    "segments": [
+     {
+      "start": 0.0,
+      "end": 4.0,
+      "score": 0.999515,
+      "verdict": "fake"
+     },
+     {
+      "start": 2.0,
+      "end": 6.0,
+      "score": 0.999714,
+      "verdict": "fake"
+     },
+     {
+      "start": 4.0,
+      "end": 8.0,
+      "score": 0.999116,
+      "verdict": "fake"
+     },
+     {
+      "start": 6.0,
+      "end": 10.0,
+      "score": 0.999631,
+      "verdict": "fake"
+     },
+     {
+      "start": 8.0,
+      "end": 12.0,
+      "score": 0.999982,
+      "verdict": "fake"
+     },
+     {
+      "start": 10.0,
+      "end": 14.0,
+      "score": 0.999972,
+      "verdict": "fake"
+     },
+     {
+      "start": 12.0,
+      "end": 16.0,
+      "score": 0.99989,
+      "verdict": "fake"
+     },
+     {
+      "start": 13.352,
+      "end": 17.352,
+      "score": 0.998335,
+      "verdict": "fake"
+     }
+    ],
+    "verdict": "fake"
+   },
+   "model": {
+    "name": "aletheia",
+    "version": "2026.10"
+   },
+   "latency_ms": 197.8,
+   "idempotent_replay": false,
+   "trial": {
+    "object": "trial",
+    "checks_total": 10,
+    "checks_used": 2,
+    "checks_left": 8,
+    "note": "Free trial without an account: 8 of 10 checks left on this network.",
+    "signup_url": "https://platform.detectif.ai"
+   }
+  }
+ }
+}

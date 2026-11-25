@@ -1,0 +1,29 @@
+# secrets
+.env
+.env.*
+
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# runtime data
+data/
+*.db
+*.log
+tmp/
+
+# local tools (download per README)
+bin/
+
+# organiser's brief: kept locally, not in the public repo
+CMRIT_DetectifAI_Hackathon_Guide.pdf
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

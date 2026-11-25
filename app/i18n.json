@@ -1,0 +1,73 @@
+{
+ "_status": "en is final wording from PLAN.md §3. hi and kn are Claude's drafts: a native speaker must check them (Lane B · B2).",
+ "likely_fake": {
+  "en": "🔴 Likely AI-generated. This voice shows strong signs of being made by AI. Don't forward it — check the official source first.",
+  "hi": "🔴 संभवतः AI से बनी आवाज़। इस आवाज़ में AI से बने होने के मज़बूत संकेत हैं। इसे आगे न भेजें — पहले आधिकारिक स्रोत से पुष्टि करें।",
+  "kn": "🔴 ಇದು AI ನಿಂದ ರಚಿಸಿದ ಧ್ವನಿಯಾಗಿರುವ ಸಾಧ್ಯತೆ ಹೆಚ್ಚು. ಇದನ್ನು ಫಾರ್ವರ್ಡ್ ಮಾಡಬೇಡಿ — ಮೊದಲು ಅಧಿಕೃತ ಮೂಲದಿಂದ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ."
+ },
+ "partly_fake": {
+  "en": "🟠 Part of this clip sounds AI-generated ({regions}). Someone may have edited words into a real recording. Don't forward it as it is.",
+  "hi": "🟠 इस क्लिप का एक हिस्सा AI से बना लगता है ({regions})। हो सकता है किसी ने असली रिकॉर्डिंग में शब्द जोड़े हों। इसे ऐसे ही आगे न भेजें।",
+  "kn": "🟠 ಈ ಕ್ಲಿಪ್‌ನ ಒಂದು ಭಾಗ AI ನಿಂದ ರಚಿಸಿದಂತೆ ಕೇಳಿಸುತ್ತದೆ ({regions}). ಯಾರೋ ನಿಜವಾದ ರೆಕಾರ್ಡಿಂಗ್‌ಗೆ ಪದಗಳನ್ನು ಸೇರಿಸಿರಬಹುದು. ಇದನ್ನು ಹಾಗೆಯೇ ಫಾರ್ವರ್ಡ್ ಮಾಡಬೇಡಿ."
+ },
+ "unclear": {
+  "en": "🟡 Unclear. The clip is too short or too mixed to tell. Treat it with care and ask the sender where it came from.",
+  "hi": "🟡 साफ़ नहीं कहा जा सकता। क्लिप बहुत छोटी या मिली-जुली है। सावधान रहें और भेजने वाले से पूछें कि यह कहाँ से आई।",
+  "kn": "🟡 ಖಚಿತವಾಗಿ ಹೇಳಲು ಸಾಧ್ಯವಿಲ್ಲ. ಕ್ಲಿಪ್ ತುಂಬಾ ಚಿಕ್ಕದು ಅಥವಾ ಮಿಶ್ರವಾಗಿದೆ. ಎಚ್ಚರಿಕೆಯಿಂದಿರಿ ಮತ್ತು ಇದು ಎಲ್ಲಿಂದ ಬಂತು ಎಂದು ಕಳುಹಿಸಿದವರನ್ನು ಕೇಳಿ."
+ },
+ "no_signs": {
+  "en": "🟢 No signs of an AI voice found. This checks the voice, not whether the claim is true.",
+  "hi": "🟢 AI आवाज़ के कोई संकेत नहीं मिले। यह सिर्फ़ आवाज़ की जाँच है, दावे की सच्चाई की नहीं।",
+  "kn": "🟢 AI ಧ್ವನಿಯ ಯಾವುದೇ ಲಕ್ಷಣಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಇದು ಧ್ವನಿಯನ್ನು ಮಾತ್ರ ಪರಿಶೀಲಿಸುತ್ತದೆ, ಹೇಳಿಕೆ ನಿಜವೇ ಎಂಬುದನ್ನಲ್ಲ."
+ },
+ "error_insufficient_speech": {
+  "en": "Not enough speech to check (music, silence or under 2 seconds). No credits were used.",
+  "hi": "जाँच के लिए पर्याप्त बोली नहीं है (संगीत, खामोशी या 2 सेकंड से कम)। कोई क्रेडिट खर्च नहीं हुआ।",
+  "kn": "ಪರಿಶೀಲಿಸಲು ಸಾಕಷ್ಟು ಮಾತು ಇಲ್ಲ (ಸಂಗೀತ, ಮೌನ ಅಥವಾ 2 ಸೆಕೆಂಡುಗಳಿಗಿಂತ ಕಡಿಮೆ). ಯಾವುದೇ ಕ್ರೆಡಿಟ್ ಬಳಸಿಲ್ಲ."
+ },
+ "error_too_large": {
+  "en": "This file is too large to check here (limit 20 MB). Send a shorter clip.",
+  "hi": "यह फ़ाइल यहाँ जाँचने के लिए बहुत बड़ी है (सीमा 20 MB)। छोटी क्लिप भेजें।",
+  "kn": "ಈ ಫೈಲ್ ಇಲ್ಲಿ ಪರಿಶೀಲಿಸಲು ತುಂಬಾ ದೊಡ್ಡದಾಗಿದೆ (ಮಿತಿ 20 MB). ಚಿಕ್ಕ ಕ್ಲಿಪ್ ಕಳುಹಿಸಿ."
+ },
+ "error_out_of_credits": {
+  "en": "The checker is out of credits right now. Please try again later.",
+  "hi": "अभी जाँच के क्रेडिट खत्म हो गए हैं। कृपया बाद में फिर कोशिश करें।",
+  "kn": "ಪರಿಶೀಲನೆಯ ಕ್ರೆಡಿಟ್‌ಗಳು ಈಗ ಮುಗಿದಿವೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+ },
+ "error_failed": {
+  "en": "Sorry, the check failed. Please try again in a minute.",
+  "hi": "माफ़ कीजिए, जाँच नहीं हो पाई। एक मिनट बाद फिर कोशिश करें।",
+  "kn": "ಕ್ಷಮಿಸಿ, ಪರಿಶೀಲನೆ ವಿಫಲವಾಯಿತು. ಒಂದು ನಿಮಿಷದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+ },
+ "trimmed": {
+  "en": "Only the first 5 minutes were checked.",
+  "hi": "सिर्फ़ पहले 5 मिनट की जाँच की गई।",
+  "kn": "ಮೊದಲ 5 ನಿಮಿಷಗಳನ್ನು ಮಾತ್ರ ಪರಿಶೀಲಿಸಲಾಗಿದೆ."
+ },
+ "cache_hit": {
+  "en": "Already checked {n} times.",
+  "hi": "पहले ही {n} बार जाँचा जा चुका है।",
+  "kn": "ಈಗಾಗಲೇ {n} ಬಾರಿ ಪರಿಶೀಲಿಸಲಾಗಿದೆ."
+ },
+ "disclaimer": {
+  "en": "A score is evidence, not proof. Works best on English and Hindi.",
+  "hi": "स्कोर एक संकेत है, सबूत नहीं। अंग्रेज़ी और हिंदी पर सबसे अच्छा काम करता है।",
+  "kn": "ಸ್ಕೋರ್ ಒಂದು ಸೂಚನೆ, ಪುರಾವೆಯಲ್ಲ. ಇಂಗ್ಲಿಷ್ ಮತ್ತು ಹಿಂದಿಯಲ್ಲಿ ಅತ್ಯುತ್ತಮವಾಗಿ ಕೆಲಸ ಮಾಡುತ್ತದೆ."
+ },
+ "view_timeline": {
+  "en": "See where in the clip",
+  "hi": "क्लिप में कहाँ, देखें",
+  "kn": "ಕ್ಲಿಪ್‌ನಲ್ಲಿ ಎಲ್ಲಿ ಎಂದು ನೋಡಿ"
+ },
+ "feedback_question": {
+  "en": "Was this right?",
+  "hi": "क्या यह सही था?",
+  "kn": "ಇದು ಸರಿಯಾಗಿತ್ತೇ?"
+ },
+ "feedback_thanks": {
+  "en": "Thanks — your answer was sent to help improve the model.",
+  "hi": "धन्यवाद — आपका जवाब मॉडल सुधारने के लिए भेज दिया गया।",
+  "kn": "ಧನ್ಯವಾದಗಳು — ಮಾದರಿಯನ್ನು ಸುಧಾರಿಸಲು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ."
+ }
+}

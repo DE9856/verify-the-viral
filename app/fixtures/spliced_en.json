@@ -1,0 +1,104 @@
+{
+ "request_id": "req_ead661467b686904edaa8d4b",
+ "operation_id": "op_46de72818bed4fbbae497cfd5349d91b",
+ "object": "deepfake.detection",
+ "result": {
+  "label": "genuine",
+  "is_synthetic": false,
+  "score": 0.27703,
+  "threshold": 0.62,
+  "score_semantics": "Higher means more likely AI-generated. Decide with the verdict, not the score alone.",
+  "duration_seconds": 24.8,
+  "scored_seconds": 24.8,
+  "segments": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "score": 0.005948,
+    "verdict": "real"
+   },
+   {
+    "start": 2.0,
+    "end": 6.0,
+    "score": 0.01844,
+    "verdict": "real"
+   },
+   {
+    "start": 4.0,
+    "end": 8.0,
+    "score": 0.10347,
+    "verdict": "real"
+   },
+   {
+    "start": 6.0,
+    "end": 10.0,
+    "score": 0.004707,
+    "verdict": "real"
+   },
+   {
+    "start": 8.0,
+    "end": 12.0,
+    "score": 0.999919,
+    "verdict": "fake"
+   },
+   {
+    "start": 10.0,
+    "end": 14.0,
+    "score": 0.996343,
+    "verdict": "fake"
+   },
+   {
+    "start": 12.0,
+    "end": 16.0,
+    "score": 0.998955,
+    "verdict": "fake"
+   },
+   {
+    "start": 14.0,
+    "end": 18.0,
+    "score": 0.033479,
+    "verdict": "real"
+   },
+   {
+    "start": 16.0,
+    "end": 20.0,
+    "score": 0.12064,
+    "verdict": "real"
+   },
+   {
+    "start": 18.0,
+    "end": 22.0,
+    "score": 0.035751,
+    "verdict": "real"
+   },
+   {
+    "start": 20.0,
+    "end": 24.0,
+    "score": 0.004594,
+    "verdict": "real"
+   },
+   {
+    "start": 20.8,
+    "end": 24.8,
+    "score": 0.002114,
+    "verdict": "real"
+   }
+  ],
+  "verdict": "real"
+ },
+ "model": {
+  "name": "aletheia",
+  "version": "2026.10"
+ },
+ "latency_ms": 270.3,
+ "idempotent_replay": false,
+ "trial": {
+  "object": "trial",
+  "checks_total": 10,
+  "checks_used": 3,
+  "checks_left": 7,
+  "note": "Free trial without an account: 7 of 10 checks left on this network.",
+  "signup_url": "https://platform.detectif.ai"
+ },
+ "_note": "Real Aletheia response recorded via the MCP trial on 2026-11-24 (verdict field added to match the REST shape)."
+}

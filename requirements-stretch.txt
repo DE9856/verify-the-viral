@@ -1,0 +1,2 @@
+# Only for step A6 (English transcript highlight). Pulls ~200 MB of models on first run.
+faster-whisper==1.2.1
