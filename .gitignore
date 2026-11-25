@@ -27,3 +27,6 @@ CMRIT_DetectifAI_Hackathon_Guide.pdf
 Thumbs.db
 .vscode/
 .idea/
+
+# our own recordings (voices of team members, not public)
+research/real-audio/

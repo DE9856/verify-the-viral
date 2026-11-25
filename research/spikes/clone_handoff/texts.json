@@ -1,0 +1,18 @@
+{
+  "_note": "ref_text = the exact words spoken in refs/ref_<lang>.wav (IndicF5 needs it). Listen to the wav and fix the text here if it does not match word for word.",
+  "en": {
+    "ref_text": "Hi, it's me. Just reached college, the traffic near Silk Board was terrible again, almost forty minutes stuck.",
+    "clone": "Attention everyone in the apartment. The water supply will be shut from tomorrow morning six a.m. till Saturday evening because of pipeline repair work. Please store enough water tonight. The association has also said the lift will be off from ten to two. Forward this to everyone in your block, it's urgent. Thank you.",
+    "fake_sentence": "The association also said everyone must send five hundred rupees to this number by tonight."
+  },
+  "hi": {
+    "ref_text": "हाय, मैं बोल रहा हूँ। अभी कॉलेज पहुँचा, सिल्क बोर्ड के पास फिर से बहुत ट्रैफिक था, लगभग चालीस मिनट फँसा रहा।",
+    "clone": "सभी अपार्टमेंट वालों के लिए ज़रूरी सूचना। पाइपलाइन रिपेयर की वजह से कल सुबह छह बजे से शनिवार शाम तक पानी नहीं आएगा। कृपया आज रात ही पानी भरकर रख लें। एसोसिएशन ने बताया है कि लिफ्ट भी दस से दो बजे तक बंद रहेगी। ये मैसेज अपने ब्लॉक में सबको फॉरवर्ड करें, बहुत ज़रूरी है। धन्यवाद।",
+    "fake_sentence": "एसोसिएशन ने कहा है कि सबको आज रात तक इस नंबर पर पाँच सौ रुपये भेजने हैं।"
+  },
+  "kn": {
+    "ref_text": "ಹಾಯ್, ನಾನು ಮಾತಾಡ್ತಿದ್ದೀನಿ. ಈಗ ತಾನೇ ಕಾಲೇಜಿಗೆ ಬಂದೆ, ಸಿಲ್ಕ್ ಬೋರ್ಡ್ ಹತ್ರ ಮತ್ತೆ ತುಂಬಾ ಟ್ರಾಫಿಕ್ ಇತ್ತು, ಸುಮಾರು ನಲವತ್ತು ನಿಮಿಷ ಸಿಕ್ಕಾಕೊಂಡಿದ್ದೆ.",
+    "clone": "ಅಪಾರ್ಟ್‌ಮೆಂಟ್‌ನ ಎಲ್ಲರಿಗೂ ಮುಖ್ಯ ಸೂಚನೆ. ಪೈಪ್‌ಲೈನ್ ರಿಪೇರಿ ಕೆಲಸದಿಂದ ನಾಳೆ ಬೆಳಿಗ್ಗೆ ಆರು ಗಂಟೆಯಿಂದ ಶನಿವಾರ ಸಂಜೆವರೆಗೆ ನೀರು ಬರಲ್ಲ. ದಯವಿಟ್ಟು ಇವತ್ತು ರಾತ್ರಿನೇ ಸಾಕಷ್ಟು ನೀರು ತುಂಬಿಸಿಕೊಳ್ಳಿ. ಲಿಫ್ಟ್ ಕೂಡ ಹತ್ತರಿಂದ ಎರಡು ಗಂಟೆವರೆಗೆ ಬಂದ್ ಇರುತ್ತೆ ಅಂತ ಅಸೋಸಿಯೇಷನ್ ಹೇಳಿದೆ. ಈ ಮೆಸೇಜ್‌ನ ನಿಮ್ಮ ಬ್ಲಾಕ್‌ನ ಎಲ್ಲರಿಗೂ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ, ತುಂಬಾ ಅರ್ಜೆಂಟ್. ಧನ್ಯವಾದಗಳು.",
+    "fake_sentence": "ಎಲ್ಲರೂ ಇವತ್ತು ರಾತ್ರಿ ಒಳಗೆ ಈ ನಂಬರ್‌ಗೆ ಐನೂರು ರೂಪಾಯಿ ಕಳಿಸಬೇಕು ಅಂತ ಅಸೋಸಿಯೇಷನ್ ಹೇಳಿದೆ."
+  }
+}

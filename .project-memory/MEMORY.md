@@ -3,15 +3,15 @@ Shared memory for this folder. Before editing anything in `.project-memory/`, re
 Asked about the project's past? If the answer isn't below or in a topic file, search `.project-memory/history/` for the key words before saying it isn't recorded.
 
 ## Overview
-Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Base scaffold in `app/` (mock `check()` works; lane modules are stubs). Python 3.11, FastAPI, python-telegram-bot. Tests: `python -m pytest -q`.
+Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must use DetectifAI's Aletheia (deepfake detection) and/or Eidos (speaker verification) via the API or MCP at platform.detectif.ai. Brief: `CMRIT_DetectifAI_Hackathon_Guide.pdf`. Plan: `PLAN.md`; research spikes + test audio: `research/`. Base scaffold in `app/` (mock `check()` works; lane modules are stubs). Python 3.11, FastAPI, python-telegram-bot. Tests: `.venv/Scripts/python -m pytest -q` (venv on this PC).
 
 ## Current work
 - Goal: build Track 4 "Check Before Share" (ideas 1+3+4+6+7, Aletheia only) at the hackathon; team of 2, each with Claude Code.
-- Plan: `PLAN.md` §5 (Lane A engine+web, Lane B bot+card+story; interface in `CONTRACT.md`, session rules in `CLAUDE.md`); status in `.project-memory/PLAN.md`.
-- Done: research + smoke tests; base scaffold committed (contract, mock check() on real fixtures, stubs, 9 contract tests pass, 9 verdict tests skip until A2).
-- In progress: none.
-- Next: 1) K1 push to GitHub + add teammate 2) each person: `lane-a`/`lane-b` branch, `.env` from `env.example` 3) Day 0 per lane, then A1 / B1.
-- Blockers / open questions: build hours; who has the Android phone; credit balance; Kannada false-alarm rate.
+- Plan: `PLAN.md` §5; status in `.project-memory/PLAN.md`. This PC = **Lane B** (bot+card+story); teammate = Lane A.
+- Done: research + scaffold; repo on GitHub (origin DE9856/verify-the-viral); Lane B setup here (.venv, deps, Chromium, branch `lane-b`); D3 scripts in `research/script.md`.
+- In progress: B1 ✅ done (bot on mock, `.venv/Scripts/python -m app.bot`, log `data/bot.log`); uncommitted on `lane-b`. Next B2. D3: real clips done (0/12 false alarms, `research/real-world.md`); still need clone_en + fake_sentence_en (+ hi/kn clones) on the GPU laptop: Chatterbox for en, IndicF5 for hi/kn; handoff `~/Downloads/clone-handoff.zip` sent to GPU laptop, expect back `clones_return.zip` (6 wavs: clone_/fake_sentence_ x en,hi,kn) → build spliced_xx, add to FILES in `real_world_test.py`, run, then spliced_en; rerun `research/spikes/real_world_test.py --run`. Credits left 4266.
+- Next: 1) commit B1 + research on `lane-b` (user to OK) 2) B2: `/lang en|hi|kn` per group + native-speaker check of hi/kn in `app/i18n.json` 3) when `clones_return.zip` arrives: build spliced_xx, run `research/spikes/real_world_test.py --run`, finish `research/real-world.md` 4) D4: Noto fonts + subreddit rules.
+- Blockers / open questions: build hours; who has the Android phone; Kannada false alarms: 0/4 on our voices (Hindi runs hottest); who reads Kannada best.
 - Updated: 2026-11-25, Claude
 
 ## Rules & gotchas
@@ -19,9 +19,10 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - REST API in the product; MCP only inside Claude Code for dev/testing (base64, 25 MB, LLM round trip).
 - Aletheia returns per-segment scores (4 s windows, 2 s step) in ONE call; overall verdict missed a spliced fake, segments caught it. Never window client-side.
 - Partly-fake rule: seconds covered by >=2 overlapping fake windows.
+- Segment `verdict` uses its own threshold (0.883 came back real): read the field, never score>0.62.
 - Pillow can't shape Kannada/Hindi (no raqm): render cards as HTML via Playwright.
 - Whisper: English transcripts only; Kannada output is garbage.
-- Telegram groups: disable privacy mode AND re-add bot; 20 MB download cap.
+- Telegram groups: disable privacy mode AND re-add bot; 20 MB download cap. Bot = @verifytheviralbot; httpx logger must stay at WARNING (URLs carry the token).
 - Aletheia limits per docs: <=300 s, >=2 s speech (422 not charged), 2 credits/s, min 20.
 - PWA share target: Android Chrome only, installed + HTTPS on a STABLE origin (URL change breaks it).
 - OGG/Opus accepted directly; ffmpeg only to strip video/normalise.

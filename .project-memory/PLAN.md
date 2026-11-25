@@ -9,7 +9,7 @@ This file only tracks step status. Team of 2: Lane A = engine + web, Lane B = bo
 - [ ] Day 0 — A: D1 key · D2 ngrok static domain · D3 install stack · D4 Android share check | B: D1 key · D2 BotFather (privacy off) · D3 real voice-note/clone accuracy test · D4 fonts + subreddit rules | both: D5 MCP in Claude Code
 - [x] K2–K3. `CONTRACT.md`, `CLAUDE.md`, mock `check()` + fixtures + tests (base commit, 2026-11-25)
 - [ ] K1. Push to GitHub, add teammate, create `lane-a` / `lane-b` branches
-- [ ] Phase 1 — A1 normalise + REST client · A2 verdict bands + tests | B1 bot on mock · B2 i18n en/hi/kn
+- [ ] Phase 1 — A1 normalise + REST client · A2 verdict bands + tests | B1 bot on mock ✅ (2026-11-25) · B2 i18n en/hi/kn
 - [ ] Sync 1 (MVP): spliced clip → 🟠 10–14 s reply from the real API
 - [ ] Phase 2 — A3 SQLite + fingerprint cache · A4 FastAPI + result page | B3 card (Playwright) · B4 cache-hit wording
 - [ ] Sync 2: reply + card + live `/r/<id>` timeline
