@@ -271,3 +271,14 @@ def test_edited_note_in_reply():
     assert "8–11 s are different" in bot.format_reply(r, "en")
     r["edited_copy_of"] = {"id": "x", "changed": [], "removed": [[3.0, 5.0]]}
     assert "cut out" in bot.format_reply(r, "en")
+
+
+@needs_fpcalc
+def test_edited_copy_with_a_clean_verdict_is_shown_unclear(fake, tmp_path):
+    """Aletheia finds nothing in the edited copy, but some seconds differ from a known clip: never green."""
+    fake.fixture = "real_en"
+    run(AUDIO / "real_en.wav")
+    b = run(_replace(AUDIO / "real_en.wav", AUDIO / "fake_en.mp3", tmp_path, 8.0, 3))
+    assert b["band"] == "unclear" and b["reason"] == "edited" and b["edited_copy_of"]
+    from app import bot
+    assert bot.format_reply(b, "en").startswith("🟡 Unclear: this is an edited copy")

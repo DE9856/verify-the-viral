@@ -51,4 +51,10 @@ donor = fake_en.mp3 (Edge TTS, i.e. AI speech):
 Before the diff all four edits would have been cache hits (whole-clip 0.85–0.97) with LmBubg's result.
 **Aletheia did not flag the 1–2 s AI pieces** (our partly-fake rule needs 2 overlapping 4 s windows);
 for those, the diff's "edited copy, 17–19 s / 19–21 s are different" was the only warning. Changed
-regions land ~0–0.8 s early (smoothing). Next step idea: make the band reflect a diff-found change.
+regions land ~0–0.8 s early (smoothing).
+
+**Built after this test: the diff feeds the band** (`verdict.apply_edits`): a changed stretch with
+≥ 1 fake segment on it becomes a core region; any other change or a cut lowers `no_signs` to
+`unclear` ("edited copy of a clip we checked before"). Edits 2 and 4 above would now get an AI
+region only if Aletheia flagged at least one window on them; their stored segments can be re-read
+with the new rule to check.

@@ -90,6 +90,10 @@ fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
 - A near-match counts only if the fingerprint diff finds no changed or cut seconds (edits of ~2 s
   or more). Otherwise it's an **edited copy**: a new check (credits charged) with `edited_copy_of`,
   and the bot adds `edited_copy` / `edited_copy_cut`; in groups it's never shortened to one line.
+- The diff also feeds the band (`verdict.apply_edits`, 2026-11-26): a changed stretch with >= 1
+  fake segment on it becomes a core region (→ `partly_fake`); any other change or a cut turns
+  `no_signs` into `unclear` with `"reason": "edited"` (texts `unclear_edited`,
+  `advice_unclear_edited`). Red/orange bands keep their colour.
 - Two identical clips arriving together → one API call; the second gets the cache-hit result.
 - `check()` can take a few seconds on a cold API; show a "checking…" message first.
 

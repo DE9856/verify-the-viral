@@ -231,7 +231,7 @@ function renderText() {
   $('serial').textContent = `No. ${R.id}`
   $('label').textContent = t('label_' + band)
   const regions = (R.core_regions || []).map(secs).join(', ')
-  $('message').textContent = (band === 'error' ? (t('error_' + R.error?.code) || t('error_failed')) : t(R.band, { regions }))
+  $('message').textContent = (band === 'error' ? (t('error_' + R.error?.code) || t('error_failed')) : t(R.reason === 'edited' ? R.band + '_edited' : R.band, { regions }))
     .replace(/^\p{Extended_Pictographic}️?\s*/u, '')  // the ticket colour already says it
   $('note').textContent = band === 'partly_fake' && R.overall?.verdict === 'real' ? t('card_overall_note') : ''
   const meta = []

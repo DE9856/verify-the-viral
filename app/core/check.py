@@ -131,7 +131,14 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
     else:
         raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),
                                        asyncio.to_thread(fingerprint.compute, norm.path))
-    result = build_result(raw, verdict.decide(raw["result"]), trimmed=norm.trimmed)
+    decided = verdict.decide(raw["result"])
+    if edited:  # the diff is a second signal: may add AI regions, never leaves an edit green
+        r = raw["result"]
+        decided = verdict.apply_edits(decided, r.get("segments") or [], edited[1].changed, edited[1].removed,
+                                      r.get("threshold") or verdict.DEFAULT_THRESHOLD)
+    result = build_result(raw, decided, trimmed=norm.trimmed)
+    if decided.get("reason"):
+        result["reason"] = decided["reason"]
     if edited:
         cid, d = edited
         result["edited_copy_of"] = {"id": cid, "result_url": result_url(cid), "changed": d.changed,

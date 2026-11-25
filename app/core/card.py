@@ -75,7 +75,8 @@ def card_data(result: dict, lang: str) -> dict:
         "lang": lang,
         "band": band,
         "label": _t(f"label_{band}", lang),
-        "advice": _t(f"advice_{band}", lang, regions=regions),
+        "advice": _t(f"advice_{band}_edited" if result.get("reason") == "edited" else f"advice_{band}", lang,
+                     regions=regions),
         # the splice story in one line: the whole-clip verdict said real, the segments caught it
         "note": _t("card_overall_note", lang)
         if band == "partly_fake" and (result.get("overall") or {}).get("verdict") == "real" else "",

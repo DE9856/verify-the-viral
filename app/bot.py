@@ -90,6 +90,11 @@ def variant_note(cache: dict, lang: str) -> str | None:
     return None
 
 
+def band_key(result: dict) -> str:
+    """i18n key of the band message: 'unclear_edited' when an edit (not the detector) made it unclear."""
+    return f"{result['band']}_edited" if result.get("reason") == "edited" else result["band"]
+
+
 def edited_note(result: dict, lang: str) -> str | None:
     """'Parts of this clip match one we checked before, but 10–13 s are different…' (fpdiff.py)."""
     e = result.get("edited_copy_of") or {}
@@ -105,7 +110,7 @@ def format_reply(result: dict, lang: str) -> str:
     if result["band"] == "error":
         code = (result.get("error") or {}).get("code", "failed")
         return t(f"error_{code}" if f"error_{code}" in I18N else "error_failed", lang)
-    lines = [t(result["band"], lang, regions=format_regions(result.get("core_regions", []), lang))]
+    lines = [t(band_key(result), lang, regions=format_regions(result.get("core_regions", []), lang))]
     if result.get("trimmed"):
         lines.append(t("trimmed", lang))
     if note := edited_note(result, lang):

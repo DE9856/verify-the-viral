@@ -203,6 +203,9 @@ Every fuzzy match (fingerprint, speed/pitch) must also pass a **fingerprint diff
 clips up piece by piece: if any stretch of about 2 s or more differs, it is not a repeat but an
 **edited copy of a known clip**. It is checked by Aletheia like a new clip, and the reply says which
 seconds differ ("Parts of this clip match one we checked before, but 8–11 s are different").
+The diff also feeds the verdict: a changed stretch where the detector flagged even one window
+becomes a marked AI part (two independent signals agree), and an edited copy is never shown as
+🟢 — at best it is 🟡 "Unclear: this is an edited copy of a clip we checked before".
 
 ## Team and how we built it
 
