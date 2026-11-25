@@ -15,13 +15,13 @@ This file only tracks step status. Lanes ended 2026-11-25: all changes on the Wi
 - [x] Sync 2: reply + card + live `/r/<id>` timeline over https, 👍 forwarded (demo laptop, real API, 2026-11-25)
 - [ ] Phase 3 — [x] A5 PWA (Android install + share passed 2026-11-25) · [x] U2 "hear the fake part": voice note of the flagged seconds + card line (live-tested) · [x] U3 AI-clip radar /radar (live-tested: 7x in 2 chats) · [ ] A6 transcript (stretch, cut) · [x] A7 hardening | [x] B5 README (Sync 2 screenshot + links still to add) · [ ] B6 Reddit draft + backup video · [ ] B7 demo script
 - [x] C. Repeat-clip cache hardening (2026-11-25/26, server-tested, in master dec4bbd): decoded-audio layer (other formats) · fpcalc on both laptops · layer 5 speed/tape/pitch copies (9/9) · false-match test (612 pairs, 0 hits) · fingerprint diff (edits ≥ ~2 s never reuse a verdict; 4/4 on the server) · diff feeds the verdict (`apply_edits`). Known limits in README: edits ≤ ~1 s, tuned on 3 male speakers. Possible follow-ups: check only the changed seconds, English transcript veto, big synthetic test set
-- [ ] L. Live listen (judge's round-1 question; Aletheia live stream `wss://platform.detectif.ai/v1/stream`), on `testing`:
-  - [ ] L0. Preflight (~100 credits): a real voice and a consented clone played on speakerphone, recorded by the laptop mic, checked as files; done when the real one is not flagged
+- [x] L. Live listen (judge's round-1 question; Aletheia live stream `wss://platform.detectif.ai/v1/stream`), on `testing`:
+  - [x] L0. Preflight (done as the phone test instead: speaker path gives real-speech false alarms at 0.65-0.85 → live score floor 0.9; `research/live-listen.md`)
   - [x] L1. `app/core/live.py`: relay browser PCM 16 kHz frames → Aletheia stream (API key server-side, never in a URL), pass messages back, write the audio to WAV; cap LIVE_MAX_SECONDS; mock stream when MOCK_ALETHEIA (0 credits); tests
   - [x] L2. `GET /live` page + `WS /ws/live` in `app/api.py`: mic → AudioWorklet → 16 kHz Int16 → 100 ms frames; consent line before Start; live 🟢/🟡/🔴 + seconds checked; en/hi/kn texts
   - [x] L3. On stop: final result (`completed.results.deepfake`: segments) → `verdict.decide` → stored as a check (channel "live", never on the radar) → link to `/r/<id>` (timeline, hear the fake part, 👍/👎)
   - [x] L4. Docs: README (how it works, cost, limits: speakerphone only, consent), CONTRACT, engine diagram; landing-page link
-  - [ ] L5. Server test over https (ngrok): real voice + clone, live; then merge to master
+  - [x] L5. Server + phone tests on the real stream (2026-11-26): 5 real-voice calls (en/hi/kn) → 4 no_signs + 1 unclear, 0 red; clone caught; sustained rule `verdict.decide_live`; merged to master
 - [ ] Sync 3 freeze → F1 rehearse ×3 · F2 final video + Reddit post live (required) · F3 tag repo + Google form
 - [ ] V. Demo video (1:55, friend's SHOTLIST.md on demo laptop `data/demo-video/`): title cards ✅ (friend) · hero clip = Deepesh's spliced notice (`~/Downloads/demo-clips/AUD-20261125-WA0011.ogg`, fake 10.05–13.77 s) · fresh DB + radar recording (friend) · phone clips 3 hero, 4 timeline tap, 5 spread to 2nd/3rd chat, 6 WhatsApp share, 7 honest results (Deepesh) · rough cut + narration
 

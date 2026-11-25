@@ -149,8 +149,9 @@ Full tables and raw notes: [`research/real-world.md`](research/real-world.md),
   listen asks for **sustained** evidence instead: a stretch counts as AI only when at least 3 windows
   in a row (about 8 s) are confidently fake, and the light turns 🔴 only after two confident updates
   in a row. A short burst shows 🟡 "possibly AI". A cloned caller is fake for far longer than 8 s;
-  finding a short spliced sentence stays the job of file checks. Three test calls so far
-  (`research/live-listen.md`): real voice 🟢, the false-alarm recording 🟡, a clone 🟠 at the clone.
+  finding a short spliced sentence stays the job of file checks. Our test calls through a speaker
+  (`research/live-listen.md`): 5 real-voice calls in English, Hindi and Kannada → four 🟢 and one 🟡,
+  never 🔴; a cloned voice → 🟠 at exactly the clone's seconds. Small numbers: one speaker, one room.
 - **Short clips are unreliable:** under 10 seconds of speech we say 🟡 Unclear rather than guess.
 - **Limits:** Telegram bots can download up to 20 MB; Aletheia checks up to 5 minutes (we check
   the first 5 and say so).

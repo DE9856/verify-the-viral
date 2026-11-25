@@ -60,3 +60,17 @@ file 22.0–32.0 inside 20.4–34.7), no longer marking the 3.7 s AI sentence (f
 Still 3 calls: needs more REAL voices through the speaker (hi, kn, other speakers) before trusting it.
 Bug caught by the tests: "in a row" must mean overlapping, not "starts ≤ 2.5 s apart" — Aletheia
 stretches a window across silence (17.31–24.99).
+
+## Real-voice runs on the sustained rule (d6b9ab0, 2026-11-26 01:55–01:56) — PASS
+| Id | Voice (through the speaker) | Band | Overall | Windows | Highest window | Credits |
+|---|---|---|---|---|---|---|
+| zpUIdA | real Hindi (real_hi, 51 s) | no_signs | real 0.41 | 21, all real | 0.87 (real) | 87 |
+| cw9OSw | real Kannada (real_kn, 35 s) | no_signs | real 0.12 | 15, all real | 0.70 (real) | 64 |
+| DqlAmg | real English notice (WA0012) again | no_signs | real 0.41 | 7, all real | **0.91 at 5.25–9.25 (real)** | 31 |
+| 0iXNcA | false start, 2.8 s | no result (insufficient_speech), not stored | — | — | — | 0 |
+
+No fake window in any run, so these don't stress the rule; they show the speaker path doesn't
+always misfire. The notice's 2–8 s weak spot recurs (0.65–0.71, 0.97, now 0.91 labelled real): the
+rule's protection rests on 8DezRg. Live-listen testing total: ~394 credits.
+Tally so far through the speaker: real voices 5 calls (en ×3, hi, kn) → 4 no_signs + 1 unclear, 0 red;
+clone 1 call → caught.
