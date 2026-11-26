@@ -13,7 +13,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - In progress: nothing open; efficiency safety fixes merged to master (152 pass): cut excerpt, clean-diff rule (stray), regions kept outside changes, -45 dBFS trim floor; 84 vs 198 credits; PDF + PPT updated.
 - Next: 1) demo script (D3) 2) step V video 3) Sync 3 (rehearse, tag, submit).
 - Blockers / open questions: known minor (user: fine, not fixing): edit-excerpt regions ~0.67 s late, no bot error handler, one lost 👍; current credit balance (check GET /v1/credits, free); bot checks every group voice note: keep or forwarded-only + /check?; delete 6 old speed-copy checks?; hi/kn native review; organizers' ~10k credits reply.
-- Updated: 2026-11-26, Claude (Windows laptop = dev + server, step E merged)
+- Updated: 2026-11-26, Claude (Windows laptop = dev + server, step E merged, D1 deck)
 
 ## Rules & gotchas
 - Edited copies take the cheap path (excerpt/free) only on a clean diff: typical >= 0.90 and fpdiff `stray` <= 0.3 s; else whole clip.
@@ -24,6 +24,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 
 ## Topics
 - `submission/engine-flow.html`: engine workflow diagram (published artifact https://claude.ai/artifact/6rn99xKVfsqftwRxKNbMox); update it if check() flow changes.
+- Tech-stack deck (D1): use `submission/Check Before Share — Tech Stack.pptx` (user decision); the Artifact deck 9kewhg9HuMFwEyuiJqnJhs is unused (old numbers).
 - `.project-memory/PLAN.md` (4 KB): step status; read before starting or finishing a step. Root `PLAN.md` (29 KB, evidence): grep it for the step, don't read it whole.
 - `research/README.md`: what each spike tests and how to rerun.
 - `cache.md`, `aletheia.md`, `deploy.md`: topic files (read when the task touches them).
