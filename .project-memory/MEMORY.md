@@ -11,7 +11,7 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Setup: one laptop now (Windows = dev + server: API + bot + ngrok, see deploy.md); push `testing` → merge to `master` after a server test. Plan status: `.project-memory/PLAN.md`.
 - Done: research (0/12 real false alarms); bot, card, web, PWA share; Sync 1+2; hear-the-fake-part; AI-clip radar; step C cache hardening; step L live listen. step E credit efficiency. master = testing, 150 tests pass.
 - In progress: nothing open; efficiency safety fixes merged to master (152 pass): cut excerpt, clean-diff rule (stray), regions kept outside changes, -45 dBFS trim floor; 84 vs 198 credits; PDF + PPT updated.
-- Next: 1) demo script (D3) 2) step V video 3) Sync 3 (rehearse, tag, submit).
+- Next: 1) demo script (D3; flow agreed: problem slides -> live demo -> rest of deck; files in ~/Downloads/demo-day, rehearse on a separate DB) 2) step V video 3) Sync 3 (rehearse, tag, submit).
 - Blockers / open questions: known minor (user: fine, not fixing): edit-excerpt regions ~0.67 s late, no bot error handler, one lost 👍; current credit balance (check GET /v1/credits, free); bot checks every group voice note: keep or forwarded-only + /check?; delete 6 old speed-copy checks?; hi/kn native review; organizers' ~10k credits reply.
 - Updated: 2026-11-26, Claude (Windows: pulled 7c4e476, server restarted on it; teammate PPT is the deck)
 
