@@ -1,9 +1,9 @@
 # Server test: edited copies pay only for their new seconds (paste into Claude Code on the Fedora laptop)
 
-Pull branch `testing` and test the new edited-copy savings (`app/core/edits.py`). Use a CLEAN test
+Pull branch `efficiency` and test the new edited-copy savings (`app/core/edits.py`). Use a CLEAN test
 DB so the real `data/app.db` is untouched. Expected cost: about 63 credits (original may replay free).
 
-1. `git fetch && git checkout testing && git pull`, then `python -m pytest -q` (expect 150 pass).
+1. `git fetch && git checkout efficiency && git pull`, then `python -m pytest -q` (expect 150 pass).
 2. Don't stop the running bot/API. In a separate shell, with the real API (not mock):
    `DB_PATH=data/edit-server-test.db MOCK_ALETHEIA= PYTHONPATH=. python research/spikes/edit_copy_e2e.py`
    It needs `research/test-audio/spliced_whatsapp.mp3` (in git) and `~/Downloads/edit-test/1-4_*.mp3`

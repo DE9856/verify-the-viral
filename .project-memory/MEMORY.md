@@ -10,8 +10,8 @@ Team entry for the CMRIT × DetectifAI hackathon (2 days, teams of 2–3). Must 
 - Goal: Track 4 "Check Before Share" (Aletheia only), hackathon final round; team of 2, each with Claude Code.
 - Setup: dev laptop makes all changes → push `testing` → merge to `master` after a server test; Fedora laptop = server (bot + API + ngrok). Plan status: `.project-memory/PLAN.md`.
 - Done: research (0/12 real false alarms); bot, card, web, PWA share; Sync 1+2; hear-the-fake-part; AI-clip radar; step C cache hardening; step L live listen. master = testing, 140 tests pass.
-- In progress: step E on `testing` (uncommitted, 150 pass): edits.py (edited copies pay only new seconds, 63 vs 198 credits) + edge-silence trim of the SENT copy (start in 2 s steps, times shifted back) + radar counts edit savings. Trials 476/1500 credits, balance ~11.5k; research/credit-trials.md.
-- Next: 1) user commits + pushes testing 2) server test via submission/server-test-edits.md, then merge to master + restart 3) step D docs + demo script 4) step V video 5) Sync 3.
+- In progress: step E on branch `efficiency` (pushed, 150 pass): edits.py (edited copies pay only new seconds, 63 vs 198 credits) + edge-silence trim of the SENT copy (start in 2 s steps, times shifted back) + radar counts edit savings. Trials 476/1500 credits, balance ~11.5k; research/credit-trials.md.
+- Next: 1) server test of `efficiency` via submission/server-test-edits.md, then merge to master + restart 3) step D docs + demo script 4) step V video 5) Sync 3.
 - Blockers / open questions: current credit balance (check GET /v1/credits, free); bot checks every group voice note: keep or forwarded-only + /check?; delete 6 old speed-copy checks?; hi/kn native review; organizers' ~10k credits reply.
 - Updated: 2026-11-26, Claude (Windows laptop, credit trials)
 
