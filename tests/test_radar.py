@@ -66,7 +66,8 @@ def test_stats_count_repeats_and_credits_saved(fake):
     st = store.radar()["stats"]
     (duration,) = sqlite3.connect(config.DB_PATH).execute("SELECT duration FROM checks").fetchone()
     per_check = max(store.MIN_CREDITS, round(store.CREDITS_PER_SECOND * duration))   # DetectifAI pricing
-    assert st == {"clips": 1, "checks": 3, "repeats": 2, "credits_saved": 2 * per_check}
+    assert st == {"clips": 1, "checks": 3, "repeats": 2, "credits_saved": 2 * per_check,
+                  "edited_copies": 0, "credits_saved_on_edits": 0}
 
 
 def test_radar_page_and_json(fake):

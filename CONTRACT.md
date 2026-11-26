@@ -31,7 +31,9 @@ Returns this dict (and `POST /api/check` returns the same JSON):
   "credits_charged": 50,             // 0 on a cache hit or in mock mode
   // optional (added 2026-11-26): parts match a stored clip but some seconds differ (fpdiff.py), so it
   // was checked as a new clip: "edited_copy_of": {"id": "k7f3q2", "result_url": "…",
-  //   "changed": [[8.0, 11.2]] (s in this clip), "removed": [[3.0, 5.0]] (s cut from the stored one)}
+  //   "changed": [[8.0, 11.2]] (s in this clip), "removed": [[3.0, 5.0]] (s cut from the stored one),
+  //   "mode": "cut" | "free" | "excerpt" (edits.py, added 2026-11-26: only the new seconds are paid for),
+  //   "rechecked": [6.4, 16.6] (the excerpt Aletheia checked, s in this clip; [] otherwise)}
   "error": null,                     // or {"code": "insufficient_speech" | "too_large" | "out_of_credits" | "failed", "message": "…"}
   "result_url": "https://<PUBLIC_BASE_URL>/r/k7f3q2"
 }
@@ -88,7 +90,9 @@ fixture's real audio) whenever Lane A's server is running at `PUBLIC_BASE_URL`.
   the result page stay in the **original's** seconds; the bot says so (`cache_variant_speed`,
   `cache_variant_pitch`).
 - A near-match counts only if the fingerprint diff finds no changed or cut seconds (edits of ~2 s
-  or more). Otherwise it's an **edited copy**: a new check (credits charged) with `edited_copy_of`,
+  or more). Otherwise it's an **edited copy** with `edited_copy_of`: only its new seconds are paid for
+  (`edits.py`: cut-only copy or copy of a 🔴 clip = 0 credits; one changed stretch = ~10 s excerpt;
+  anything else = the whole clip),
   and the bot adds `edited_copy` / `edited_copy_cut`; in groups it's never shortened to one line.
 - The diff also feeds the band (`verdict.apply_edits`, 2026-11-26): a changed stretch with >= 1
   fake segment on it becomes a core region (→ `partly_fake`); any other change or a cut turns

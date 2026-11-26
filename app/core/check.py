@@ -8,7 +8,8 @@ Pipeline, cheapest step first (layers of "have we checked this clip before?"):
      format / renamed file: .ogg vs .opus, WAV vs FLAC, voice note inside a video)
   4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80 AND
      the fingerprint diff (fpdiff.py) finds no changed or cut seconds; if it does, the clip is an
-     edited copy: checked by the API like a new clip, with result["edited_copy_of"] saying which
+     edited copy, result["edited_copy_of"] says which; only its new seconds are paid for (edits.py:
+     a cut copy or a copy of a 🔴 clip is free, one changed stretch = ~10 s excerpt, else whole clip)
      (lossy re-encodes: WhatsApp Opus, MP3, AAC; needs fpcalc)
   5. a copy at another speed or pitch of a stored clip? → cached result, cache.variant says how
      (variants.py: undo the change with ffmpeg, fingerprint again; only runs when 1-4 missed)
@@ -27,7 +28,9 @@ import time
 from pathlib import Path
 
 from app import config
-from app.core import aletheia, fingerprint, normalize, store, variants, verdict
+import hashlib
+
+from app.core import aletheia, edits, fingerprint, normalize, store, variants, verdict
 from app.core.aletheia import AletheiaError
 from app.core.normalize import NormalizeError
 
@@ -125,12 +128,13 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
             r = store.hit(v.check_id, source=source)
             r["cache"]["variant"] = v.as_cache_info()
             return _done(r, f"cache:{v.kind}({v.score:.2f}, speed={v.speed}, semitones={v.semitones})", t0, norm)
-        if edited:  # parts match a known clip but some seconds differ: never reuse its verdict
+        if edited:  # parts match a known clip but some seconds differ: never reuse its verdict as is
             log.info("edited copy of %s: changed %s, removed %s", edited[0], edited[1].changed, edited[1].removed)
-        raw = await aletheia.detect(norm.path, idempotency_key=norm.sha256)
+            if (r := await _check_edited(norm, edited, source, fp)) is not None:
+                return _done(r, f"edit:{r['edited_copy_of']['mode']}", t0, norm)
+        raw = await _detect(norm)
     else:
-        raw, fp = await asyncio.gather(aletheia.detect(norm.path, idempotency_key=norm.sha256),
-                                       asyncio.to_thread(fingerprint.compute, norm.path))
+        raw, fp = await asyncio.gather(_detect(norm), asyncio.to_thread(fingerprint.compute, norm.path))
     decided = verdict.decide(raw["result"])
     if edited:  # the diff is a second signal: may add AI regions, never leaves an edit green
         r = raw["result"]
@@ -146,6 +150,59 @@ async def _check_normalized(norm: normalize.Normalized, source: dict, t0: float)
     store.save(result, source=source, sha256=norm.sha256, fp=fp, duration=norm.duration, audio_path=norm.path,
                pcm_sha256=norm.pcm_sha256)
     return _done(result, "api", t0, norm)
+
+
+async def _detect(norm: normalize.Normalized) -> dict:
+    """Aletheia on the clip, or on its copy without edge silence (normalize.trim_plan: billed seconds
+    saved, speech untouched); times are shifted back so they are the original clip's."""
+    if not norm.send_path:
+        return await aletheia.detect(norm.path, idempotency_key=norm.sha256)
+    raw = await aletheia.detect(norm.send_path, idempotency_key=f"{norm.sha256}-edge{norm.offset:.2f}")
+    r = raw["result"]
+    for s in r.get("segments") or []:
+        s["start"], s["end"] = round(s["start"] + norm.offset, 3), round(s["end"] + norm.offset, 3)
+    r["sent_seconds"] = r.get("duration_seconds")
+    r["duration_seconds"] = norm.duration
+    log.info("edge silence: sent %.1f of %.1f s (from %.2f s)", r["sent_seconds"] or 0, norm.duration, norm.offset)
+    return raw
+
+
+async def _check_edited(norm: normalize.Normalized, edited, source: dict, fp) -> dict | None:
+    """Edited copy of a stored clip: pay only for the new seconds (edits.py). None = check the whole clip."""
+    cid, d = edited
+    original = store.get(cid)
+    if not original:
+        return None
+    p = edits.plan(original, d.changed, d.removed, norm.duration)
+    if p.mode == "full":
+        return None
+    raw = None
+    if p.mode == "free":
+        merged = {"segments": [], "band": "likely_fake", "core_regions": []}
+    elif p.mode == "cut":
+        merged = edits.merge_cut(original, d.removed)
+    else:
+        part = str(Path(norm.path).with_name(Path(norm.path).stem + f"_edit_{p.start:.1f}-{p.end:.1f}.wav"))
+        await asyncio.to_thread(normalize._ffmpeg, ["-ss", f"{p.start:.3f}", "-t", f"{p.end - p.start:.3f}",
+                                                    "-i", norm.path, "-ac", "1", "-ar", "16000", part])
+        key = "edit-" + hashlib.sha256(Path(part).read_bytes()).hexdigest()
+        raw = await aletheia.detect(part, idempotency_key=key)
+        merged = edits.merge_excerpt(original, p, raw["result"], d.changed)
+    overall = original.get("overall") or {}
+    shaped = {"result": {"verdict": overall.get("verdict"), "score": overall.get("score"),
+                         "segments": merged["segments"], "duration_seconds": norm.duration,
+                         "scored_seconds": norm.duration},
+              "operation_id": (raw or {}).get("operation_id"), "model": (raw or {}).get("model"),
+              "credits": (raw or {}).get("credits") or {"charged": 0}}
+    result = build_result(shaped, merged, trimmed=norm.trimmed)
+    if merged.get("reason"):
+        result["reason"] = merged["reason"]
+    result["edited_copy_of"] = {"id": cid, "result_url": result_url(cid), "changed": d.changed,
+                                "removed": d.removed, "mode": p.mode,
+                                "rechecked": [p.start, p.end] if p.mode == "excerpt" else []}
+    store.save(result, source=source, sha256=norm.sha256, fp=fp, duration=norm.duration, audio_path=norm.path,
+               pcm_sha256=norm.pcm_sha256)
+    return result
 
 
 async def _once(key: str, fn, source: dict) -> dict:

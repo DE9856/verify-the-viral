@@ -36,3 +36,6 @@ research/real-audio/
 
 # design-tool cache
 .impeccable/hook.cache.json
+
+# private consented voices handed between laptops (never commit)
+handoff-private-audio.zip

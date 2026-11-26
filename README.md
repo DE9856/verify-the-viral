@@ -225,8 +225,15 @@ about 1 s, only when everything before it missed). Only then is Aletheia called.
 
 Every fuzzy match (fingerprint, speed/pitch) must also pass a **fingerprint diff** that lines the
 clips up piece by piece: if any stretch of about 2 s or more differs, it is not a repeat but an
-**edited copy of a known clip**. It is checked by Aletheia like a new clip, and the reply says which
-seconds differ ("Parts of this clip match one we checked before, but 8–11 s are different").
+**edited copy of a known clip**. Only its new seconds are paid for: a copy with seconds cut out
+(or a copy of a clip we already called 🔴) costs 0 credits; one replaced or inserted stretch is
+checked as a ~10 s excerpt (21 credits, the minimum price) while the rest keeps the original's
+result; anything more complex is checked whole. In a real-API test 4 edited copies cost 63 credits
+instead of 198, with the same answers, and the excerpt caught a 2 s AI insert the full check had
+missed (`research/credit-trials.md`). Silence at the start or end of a
+clip is billed like speech, so it is cut from the copy we send (no re-encode, start in whole 2 s
+steps so Aletheia's windows land exactly where they would on the whole clip; the saved and played
+clip stays whole and every time shown is the original's). The reply says which seconds differ ("Parts of this clip match one we checked before, but 8–11 s are different").
 The diff also feeds the verdict: a changed stretch where the detector flagged even one window
 becomes a marked AI part (two independent signals agree), and an edited copy is never shown as
 🟢 — at best it is 🟡 "Unclear: this is an edited copy of a clip we checked before".

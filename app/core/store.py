@@ -286,6 +286,14 @@ def radar(*, days: float = 7, limit: int = 30) -> dict:
             " COALESCE(SUM((times_checked - 1) * MAX(?, CAST(ROUND(? * COALESCE(duration, 0)) AS INTEGER))),0) saved"
             " FROM checks WHERE band != 'error' AND json_extract(result, '$.operation_id') IS NOT NULL",
             (MIN_CREDITS, CREDITS_PER_SECOND)).fetchone()
+        # edited copies (edits.py) paid only for their new seconds, or nothing: full price minus what they
+        # cost, plus repeats of the free ones (no operation_id, so the query above skips them)
+        edited = con.execute(
+            "SELECT COUNT(*) n, COALESCE(SUM(MAX(?, CAST(ROUND(? * COALESCE(duration, 0)) AS INTEGER))"
+            " * (CASE WHEN json_extract(result, '$.operation_id') IS NULL THEN times_checked ELSE 1 END)"
+            " - COALESCE(json_extract(result, '$.credits_charged'), 0)),0) saved"
+            " FROM checks WHERE json_extract(result, '$.edited_copy_of.mode') IS NOT NULL",
+            (MIN_CREDITS, CREDITS_PER_SECOND)).fetchone()
     items = []
     for r in rows:
         places = max(r["places"], 1)    # clips checked before sightings existed were still seen once
@@ -301,5 +309,6 @@ def radar(*, days: float = 7, limit: int = 30) -> dict:
             break
     return {"items": items,
             "stats": {"clips": totals["n"], "checks": totals["t"], "repeats": totals["t"] - totals["n"],
-                      "credits_saved": int(totals["saved"])},
+                      "credits_saved": int(totals["saved"]) + int(edited["saved"]),
+                      "edited_copies": edited["n"], "credits_saved_on_edits": int(edited["saved"])},
             "rules": {"min_places": RADAR_MIN_PLACES, "min_checks": RADAR_MIN_CHECKS, "days": days}}

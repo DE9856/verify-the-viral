@@ -12,6 +12,7 @@ by content so the same clip is only stored once.
 """
 import asyncio
 import hashlib
+import math
 import os
 import re
 import shutil
@@ -22,10 +23,19 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import imageio_ffmpeg
+import numpy as np
 
 from app import config
 
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+# Silence at the start/end is billed like speech (research/credit-trials.md). Trim it from the copy we
+# SEND only when that saves >= 2 credits; the stored/played file stays whole and segment times are
+# shifted back, so every time shown is the original clip's.
+EDGE_KEEP = 0.3          # seconds of silence left before the first / after the last sound
+EDGE_MIN_SAVE = 1.0      # trim only if this many seconds go (2 credits)
+EDGE_DROP_DB = 35.0      # "silence" = this far below the clip's loud level (95th percentile, 20 ms frames)
+EDGE_GRID = 2.0          # Aletheia's window step
+EDGE_MIN_LEFT = 10.5     # never trim below this: Aletheia bills >= 10 s anyway, and < 10 s is "unclear"
 PASSTHROUGH_MAX_BYTES = 20 * 1024 * 1024   # bigger files get compressed (API needs >= 64 KB/s upload)
 API_MAX_BYTES = 100 * 1024 * 1024
 
@@ -67,6 +77,8 @@ class Normalized:
     trimmed: bool    # True if the input was longer than 300 s
     method: str      # passthrough | copy | transcode
     pcm_sha256: str | None = None  # of the decoded audio: same sound in another file → same hash
+    send_path: str | None = None   # trimmed copy for Aletheia (edge silence cut), else None = send `path`
+    offset: float = 0.0            # seconds cut from the start of send_path: add to Aletheia's times
 
 
 def audio_dir() -> Path:
@@ -97,16 +109,47 @@ def _sha256(path: str) -> str:
     return h.hexdigest()
 
 
-def pcm_sha256(src: str) -> str | None:
+def _decode(src: str) -> bytes | None:
+    r = subprocess.run([FFMPEG, "-v", "error", "-i", src, "-vn", "-map", "0:a:0", "-ac", "1", "-ar", "16000",
+                        "-t", str(config.MAX_SECONDS), "-f", "s16le", "-"], capture_output=True)
+    return r.stdout if r.returncode == 0 and r.stdout else None
+
+
+def edge_silence(pcm: bytes) -> tuple[float, float]:
+    """(seconds of silence at the start, at the end) of mono 16 kHz s16le audio."""
+    x = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
+    n = len(x) // 320
+    if n < 50:
+        return 0.0, 0.0
+    e = 20 * np.log10(np.sqrt((x[:n * 320].reshape(n, 320) ** 2).mean(1)) + 1e-9)
+    loud = np.flatnonzero(e >= np.percentile(e, 95) - EDGE_DROP_DB)
+    if not len(loud):
+        return 0.0, 0.0
+    return loud[0] * 0.02, (n - 1 - loud[-1]) * 0.02
+
+
+def trim_plan(pcm: bytes | None, duration: float) -> tuple[float, float] | None:
+    """(start, length) of the part worth sending, or None to send the whole clip."""
+    if not pcm or duration <= EDGE_MIN_LEFT:
+        return None
+    lead, tail = edge_silence(pcm)
+    # whole 2 s steps only: Aletheia's 4 s windows start every 2 s from 0, so the trimmed copy gets
+    # exactly the same windows as the whole clip (a 1.84 s cut moved them and narrowed a fake region
+    # from 12-16 s to 13.8-15.8 s in the real-API test)
+    start = EDGE_GRID * math.floor(max(0.0, lead - EDGE_KEEP) / EDGE_GRID)
+    length = duration - start - max(0.0, tail - EDGE_KEEP)
+    if duration - length < EDGE_MIN_SAVE or length < EDGE_MIN_LEFT:
+        return None
+    return round(start, 2), round(length, 2)
+
+
+def pcm_sha256(src: str, pcm: bytes | None = None) -> str | None:
     """sha256 of the decoded audio (mono 16 kHz 16-bit, first MAX_SECONDS), ignoring the container,
     tags and file name. Catches the same recording in a different wrapper or a lossless format
     (.ogg/.opus, WAV/FLAC, a voice note inside a video, a renamed file). A lossy re-encode changes
     the samples, so that is left to the fingerprint layer. Best effort: None if decoding fails."""
-    r = subprocess.run([FFMPEG, "-v", "error", "-i", src, "-vn", "-map", "0:a:0", "-ac", "1", "-ar", "16000",
-                        "-t", str(config.MAX_SECONDS), "-f", "s16le", "-"], capture_output=True)
-    if r.returncode != 0 or not r.stdout:
-        return None
-    return hashlib.sha256(r.stdout).hexdigest()
+    pcm = pcm if pcm is not None else _decode(src)
+    return hashlib.sha256(pcm).hexdigest() if pcm else None
 
 
 def _ffmpeg(args: list[str]) -> None:
@@ -148,8 +191,33 @@ def normalize_sync(src: str) -> Normalized:
         digest = _sha256(out)
         final = audio_dir() / f"{digest}{ext}"
         _place(out, final)
+    pcm = _decode(src)
+    send_path, offset = _trimmed_copy(str(final), p.audio_codec, trim_plan(pcm, send_seconds))
     return Normalized(path=str(final), sha256=digest, duration=round(send_seconds, 3),
-                      trimmed=trimmed, method=method, pcm_sha256=pcm_sha256(src))
+                      trimmed=trimmed, method=method, pcm_sha256=pcm_sha256(src, pcm),
+                      send_path=send_path, offset=offset)
+
+
+def _trimmed_copy(path: str, codec: str | None, plan: tuple[float, float] | None) -> tuple[str | None, float]:
+    """A copy of `path` without its edge silence, made without re-encoding when the codec allows."""
+    if not plan:
+        return None, 0.0
+    start, length = plan
+    src = Path(path)
+    ext = src.suffix if codec in COPYABLE or src.suffix == ".wav" else ".ogg"
+    dst = src.with_name(f"{src.stem}.send_{start:.2f}_{length:.2f}{ext}")
+    if not dst.exists():
+        enc = ["-c:a", "copy"] if ext == src.suffix else ["-ac", "1", "-ar", "16000", "-c:a", "libopus", "-b:a", "48k"]
+        tmp = dst.with_name(dst.stem + f".{os.getpid()}.part{ext}")
+        try:
+            _ffmpeg(["-ss", f"{start:.3f}", "-i", path, "-t", f"{length:.3f}", "-map", "0:a:0", *enc, str(tmp)])
+            _place(str(tmp), dst)
+        except (NormalizeError, OSError):
+            return None, 0.0                 # trimming is only a saving: send the whole clip instead
+        finally:
+            if tmp.exists():
+                tmp.unlink(missing_ok=True)
+    return str(dst), start
 
 
 def _rename_no_clobber(src: str | Path, final: Path) -> None:
