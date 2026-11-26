@@ -15,7 +15,8 @@ ORIGINAL = {"band": "partly_fake", "core_regions": [[10.0, 14.0]], "duration": 2
 
 def test_plan_picks_the_cheapest_safe_mode():
     assert edits.plan({**ORIGINAL, "band": "likely_fake"}, [[2, 4]], [], 20.4).mode == "free"
-    assert edits.plan(ORIGINAL, [], [[16.0, 19.0]], 17.4).mode == "cut"
+    c = edits.plan(ORIGINAL, [], [[16.0, 19.0]], 17.4)                         # a cut: checked around it
+    assert c.mode == "excerpt" and c.cut and c.start <= 16.0 <= c.end
     p = edits.plan(ORIGINAL, [[16.6, 19.2]], [], 22.4)
     assert p.mode == "excerpt" and abs((p.end - p.start) - edits.EXCERPT_SECONDS) < 0.05
     assert p.start <= 16.6 and p.end >= 19.2 and p.shift == 2.0
@@ -26,18 +27,28 @@ def test_plan_picks_the_cheapest_safe_mode():
     assert edits.plan({**ORIGINAL, "band": "error"}, [], [[3, 5]], 18.0).mode == "full"
 
 
+def test_messy_diff_gets_the_whole_clip_checked():
+    """Unmatched seconds the reported changes don't explain may be an edit too small to report."""
+    assert edits.plan(ORIGINAL, [[16.6, 19.2]], [], 22.4, typical=0.994, stray=0.0).mode == "excerpt"
+    assert edits.plan(ORIGINAL, [[16.6, 19.2]], [], 22.4, typical=0.994, stray=0.5).mode == "full"
+    assert edits.plan(ORIGINAL, [[16.6, 19.2]], [], 22.4, typical=0.85, stray=0.0).mode == "full"
+    red = {**ORIGINAL, "band": "likely_fake"}
+    assert edits.plan(red, [[2, 4]], [], 20.4, typical=1.0, stray=0.0).mode == "free"
+    assert edits.plan(red, [[2, 4]], [], 20.4, typical=1.0, stray=0.6).mode == "full"   # a false 🔴 gets a 2nd chance
+
+
 def test_cut_moves_later_times_back():
     assert edits.map_cut(5.0, [[16.0, 19.0]]) == 5.0
     assert edits.map_cut(20.0, [[16.0, 19.0]]) == 17.0
     assert edits.map_cut(17.0, [[16.0, 19.0]]) == 16.0
-    m = edits.merge_cut(ORIGINAL, [[2.0, 4.0]])
-    assert m["core_regions"] == [[8.0, 12.0]] and m["band"] == "partly_fake"
-    assert len(m["segments"]) == len(ORIGINAL["segments"]) - 2          # the windows across the cut
 
 
-def test_cut_copy_of_a_clean_clip_is_never_green():
-    clean = {**ORIGINAL, "band": "no_signs", "core_regions": []}
-    m = edits.merge_cut(clean, [[5.0, 7.0]])
+def test_cut_excerpt_merges_and_is_never_green():
+    p = edits.plan(ORIGINAL, [], [[2.0, 4.0]], 18.4)
+    clean = {"threshold": 0.62, "segments": [{"start": 0.0, "end": 4.0, "score": 0.01, "verdict": "real"}]}
+    m = edits.merge_excerpt(ORIGINAL, p, clean, [], [[2.0, 4.0]])
+    assert [8.0, 12.0] in m["core_regions"] or m["core_regions"][-1][1] == 12.0    # original 10-14, moved 2 s back
+    m = edits.merge_excerpt({**ORIGINAL, "band": "no_signs", "core_regions": []}, p, clean, [], [[2.0, 4.0]])
     assert m["band"] == "unclear" and m["reason"] == "edited"
 
 
@@ -62,16 +73,14 @@ def _cut(src, dst, a, b):
 
 
 @needs_fpcalc
-def test_cut_copy_costs_nothing(fake, tmp_path):
+def test_cut_copy_is_checked_around_the_cut(fake, tmp_path):
     a = run(AUDIO / "spliced_whatsapp.mp3")
     b = run(_cut(AUDIO / "spliced_whatsapp.mp3", tmp_path / "cut.ogg", 16.0, 19.0))
-    assert fake.calls == 1 and b["credits_charged"] == 0 and b["id"] != a["id"]
-    assert b["edited_copy_of"]["mode"] == "cut" and b["edited_copy_of"]["id"] == a["id"]
-    assert b["band"] == "partly_fake" and b["core_regions"] == a["core_regions"]   # cut is after the fake part
-    from app.core import store
-    st = store.radar()["stats"]
-    assert st["edited_copies"] == 1 and st["credits_saved_on_edits"] == max(20, round(2 * b["duration"]))
-    assert st["credits_saved"] >= st["credits_saved_on_edits"]
+    e = b["edited_copy_of"]
+    assert fake.calls == 2 and e["mode"] == "excerpt" and e["id"] == a["id"] and b["id"] != a["id"]
+    lo, hi = e["rechecked"]
+    assert lo <= 16.0 <= hi and abs((hi - lo) - edits.EXCERPT_SECONDS) < 0.05
+    assert [10.0, 14.0] in b["core_regions"] or b["core_regions"][0][0] == 10.0     # the fake part is before the cut
 
 
 @needs_fpcalc
@@ -102,5 +111,9 @@ def test_edited_copy_of_a_fake_clip_is_free(fake, tmp_path):
     a = run(AUDIO / "fake_en.mp3")
     assert a["band"] == "likely_fake"
     b = run(_cut(AUDIO / "fake_en.mp3", tmp_path / "fake_cut.ogg", 3.0, 5.5))
-    if b.get("edited_copy_of"):                             # only if the diff calls it an edit
+    if b.get("edited_copy_of", {}).get("mode") == "free":   # only if the diff calls it a clean edit
         assert fake.calls == 1 and b["band"] == "likely_fake" and b["credits_charged"] == 0
+        from app.core import store
+        st = store.radar()["stats"]
+        assert st["edited_copies"] == 1 and st["credits_saved_on_edits"] == max(20, round(2 * b["duration"]))
+        assert st["credits_saved"] >= st["credits_saved_on_edits"]

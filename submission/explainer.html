@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Check Before Share: how it works</title>
+<style>
+@font-face { font-family: "Noto Sans"; font-weight: 500; src: url("../app/web/static/fonts/noto-sans-500.woff2"); }
+@font-face { font-family: "Noto Sans"; font-weight: 700; src: url("../app/web/static/fonts/noto-sans-700.woff2"); }
+@font-face { font-family: "Noto Sans"; font-weight: 800; src: url("../app/web/static/fonts/noto-sans-800.woff2"); }
+@font-face { font-family: "Noto Sans Kannada"; font-weight: 700; src: url("../app/web/static/fonts/noto-sans-kannada-700.woff2"); }
+@font-face { font-family: "Noto Sans Devanagari"; font-weight: 700; src: url("../app/web/static/fonts/noto-sans-devanagari-700.woff2"); }
+@font-face { font-family: "Noto Sans Mono"; font-weight: 500; src: url("../app/web/static/fonts/noto-sans-mono-500.woff2"); }
+@font-face { font-family: "Noto Sans Mono"; font-weight: 700; src: url("../app/web/static/fonts/noto-sans-mono-700.woff2"); }
+:root {
+  --ink: #18203a; --ink-soft: #3a4462; --paper: #eef0eb; --paper-2: #e2e5df; --rule: #c7ccc4; --white: #fbfcf9;
+  --red: #ff7a6b; --orange: #ffae4d; --yellow: #ffdf5e; --green: #8ddbac; --grey: #c9cfd8;
+  --font: "Noto Sans", "Noto Sans Kannada", "Noto Sans Devanagari", sans-serif;
+  --mono: "Noto Sans Mono", "Noto Sans", monospace;
+}
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); font-weight: 500; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; min-height: 297mm; padding: 16mm 16mm 14mm; page-break-after: always; position: relative; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.foot { position: absolute; left: 16mm; right: 16mm; bottom: 8mm; display: flex; justify-content: space-between;
+        font: 500 7.5pt var(--mono); color: var(--ink-soft); border-top: 1px dashed var(--rule); padding-top: 2mm; }
+h1 { font-weight: 800; font-size: 34pt; line-height: 1.02; margin: 0 0 4mm; letter-spacing: -0.02em; }
+h2 { font-weight: 800; font-size: 19pt; line-height: 1.1; margin: 0 0 3mm; letter-spacing: -0.01em; }
+h3 { font-weight: 800; font-size: 11.5pt; margin: 4mm 0 1.5mm; }
+.eyebrow { font: 700 8pt var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2mm; }
+p, li { font-size: 9.6pt; line-height: 1.5; margin: 0 0 2mm; }
+ul { margin: 0 0 2mm; padding-left: 5mm; }
+.lead { font-size: 11.5pt; line-height: 1.45; max-width: 160mm; }
+.mono { font-family: var(--mono); }
+code { font: 500 8.6pt var(--mono); background: var(--paper-2); padding: 0 1.2mm; border-radius: 1mm; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.card { background: var(--white); border: 1.4px solid var(--ink); border-radius: 3mm; padding: 4mm; }
+.card h3 { margin-top: 0; }
+.stub { border-left: 3mm solid var(--ink); }
+.tag { display: inline-block; font: 700 7.5pt var(--mono); padding: .6mm 2mm; border-radius: 10mm; border: 1px solid var(--ink); background: var(--white); }
+.t-red { background: var(--red); } .t-orange { background: var(--orange); } .t-yellow { background: var(--yellow); }
+.t-green { background: var(--green); } .t-grey { background: var(--grey); }
+table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 2mm 0 3mm; background: var(--white); }
+th { text-align: left; font: 700 7.6pt var(--mono); text-transform: uppercase; letter-spacing: .06em; background: var(--ink); color: var(--paper); padding: 1.8mm 2mm; }
+td { padding: 1.7mm 2mm; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.4; }
+tr:last-child td { border-bottom: 0; }
+.big { font-weight: 800; font-size: 26pt; line-height: 1; }
+.stat { background: var(--white); border: 1.4px solid var(--ink); border-radius: 3mm; padding: 3.5mm; }
+.stat small { display: block; font-size: 8.4pt; line-height: 1.35; margin-top: 1.5mm; color: var(--ink-soft); }
+.flow { display: flex; align-items: stretch; gap: 2.5mm; }
+.flow .arrow { align-self: center; font-weight: 800; font-size: 15pt; }
+.box { background: var(--white); border: 1.4px solid var(--ink); border-radius: 2.5mm; padding: 2.5mm 3mm; font-size: 8.8pt; line-height: 1.35; }
+.box b { display: block; font-size: 9.6pt; margin-bottom: .6mm; }
+.engine { background: var(--ink); color: var(--paper); }
+.note { background: var(--yellow); border: 1.4px solid var(--ink); border-radius: 2.5mm; padding: 2.5mm 3.5mm; font-size: 9pt; line-height: 1.45; }
+.gate { display: grid; grid-template-columns: 13mm 1fr 34mm; border: 1.4px solid var(--ink); border-radius: 3mm; background: var(--white); margin-bottom: 2.6mm; overflow: hidden; }
+.gate .n { background: var(--ink); color: var(--paper); font-weight: 800; font-size: 17pt; display: flex; align-items: center; justify-content: center; }
+.gate .body { padding: 2.4mm 3.5mm; }
+.gate .body h3 { margin: 0 0 1mm; }
+.gate .body p { margin: 0 0 1mm; font-size: 8.9pt; line-height: 1.42; }
+.gate .exit { background: var(--green); border-left: 1.4px dashed var(--ink); padding: 2.4mm 2.5mm; font-size: 8.2pt; line-height: 1.35; }
+.gate .exit b { display: block; font-size: 10pt; }
+.gate.paid .exit { background: var(--orange); }
+.qa { break-inside: avoid; margin-bottom: 2.2mm; }
+.qa .q { font-weight: 800; font-size: 9.8pt; margin-bottom: .6mm; }
+.qa .q::before { content: "Q  "; font-family: var(--mono); color: var(--ink-soft); }
+.qa .a { font-size: 9pt; line-height: 1.45; padding-left: 5mm; border-left: 2px solid var(--rule); }
+.qcols { column-count: 2; column-gap: 7mm; }
+.cover { background: var(--ink); color: var(--paper); }
+.cover .eyebrow, .cover .foot { color: #b9c0d4; border-color: #3a4462; }
+.ticket { background: var(--orange); color: var(--ink); border-radius: 4mm; padding: 6mm; position: relative; }
+.ticket::before, .ticket::after { content: ""; position: absolute; top: 50%; width: 8mm; height: 8mm; margin-top: -4mm; border-radius: 50%; background: var(--ink); }
+.ticket::before { left: -4mm; } .ticket::after { right: -4mm; }
+svg text { font-family: var(--font); }
+.legend span { display: inline-flex; align-items: center; gap: 1.5mm; margin-right: 4mm; font-size: 8.4pt; }
+.legend i { width: 4mm; height: 3mm; border: 1px solid var(--ink); display: inline-block; }
+.toc li { font-size: 10pt; margin-bottom: 1.2mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ 1 COVER -->
+<section class="page cover">
+  <div class="eyebrow">CMRIT × DetectifAI · Track 4 · Verify the Viral</div>
+  <h1 style="font-size:46pt;margin-top:18mm">Check<br>Before Share</h1>
+  <p class="lead" style="color:#dfe3ec">A checker that finds the <b>seconds</b> of a forwarded voice note that sound AI-made,
+    before anyone forwards it again. Built on DetectifAI <b>Aletheia</b>. Works in a Telegram group,
+    from WhatsApp through Android's share sheet, and on a live call put on speaker. Answers in English, Hindi and Kannada.</p>
+
+  <div class="ticket" style="margin:12mm 0 8mm">
+    <div class="eyebrow" style="color:var(--ink)">What a check returns</div>
+    <div style="font-weight:800;font-size:20pt;margin-bottom:3mm">🟠 Partly AI-generated · AI part 10–14 s</div>
+    <svg viewBox="0 0 600 70" width="100%">
+      <rect x="0" y="16" width="600" height="30" rx="6" fill="#8ddbac" stroke="#18203a" stroke-width="2"/>
+      <rect x="250" y="16" width="100" height="30" fill="#ff7a6b" stroke="#18203a" stroke-width="2"/>
+      <text x="8" y="66" font-size="13" font-weight="700" fill="#18203a">0 s · real recording</text>
+      <text x="300" y="66" font-size="13" font-weight="800" fill="#18203a" text-anchor="middle">10–14 s · AI sentence</text>
+      <text x="592" y="66" font-size="13" font-weight="700" fill="#18203a" text-anchor="end">24 s</text>
+      <text x="300" y="11" font-size="12" font-weight="700" fill="#18203a" text-anchor="middle">“…send ₹500 to this number by tonight”</text>
+    </svg>
+  </div>
+
+  <div class="grid3" style="color:var(--ink)">
+    <div class="stat"><div class="big">0 / 12</div><small>false alarms on our real voice notes (English, Hindi, Kannada, clean and WhatsApp-quality)</small></div>
+    <div class="stat"><div class="big">6 / 6</div><small>real notes with one cloned sentence flagged; Aletheia's headline verdict alone missed 4 of them</small></div>
+    <div class="stat"><div class="big">0</div><small>credits for a clip seen before: forwards, re-encodes, other formats, speed and pitch copies</small></div>
+  </div>
+
+  <h3 style="margin-top:9mm;color:var(--paper)">In this document</h3>
+  <ol class="toc" style="color:#dfe3ec;columns:2">
+    <li>The problem and who it helps</li><li>What we built: three ways in, one engine</li>
+    <li>Architecture</li><li>One clip, start to finish</li>
+    <li>The gates, one by one</li><li>Edited copies and the fingerprint diff</li>
+    <li>Detection and the four bands</li><li>Saving credits: edge silence</li>
+    <li>Live listen</li><li>What people get back · privacy</li>
+    <li>Testing and results</li><li>Honest limits</li><li>The stack</li>
+    <li>Questions judges may ask</li>
+  </ol>
+  <div class="foot"><span>Check Before Share · project explainer</span><span>26 Nov 2026</span></div>
+</section>
+
+<!-- ============================================================ 2 PROBLEM -->
+<section class="page">
+  <div class="eyebrow">01 · The problem</div>
+  <h2>The sneakiest fakes are a real voice with one sentence swapped in</h2>
+  <p class="lead">A voice note “from the principal” or “from the society” lands in a family group. Most of it is a real
+    recording. One sentence in the middle, “send ₹500 to this number by tonight”, was made by AI from about
+    10 seconds of the person's voice. People forward it in one tap; nobody in the group can run a deepfake detector.</p>
+
+  <svg viewBox="0 0 700 150" width="100%" style="margin:4mm 0 2mm">
+    <rect x="0" y="40" width="700" height="44" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="2"/>
+    <rect x="0" y="40" width="290" height="44" rx="8" fill="#8ddbac" stroke="#18203a" stroke-width="2"/>
+    <rect x="290" y="40" width="120" height="44" fill="#ff7a6b" stroke="#18203a" stroke-width="2"/>
+    <rect x="410" y="40" width="290" height="44" rx="8" fill="#8ddbac" stroke="#18203a" stroke-width="2"/>
+    <text x="145" y="67" text-anchor="middle" font-size="14" font-weight="700">“This is the principal speaking…”</text>
+    <text x="350" y="67" text-anchor="middle" font-size="13" font-weight="800">“…send ₹500…”</text>
+    <text x="555" y="67" text-anchor="middle" font-size="14" font-weight="700">“…thank you.”</text>
+    <text x="145" y="28" text-anchor="middle" font-size="12" fill="#3a4462">REAL recording</text>
+    <text x="350" y="28" text-anchor="middle" font-size="12" font-weight="800">AI-cloned sentence</text>
+    <text x="555" y="28" text-anchor="middle" font-size="12" fill="#3a4462">REAL recording</text>
+    <rect x="160" y="104" width="380" height="36" rx="18" fill="#ffdf5e" stroke="#18203a" stroke-width="2"/>
+    <text x="350" y="127" text-anchor="middle" font-size="13" font-weight="800">Whole-clip verdict: “real” (score 0.28). The fake hides in the average.</text>
+  </svg>
+
+  <div class="grid3">
+    <div class="card"><h3>10 s is enough</h3><p>We cloned our own voices (with consent) from about 10 seconds of audio, with free models a gaming laptop can run.</p></div>
+    <div class="card"><h3>The headline misses it</h3><p>On our spliced clip Aletheia's overall verdict said <b>real</b>. Only its 4-second windows caught the fake sentence. Reading the windows is the core of our product.</p></div>
+    <div class="card"><h3>Forwarding is easier than checking</h3><p>The answer has to arrive where the clip is: inside the group, in the group's language, in a form people forward instead of the fake.</p></div>
+  </div>
+
+  <h3 style="margin-top:6mm">Who it helps</h3>
+  <table>
+    <tr><th style="width:28%">Who</th><th>How they use it</th></tr>
+    <tr><td><b>Family and college groups</b></td><td>Parents and grandparents who get “the principal” or “the society” announcing a fine, a holiday or an urgent payment. The bot answers in the same thread.</td></tr>
+    <tr><td><b>Group admins, class reps</b></td><td>Add the bot once. Every voice note, audio file or video in the group is checked automatically.</td></tr>
+    <tr><td><b>WhatsApp users</b></td><td>WhatsApp has no bot API for groups, so the installed web app sits in Android's share sheet: WhatsApp → Share → Check Before Share.</td></tr>
+    <tr><td><b>Anyone on a suspicious call</b></td><td>“It's me, I need money now.” Put the call on speaker next to the <code>/live</code> page and it says whether the voice sounds AI-made.</td></tr>
+  </table>
+  <div class="foot"><span>Check Before Share</span><span>2</span></div>
+</section>
+
+<!-- ============================================================ 3 WHAT WE BUILT + ARCHITECTURE -->
+<section class="page">
+  <div class="eyebrow">02 · What we built</div>
+  <h2>Three ways in, one engine, answers people can forward</h2>
+  <div class="flow" style="margin:4mm 0 6mm">
+    <div style="display:flex;flex-direction:column;gap:2.5mm;flex:1.1">
+      <div class="box"><b>Telegram bot</b>Voice notes, audio, video in a group or a DM (@verifytheviralbot)</div>
+      <div class="box"><b>Android share</b>WhatsApp → Share → the installed web app (PWA share target, <code>POST /share</code>)</div>
+      <div class="box"><b>Live listen</b>A call on speaker next to the <code>/live</code> page (browser mic)</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="box engine" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+      <b style="font-size:13pt">core.check()</b>
+      One engine for every entry point: normalise the audio, recognise repeats for free, ask Aletheia once, decide one of four honest bands.
+    </div>
+    <div class="arrow">→</div>
+    <div style="display:flex;flex-direction:column;gap:2.5mm;flex:1.1">
+      <div class="box"><b>Reply</b>In the group's language, with the fake seconds</div>
+      <div class="box"><b>Verdict card</b>An image to forward instead of the fake</div>
+      <div class="box"><b>Timeline page</b><code>/r/&lt;id&gt;</code>: waveform, fake seconds marked, tap to hear them</div>
+      <div class="box"><b>AI-clip radar</b><code>/radar</code>: flagged clips going round</div>
+    </div>
+  </div>
+
+  <div class="eyebrow">03 · Architecture</div>
+  <h2>How the pieces connect</h2>
+  <svg viewBox="0 0 700 330" width="100%">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#18203a"/></marker></defs>
+    <g font-size="11">
+      <text x="10" y="16" font-weight="800" font-size="10" fill="#3a4462">ENTRY</text>
+      <rect x="10" y="26" width="160" height="62" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+      <text x="20" y="46" font-weight="800">bot.py</text><text x="20" y="62">python-telegram-bot</text><text x="20" y="77">files up to 20 MB</text>
+      <rect x="10" y="100" width="160" height="62" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+      <text x="20" y="120" font-weight="800">api.py · POST /share</text><text x="20" y="136">FastAPI; Android share</text><text x="20" y="151">target of the web app</text>
+      <rect x="10" y="174" width="160" height="62" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+      <text x="20" y="194" font-weight="800">/live → WS /ws/live</text><text x="20" y="210">browser mic, 16 kHz PCM,</text><text x="20" y="225">0.1 s frames</text>
+
+      <text x="215" y="16" font-weight="800" font-size="10" fill="#3a4462">CORE · app/core</text>
+      <rect x="215" y="26" width="270" height="250" rx="10" fill="#18203a"/>
+      <g fill="#eef0eb">
+        <text x="230" y="48" font-weight="800">normalize.py</text><text x="330" y="48">ffmpeg, first 300 s</text>
+        <text x="230" y="74" font-weight="800">store · fingerprint ·</text><text x="230" y="89" font-weight="800">variants · fpdiff</text><text x="380" y="81">repeat gates</text>
+        <text x="230" y="115" font-weight="800">edits.py</text><text x="330" y="115">pay only for new seconds</text>
+        <text x="230" y="141" font-weight="800">aletheia.py</text><text x="330" y="141">REST client, retries,</text><text x="330" y="155">idempotency key</text>
+        <text x="230" y="181" font-weight="800">verdict.py</text><text x="330" y="181">bands + the AI seconds</text>
+        <text x="230" y="207" font-weight="800">live.py</text><text x="330" y="207">relay to the live stream;</text><text x="330" y="221">the API key stays here</text>
+        <text x="230" y="250" font-weight="800">check.py</text><text x="330" y="250">ties it together</text>
+      </g>
+      <text x="530" y="16" font-weight="800" font-size="10" fill="#3a4462">OUTPUT</text>
+      <rect x="530" y="26" width="160" height="50" rx="8" fill="#ffae4d" stroke="#18203a" stroke-width="1.6"/>
+      <text x="540" y="46" font-weight="800">card.py</text><text x="540" y="62">HTML → PNG (Playwright)</text>
+      <rect x="530" y="86" width="160" height="50" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+      <text x="540" y="106" font-weight="800">/r/&lt;id&gt; · /radar</text><text x="540" y="122">timeline (wavesurfer.js)</text>
+      <rect x="530" y="146" width="160" height="56" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+      <text x="540" y="166" font-weight="800">SQLite</text><text x="540" y="182">checks · sightings ·</text><text x="540" y="195">feedback</text>
+      <rect x="530" y="206" width="160" height="70" rx="8" fill="#8ddbac" stroke="#18203a" stroke-width="1.6"/>
+      <text x="540" y="226" font-weight="800">DetectifAI Aletheia</text><text x="540" y="242">REST /v1/deepfake/detect</text><text x="540" y="257">live stream (wss)</text><text x="540" y="271">feedback API</text>
+      <path d="M170,57 L213,90" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M170,131 L213,131" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M170,205 L213,205" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M485,51 L528,51" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M485,111 L528,111" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M485,171 L528,171" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+      <path d="M485,241 L528,241" stroke="#18203a" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+    </g>
+    <text x="10" y="306" font-size="11" fill="#3a4462">Every entry point calls the same check(); the contract between the parts is written down in CONTRACT.md.</text>
+    <text x="10" y="322" font-size="11" fill="#3a4462">Development runs on recorded real results (MOCK_ALETHEIA, 0 credits); 150 automated tests.</text>
+  </svg>
+  <div class="foot"><span>Check Before Share</span><span>3</span></div>
+</section>
+
+<!-- ============================================================ 4 PIPELINE -->
+<section class="page">
+  <div class="eyebrow">04 · One clip, start to finish</div>
+  <h2>Eight steps. The orange ones exist only to save credits.</h2>
+  <svg viewBox="0 0 700 470" width="100%">
+    <g font-size="12">
+      <!-- steps -->
+      <g transform="translate(0,0)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">01</text><text x="60" y="21" font-weight="800">Receive</text><text x="60" y="38">Bot download (≤ 20 MB, Telegram's cap) or a share upload. The file id and chat are noted; the chat only as a salted hash.</text></g>
+      <g transform="translate(0,58)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">02</text><text x="60" y="21" font-weight="800">Normalise</text><text x="60" y="38">Voice notes go through unchanged. Video is stripped with a stream copy; odd formats become 16 kHz Opus. First 300 s (Aletheia's limit).</text></g>
+      <g transform="translate(0,116)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#ffae4d" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">03</text><text x="60" y="21" font-weight="800">Gates: have we checked this before?</text><text x="60" y="38">Five ways to recognise a repeat, cheapest first. A hit returns the stored answer: 0 credits, under a second.</text></g>
+      <g transform="translate(0,174)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#ffae4d" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">04</text><text x="60" y="21" font-weight="800">Diff: is it an edited copy?</text><text x="60" y="38">Every near-match is lined up piece by piece. An edited copy pays only for its new seconds (usually a 21-credit excerpt).</text></g>
+      <g transform="translate(0,232)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#ffae4d" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">05</text><text x="60" y="21" font-weight="800">Trim edge silence</text><text x="60" y="38">Dead air at the start and end is billed like speech, so it is cut from the copy we send, the start in whole 2 s steps.</text></g>
+      <g transform="translate(0,290)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#8ddbac" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">06</text><text x="60" y="21" font-weight="800">Detect: one Aletheia call</text><text x="60" y="38">Overall verdict + a score for every 4 s window, every 2 s. Retries reuse the same key, so nothing is charged twice.</text></g>
+      <g transform="translate(0,348)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">07</text><text x="60" y="21" font-weight="800">Decide</text><text x="60" y="38">Seconds covered by ≥ 2 overlapping fake windows are “the AI part”. One of four honest bands.</text></g>
+      <g transform="translate(0,406)"><rect x="0" y="0" width="700" height="48" rx="8" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+        <text x="16" y="30" font-weight="800" font-size="16">08</text><text x="60" y="21" font-weight="800">Answer</text><text x="60" y="38">Store, reply in the group's language, card, timeline link, 👍/👎 sent on to DetectifAI. The bot deletes its copy of the clip.</text></g>
+    </g>
+  </svg>
+  <div class="note">Times shown to people are always the <b>original</b> clip's, even when we sent Aletheia a trimmed copy or a 10 s excerpt.
+    Identical clips arriving at the same moment share one call (single-flight), and the same bytes within 24 h are replayed free by DetectifAI.</div>
+  <div class="foot"><span>Check Before Share</span><span>4</span></div>
+</section>
+
+<!-- ============================================================ 5 GATES -->
+<section class="page">
+  <div class="eyebrow">05 · The gates, one by one</div>
+  <h2>Every clip passes cheap gates before it costs a credit</h2>
+  <p>Viral audio is, by definition, the same clip arriving again and again, often re-compressed, renamed, trimmed or sped up.
+    Each gate asks “have we already checked this?” in a different way, cheapest first. The first gate that says yes answers for free.</p>
+
+  <div class="gate"><div class="n">1</div><div class="body"><h3>Telegram file id</h3>
+    <p><b>What it checks:</b> Telegram gives every file a permanent id that stays the same when the message is forwarded. We look it up before downloading or decoding anything.</p>
+    <p><b>Catches:</b> the same forward in any chat. <b>Misses:</b> anything re-uploaded (a new file id).</p></div>
+    <div class="exit"><b>0 credits</b>no download, no ffmpeg</div></div>
+
+  <div class="gate"><div class="n">2</div><div class="body"><h3>File SHA-256 (exact bytes)</h3>
+    <p><b>What it checks:</b> the SHA-256 of the exact file we would send. The same hash is the Idempotency-Key for Aletheia.</p>
+    <p><b>Catches:</b> the same file from anywhere: a Telegram clip that comes back through WhatsApp → Share. <b>Misses:</b> any change to the bytes.</p></div>
+    <div class="exit"><b>0 credits</b>~0.4 s in our test</div></div>
+
+  <div class="gate"><div class="n">3</div><div class="body"><h3>Decoded-audio hash</h3>
+    <p><b>What it checks:</b> we decode the sound to plain 16 kHz mono samples and hash those, ignoring the container, tags and file name.</p>
+    <p><b>Catches:</b> .ogg renamed .opus, WAV vs FLAC, a voice note inside a video. <b>Misses:</b> lossy re-encodes (the samples change), left to gate 4.</p></div>
+    <div class="exit"><b>0 credits</b>works even without a fingerprint tool</div></div>
+
+  <div class="gate"><div class="n">4</div><div class="body"><h3>Audio fingerprint (Chromaprint) + diff</h3>
+    <p><b>What it checks:</b> a fingerprint describes how a clip sounds, one code per ~0.12 s. Stored clips of similar length are compared; similarity ≥ 0.80 <b>and</b> a piece-by-piece diff that finds nothing changed = the same clip.</p>
+    <p><b>Catches:</b> WhatsApp, MP3 and AAC re-encodes, volume changes, trimmed ends. <b>Safe:</b> 0 hits in 612 pairs of different recordings.</p></div>
+    <div class="exit"><b>0 credits</b>0.6–0.9 s</div></div>
+
+  <div class="gate"><div class="n">5</div><div class="body"><h3>Speed and pitch copies</h3>
+    <p><b>What it checks:</b> a copy sped up, slowed down, played “like a tape” or made higher or deeper. We undo the change with ffmpeg (at the length ratio, or a grid of semitones) and fingerprint again. Runs only if gates 1–4 missed.</p>
+    <p><b>Catches:</b> 0.5–2× speed, ±6 semitones: 9 / 9 copies on the server. <b>Times stay the original's.</b></p></div>
+    <div class="exit"><b>0 credits</b>~1.5 s</div></div>
+
+  <div class="gate paid"><div class="n">6</div><div class="body"><h3>Aletheia: genuinely new audio</h3>
+    <p>Only audio that no gate recognised reaches the API, after the diff (page 6) and the edge trim (page 8) have cut what we pay for. If no stored clip is between half and double the length, gates 4–5 are skipped and the fingerprint is made in parallel with the API call, so a new clip isn't slowed down.</p></div>
+    <div class="exit"><b>2 credits / s</b>minimum 20 (10 s)</div></div>
+  <div class="foot"><span>Check Before Share</span><span>5</span></div>
+</section>
+
+<!-- ============================================================ 6 DIFF / EDITED COPIES -->
+<section class="page">
+  <div class="eyebrow">06 · Edited copies and the fingerprint diff</div>
+  <h2>A near-match is only a repeat if nothing was changed</h2>
+  <p>A whole-clip similarity score is an average. Swap 3 seconds of a known clip for AI speech and the copy still scores ~0.9,
+    so without a second check it would inherit the original's “real” verdict. The <b>fingerprint diff</b> lines the two clips up
+    piece by piece, like a text diff for audio, and lists the seconds that don't match.</p>
+
+  <svg viewBox="0 0 700 250" width="100%" style="margin:3mm 0">
+    <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#18203a"/></marker></defs>
+    <text x="0" y="20" font-size="12" font-weight="800">Clip we already checked (20.4 s, stored with its windows)</text>
+    <rect x="0" y="30" width="560" height="36" rx="6" fill="#8ddbac" stroke="#18203a" stroke-width="2"/>
+    <rect x="274" y="30" width="110" height="36" fill="#ff7a6b" stroke="#18203a" stroke-width="2"/>
+    <text x="329" y="53" font-size="11" text-anchor="middle" font-weight="800">AI 10–14 s</text>
+    <text x="0" y="112" font-size="12" font-weight="800">Forwarded copy with 2 s of AI speech inserted at 18 s (22.4 s)</text>
+    <rect x="0" y="122" width="616" height="36" rx="6" fill="#8ddbac" stroke="#18203a" stroke-width="2"/>
+    <rect x="274" y="122" width="110" height="36" fill="#ff7a6b" stroke="#18203a" stroke-width="2"/>
+    <rect x="494" y="122" width="56" height="36" fill="#ffdf5e" stroke="#18203a" stroke-width="2"/>
+    <text x="522" y="145" font-size="11" text-anchor="middle" font-weight="800">new</text>
+    <g stroke="#3a4462" stroke-width="1" stroke-dasharray="3 3">
+      <line x1="60" y1="66" x2="60" y2="122"/><line x1="200" y1="66" x2="200" y2="122"/><line x1="420" y1="66" x2="420" y2="122"/>
+      <line x1="494" y1="66" x2="494" y2="122"/><line x1="530" y1="66" x2="586" y2="122"/>
+    </g>
+    <text x="600" y="95" font-size="10.5" fill="#3a4462">matched pieces</text>
+    <path d="M351,176 L351,190 L631,190 L631,176" fill="none" stroke="#18203a" stroke-width="2"/>
+    <text x="491" y="208" font-size="12" font-weight="800" text-anchor="middle">only this ~10 s excerpt goes to Aletheia: 21 credits</text>
+    <text x="491" y="226" font-size="11" text-anchor="middle" fill="#3a4462">the rest keeps the stored result, its times moved to the copy</text>
+  </svg>
+
+  <h3>How the diff works</h3>
+  <ul>
+    <li>Every fingerprint frame (~0.124 s) of the new clip is compared with every frame of the stored one. Strong ~2 s diagonals are the candidate alignments: one for a plain copy, two or more around an insertion or a cut.</li>
+    <li>A frame is <b>unmatched</b> when it scores more than 0.24 below the pair's own median, so heavy compression, which lowers the whole clip evenly, doesn't count as an edit. Three or more unmatched frames in a row = changed; a gap in the stored clip between matched parts = cut.</li>
+    <li>Tested: <b>128 / 128</b> true copies called the same, <b>69 / 69</b> edits of ≥ 2 s found at the right seconds. 7 ms per diff.</li>
+  </ul>
+
+  <h3>What an edited copy costs now</h3>
+  <table>
+    <tr><th>Kind of edit</th><th style="width:18%">Cost</th><th>How the answer is built</th></tr>
+    <tr><td>Copy of a clip we called <b>🔴 likely AI</b></td><td><span class="tag t-green">0 credits</span></td><td>Most of it is that AI audio, so it stays 🔴.</td></tr>
+    <tr><td><b>One cut</b> (seconds removed)</td><td><span class="tag t-orange">21 credits</span></td><td>A ~10 s excerpt around the cut point, so a tiny AI piece slipped in there is still heard; the original's result elsewhere.</td></tr>
+    <tr><td><b>One stretch</b> replaced or inserted</td><td><span class="tag t-orange">21 credits</span></td><td>A ~10 s excerpt around the change (10 s is the minimum price anyway) + the original's result elsewhere.</td></tr>
+    <tr><td>Several changes, change + cut, or a <b>messy diff</b></td><td><span class="tag t-grey">full price</span></td><td>The whole clip, as a new check. “Messy” = the copy doesn't match almost perfectly outside the changes, or has stray unmatched bits where a hidden small edit could be.</td></tr>
+  </table>
+  <div class="note"><b>Real API, 4 edited copies: 84 credits instead of 198, the same answers.</b> The excerpt even caught a 2 s AI insert that the full check
+    had missed: in a short excerpt the AI seconds weigh more. And 6 excerpts of <b>real</b> voices (Hindi, Kannada, English) gave 0 false alarms.
+    An edited copy is never shown 🟢, and the reply says which seconds differ.</div>
+  <div class="foot"><span>Check Before Share</span><span>6</span></div>
+</section>
+
+<!-- ============================================================ 7 DETECTION + BANDS -->
+<section class="page">
+  <div class="eyebrow">07 · Detection and the four bands</div>
+  <h2>The headline said real. The 4-second windows found the fake.</h2>
+  <p>One Aletheia REST call returns an overall verdict <b>and</b> a score for every 4-second window, one starting every 2 seconds.
+    Cutting the audio into pieces ourselves would cost about 5× the credits, so we never do. We read the windows.</p>
+
+  <svg viewBox="0 0 700 260" width="100%" style="margin:2mm 0">
+    <g font-size="10.5" fill="#3a4462">
+      <text x="40" y="14">0 s</text><text x="180" y="14">4</text><text x="320" y="14">8</text><text x="390" y="14">10</text><text x="460" y="14">12</text><text x="530" y="14">14</text><text x="600" y="14">16</text><text x="670" y="14">18</text>
+    </g>
+    <rect x="40" y="22" width="640" height="26" rx="5" fill="#8ddbac" stroke="#18203a" stroke-width="1.6"/>
+    <rect x="391" y="22" width="130" height="26" fill="#ff7a6b" stroke="#18203a" stroke-width="1.6"/>
+    <text x="456" y="40" font-size="11" text-anchor="middle" font-weight="800">AI 10.05–13.77 s</text>
+    <!-- windows: 35 px per second -->
+    <g stroke="#18203a" stroke-width="1.3">
+      <rect x="40"  y="62"  width="140" height="14" fill="#fbfcf9"/><text x="186" y="73" font-size="9.5" stroke="none">0–4 s · 0.01</text>
+      <rect x="110" y="80"  width="140" height="14" fill="#fbfcf9"/>
+      <rect x="180" y="98"  width="140" height="14" fill="#fbfcf9"/>
+      <rect x="250" y="116" width="140" height="14" fill="#fbfcf9"/>
+      <rect x="320" y="134" width="140" height="14" fill="#ff7a6b"/><text x="466" y="145" font-size="9.5" stroke="none">8–12 s · fake 1.00</text>
+      <rect x="390" y="152" width="140" height="14" fill="#ff7a6b"/><text x="536" y="163" font-size="9.5" stroke="none">10–14 s · fake 1.00</text>
+      <rect x="460" y="170" width="140" height="14" fill="#ff7a6b"/><text x="606" y="181" font-size="9.5" stroke="none">12–16 s · fake 1.00</text>
+      <rect x="530" y="188" width="140" height="14" fill="#fbfcf9"/>
+    </g>
+    <rect x="390" y="214" width="140" height="24" rx="4" fill="#ffae4d" stroke="#18203a" stroke-width="2"/>
+    <text x="460" y="231" font-size="11" text-anchor="middle" font-weight="800">AI part 10–14 s</text>
+    <text x="380" y="231" font-size="10.5" text-anchor="end">≥ 2 fake windows overlap here →</text>
+    <text x="40" y="255" font-size="10.5" fill="#3a4462">Overall verdict for the whole clip: real (0.31). Windows: 4 s long, one every 2 s. Spliced English test clip, real API.</text>
+  </svg>
+
+  <table>
+    <tr><th style="width:20%">Band</th><th style="width:38%">When</th><th>What people read</th></tr>
+    <tr><td><span class="tag t-red">🔴 Likely AI</span></td><td>Aletheia's overall verdict is fake</td><td>“Likely AI-generated”, with a card that says the score is evidence, not proof.</td></tr>
+    <tr><td><span class="tag t-orange">🟠 Partly AI</span></td><td>Overall real, but some seconds are covered by ≥ 2 overlapping fake windows</td><td>“AI-sounding part: 10–14 s. Words may have been edited into a real recording.” Tap to hear exactly that part.</td></tr>
+    <tr><td><span class="tag t-yellow">🟡 Unclear</span></td><td>One isolated fake window, under 10 s of speech, or an edited copy with nothing flagged</td><td>“Too short or too mixed to tell. Ask the sender where it came from.” We don't guess.</td></tr>
+    <tr><td><span class="tag t-green">🟢 No signs</span></td><td>Overall real, no fake window</td><td>“No signs of AI in the voice.” It checks the voice, not the claim.</td></tr>
+  </table>
+  <h3>Rules that came from testing</h3>
+  <ul>
+    <li><b>Read each window's own verdict, never a score threshold.</b> A real Hindi window scored 0.883 and came back “real”: windows use their own threshold, not the overall 0.62.</li>
+    <li><b>Two overlapping windows, not one.</b> A real fake sentence of 2 s or more always lands in two overlapping windows; one stray window is “unclear”, not orange.</li>
+    <li><b>The diff is a second, independent signal.</b> A changed stretch with even one fake window on it becomes an AI part; any edit turns 🟢 into 🟡.</li>
+  </ul>
+  <div class="foot"><span>Check Before Share</span><span>7</span></div>
+</section>
+
+<!-- ============================================================ 8 EDGE SILENCE + CREDITS SUMMARY -->
+<section class="page">
+  <div class="eyebrow">08 · Saving credits: edge silence</div>
+  <h2>Silence is billed like speech, so we don't send it</h2>
+  <p>We measured it: a 16.4 s clip cost 33 credits; the same clip with 10 s of silence (or quiet room noise) added cost 53.
+    So dead air before the first word and after the last is cut from the copy we <b>send</b>. The stored, played and forwarded clip stays whole,
+    and Aletheia's times are shifted back.</p>
+
+  <svg viewBox="0 0 700 200" width="100%" style="margin:2mm 0">
+    <g font-size="10.5" fill="#3a4462"><text x="20" y="14">0 s</text><text x="90" y="14">2 s</text><text x="160" y="14">4 s</text><text x="610" y="14">end</text></g>
+    <g stroke="#c7ccc4"><line x1="20" y1="20" x2="20" y2="150"/><line x1="90" y1="20" x2="90" y2="150"/><line x1="160" y1="20" x2="160" y2="150"/><line x1="230" y1="20" x2="230" y2="150"/><line x1="300" y1="20" x2="300" y2="150"/></g>
+    <rect x="20" y="26" width="660" height="30" rx="5" fill="#fbfcf9" stroke="#18203a" stroke-width="1.6"/>
+    <rect x="95" y="26" width="510" height="30" fill="#8ddbac" stroke="#18203a" stroke-width="1.6"/>
+    <text x="57" y="46" font-size="10" text-anchor="middle">silence</text><text x="642" y="46" font-size="10" text-anchor="middle">silence</text>
+    <text x="350" y="46" font-size="11" text-anchor="middle" font-weight="800">speech</text>
+    <rect x="90" y="72" width="525" height="30" rx="5" fill="#ffae4d" stroke="#18203a" stroke-width="2"/>
+    <text x="352" y="92" font-size="11" text-anchor="middle" font-weight="800">copy sent to Aletheia: starts at exactly 2.0 s, ends 0.3 s after the last sound</text>
+    <g stroke="#18203a" stroke-width="1.2">
+      <rect x="90" y="114" width="140" height="10" fill="#fbfcf9"/><rect x="160" y="128" width="140" height="10" fill="#fbfcf9"/><rect x="230" y="142" width="140" height="10" fill="#fbfcf9"/>
+    </g>
+    <text x="380" y="138" font-size="10.5">← Aletheia's 4 s windows still start at 2, 4, 6 s…</text>
+    <text x="20" y="180" font-size="10.5" fill="#3a4462">Cut the start in whole 2 s steps only: then every window lands exactly where it would on the whole clip.</text>
+    <text x="20" y="196" font-size="10.5" fill="#3a4462">Our first version cut 1.84 s: the windows moved and a fake part narrowed from 12–16 s to 13.8–15.8 s. Found in testing, fixed.</text>
+  </svg>
+
+  <table>
+    <tr><th>Real API, 2 s of room noise at both ends</th><th>Whole clip</th><th>Sent trimmed</th><th>Answer</th></tr>
+    <tr><td>Spliced clip</td><td>49 credits</td><td><b>46</b></td><td>🟠 12–16 s, the same 3 windows as the whole clip</td></tr>
+    <tr><td>Real Hindi voice (our hottest real clip)</td><td>75</td><td><b>70</b></td><td>🟢 no signs, 0 fake windows (same)</td></tr>
+  </table>
+  <p>Only trimmed when it saves ≥ 2 credits and ≥ 10.5 s remain (never pushes a clip into “unclear”), and only what is truly quiet (below −45 dBFS), so a distant or whispered voice is never cut. Stream copy: the audio is not re-encoded.</p>
+
+  <h3>All the ways we spend fewer credits</h3>
+  <table>
+    <tr><th style="width:32%">Approach</th><th>Saving</th><th style="width:30%">Quality</th></tr>
+    <tr><td>Gates 1–5: repeats, re-encodes, formats, speed/pitch copies</td><td>100 % of a repeat (the main saving for viral audio)</td><td>Same answer: it is the same audio</td></tr>
+    <tr><td>Edited copies pay only new seconds</td><td>84 vs 198 credits on 4 copies</td><td>Same or better</td></tr>
+    <tr><td>Edge-silence trim</td><td>2 credits per silent second</td><td>Same windows (2 s grid)</td></tr>
+    <tr><td>One call per clip, windows included</td><td>~5× cheaper than cutting the clip ourselves</td><td>Aletheia's own windows</td></tr>
+    <tr><td>Same key on retries; single-flight</td><td>No double charges</td><td>—</td></tr>
+    <tr><td>Live listen: billed per second of speech</td><td>Silence on a call is free</td><td>—</td></tr>
+  </table>
+  <p><b>Tried and not built:</b> cutting pauses in the middle (our voice notes are only 0–10 % pauses, and every cut adds a join that could look like a splice);
+    stopping long clips after 10 s (works on clones, but a clip that is AI only at the start would be called AI throughout);
+    speeding audio up to pay for fewer seconds (games the pricing, changes what the model hears). Trial spend: 787 credits, with a hard budget guard.</p>
+  <div class="foot"><span>Check Before Share</span><span>8</span></div>
+</section>
+
+<!-- ============================================================ 9 LIVE LISTEN -->
+<section class="page">
+  <div class="eyebrow">09 · Live listen (added after a round-1 judge's question)</div>
+  <h2>A call on speaker, checked while the voice talks</h2>
+  <div class="flow" style="margin:2mm 0 3mm">
+    <div class="box" style="flex:1"><b>Phone or laptop mic</b>The <code>/live</code> page records 16 kHz PCM in 0.1 s frames after everyone on the call agrees.</div>
+    <div class="arrow">→</div>
+    <div class="box engine" style="flex:1"><b>Our WebSocket relay</b><code style="background:#3a4462;color:#eef0eb">/ws/live</code> adds the API key on the server. The key is never in the browser or a URL.</div>
+    <div class="arrow">→</div>
+    <div class="box" style="flex:1;background:var(--green)"><b>Aletheia live stream</b>First verdict after ~5 s of speech, updates every 5 s, billed per second of speech.</div>
+    <div class="arrow">→</div>
+    <div class="box" style="flex:1"><b>Light + timeline</b>🟢/🟡/🔴 while talking; on Stop the full result goes to the same timeline page.</div>
+  </div>
+  <div class="grid3">
+    <div class="card"><h3>Problem</h3><p>Through a speaker and a phone mic, 2–4 s of <b>real</b> speech came back “fake” (0.65–0.97). A score floor can't fix that: it moved from call to call.</p></div>
+    <div class="card"><h3>Rule</h3><p>AI only when ≥ 3 overlapping windows (≈ 8 s) are each ≥ 0.9 sure; 🔴 only after two confident updates in a row. Anything weaker is 🟡, never 🟢.</p></div>
+    <div class="card"><h3>Result</h3><p>5 real calls in English, Hindi and Kannada: never red (4 no signs, 1 unclear). A cloned voice: flagged at its seconds.</p></div>
+  </div>
+  <p style="margin-top:3mm">Why on speaker? Android and iOS don't let apps capture call audio. The live threat is a cloned caller, fake for far longer than 8 s; finding a short spliced
+    sentence stays the job of file checks. A live check is private: never on the public radar.</p>
+
+  <div class="eyebrow" style="margin-top:4mm">10 · What people get back</div>
+  <h2>Answers made to be forwarded</h2>
+  <div class="grid2">
+    <div class="card stub"><h3>Reply in the group's language</h3><p>English, Hindi or Kannada (<code>/lang</code> per group). In a busy group a 🟢 answer is shortened to one line; warnings never are.</p></div>
+    <div class="card stub"><h3>Verdict card</h3><p>An image to forward back instead of the fake. HTML → PNG with Playwright in ~90 ms, because Pillow breaks Kannada and Hindi letters.</p></div>
+    <div class="card stub"><h3>Timeline page · hear the fake part</h3><p><code>/r/&lt;id&gt;</code> draws the waveform with the AI seconds marked; one tap plays exactly that sentence. The bot also sends the flagged seconds as a voice note.</p></div>
+    <div class="card stub"><h3>AI-clip radar</h3><p><code>/radar</code>: flagged clips seen in ≥ 2 chats or checked ≥ 3 times this week, with credits saved by the cache. Chats kept only as salted hashes.</p></div>
+    <div class="card stub"><h3>👍 / 👎 under every verdict</h3><p>Stored and sent to DetectifAI's feedback API: Hindi and Kannada examples the model may not see otherwise.</p></div>
+    <div class="card stub"><h3>Privacy and consent</h3><p>The bot deletes its download after the check. No names, numbers or message text stored. Only our own consented voices were cloned for testing; no public figures.</p></div>
+  </div>
+  <div class="foot"><span>Check Before Share</span><span>9</span></div>
+</section>
+
+<!-- ============================================================ 10 TESTING -->
+<section class="page">
+  <div class="eyebrow">11 · Testing and results</div>
+  <h2>Eight studies, each one changed the product</h2>
+  <table>
+    <tr><th style="width:27%">Test</th><th style="width:27%">Result</th><th>What it changed</th></tr>
+    <tr><td>Real voice notes, en/hi/kn, clean + WhatsApp-quality</td><td><b>0 / 12</b> false alarms (0 of 145 windows)</td><td>Hindi runs hottest (a window at 0.88, still “real”): trust each window's verdict, not a score</td></tr>
+    <tr><td>Cloned voices (Chatterbox, IndicF5, from ~10 s)</td><td><b>6 / 6</b> caught (0.94–1.00)</td><td>Holds after WhatsApp compression</td></tr>
+    <tr><td>Real note + 1 cloned sentence (splice)</td><td><b>6 / 6</b> flagged</td><td>The overall verdict missed 4 of 6, so we read the windows</td></tr>
+    <tr><td>Different recordings vs the cache</td><td><b>0</b> wrong hits in 612 pairs</td><td>Fingerprint threshold 0.80 is safe</td></tr>
+    <tr><td>True copies vs edits ≥ 2 s</td><td><b>128 / 128</b> same · <b>69 / 69</b> edited</td><td>Every fuzzy hit must pass the diff</td></tr>
+    <tr><td>Speed and pitch copies</td><td><b>9 / 9</b> matched, 0 credits</td><td>Became gate 5</td></tr>
+    <tr><td>Live, real voices through a speaker</td><td><b>5</b> calls, never red</td><td>The sustained live rule</td></tr>
+    <tr><td>Credit trials (budget-guarded)</td><td>Silence billed; edited copies 84 vs 198; real-voice excerpts 0 / 6 false alarms</td><td>Edited copies + edge trim built; pause cutting dropped</td></tr>
+  </table>
+
+  <h3>Server test, 26 November: the whole system, real API</h3>
+  <div class="grid3" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat"><div class="big">12/12</div><small>right verdict, real checks through Telegram and WhatsApp share</small></div>
+    <div class="stat"><div class="big">4</div><small>answered from the cache for 0 credits (incl. a 1.25× sped-up copy)</small></div>
+    <div class="stat"><div class="big">21</div><small>credits for 3 edited copies, ≈ 144 at full price</small></div>
+    <div class="stat"><div class="big">160</div><small>credits in total for all 12 checks</small></div>
+  </div>
+  <p style="margin-top:3mm">A clip checked in Telegram was a free repeat when it came back through WhatsApp → Share.</p>
+
+  <h3>How we test without burning credits</h3>
+  <ul>
+    <li><b>150 automated tests</b> run on recorded real Aletheia replies (a fake API, 0 credits): every gate, the diff, the bands, the bot replies, the live relay.</li>
+    <li>Real-API runs only for a step's “done when” check, on a separate test database, with the cost said up front.</li>
+    <li>Credit experiments ran through a script that refuses to go past 1,500 credits or let the balance fall below 800, and logs every call.</li>
+    <li>Only our own voices, with consent, in all audio tests.</li>
+  </ul>
+  <div class="foot"><span>Check Before Share</span><span>10</span></div>
+</section>
+
+<!-- ============================================================ 11 LIMITS + STACK -->
+<section class="page">
+  <div class="eyebrow">12 · Honest limits</div>
+  <h2>What it can't do yet</h2>
+  <div class="grid2">
+    <div class="card"><h3>Small test set</h3><p>Male voices only, one phone, one quiet room. No women's voices yet. The numbers are a start, not a benchmark.</p></div>
+    <div class="card"><h3>Very short fakes</h3><p>A 1–2 s AI piece is often missed: the rule needs two overlapping 4 s windows. The diff's “these seconds differ” can still point at it in an edited copy.</p></div>
+    <div class="card"><h3>One-word swaps</h3><p>An edit of about 1 s can still pass as the same clip and get its stored result (the diff's resolution is ~2 s). An edited copy is re-checked around the edit it finds; a messy match gets the whole clip.</p></div>
+    <div class="card"><h3>Calls need a speaker</h3><p>Android and iOS don't let apps capture call audio, and the speaker path adds noise; hence the stricter live rule.</p></div>
+    <div class="card"><h3>Short clips</h3><p>Under 10 s of speech we answer “Unclear” rather than guess.</p></div>
+    <div class="card"><h3>Voice, not claim</h3><p>A score is evidence, not proof, and a real person can still say something false. Every card says so.</p></div>
+  </div>
+
+  <div class="eyebrow" style="margin-top:8mm">13 · The stack</div>
+  <h2>Built with</h2>
+  <table>
+    <tr><th style="width:24%">Layer</th><th>What</th><th style="width:38%">Why</th></tr>
+    <tr><td>Engine</td><td>Python 3.11 · FastAPI · SQLite</td><td>One process, one file DB: easy to run on a laptop server</td></tr>
+    <tr><td>Audio</td><td>ffmpeg (imageio-ffmpeg) · Chromaprint fpcalc</td><td>Stream copies instead of re-encodes; fingerprints for repeats</td></tr>
+    <tr><td>Channels</td><td>python-telegram-bot · PWA share target · ngrok HTTPS</td><td>Groups where fakes spread; WhatsApp via Android's share sheet</td></tr>
+    <tr><td>Output</td><td>Playwright cards · wavesurfer.js timeline</td><td>Correct Kannada/Hindi rendering; tap-to-hear</td></tr>
+    <tr><td>DetectifAI Aletheia</td><td>REST detect with 4 s windows · live stream · feedback API</td><td>MCP server used only for exploring in Claude Code</td></tr>
+  </table>
+  <div class="foot"><span>Check Before Share</span><span>11</span></div>
+</section>
+
+<!-- ============================================================ 12-14 Q&A -->
+<section class="page">
+  <div class="eyebrow">14 · Questions judges may ask</div>
+  <h2>Short, honest answers</h2>
+  <div class="qcols">
+    <h3>Use of Aletheia</h3>
+    <div class="qa"><div class="q">Why read the segments and not just Aletheia's verdict?</div><div class="a">On our spliced clips the overall verdict said “real” 4 times out of 6. The 4 s windows caught the fake sentence every time. One REST call returns both, so reading the windows costs nothing extra.</div></div>
+    <div class="qa"><div class="q">Why not cut the audio into pieces and check each?</div><div class="a">Aletheia already scores overlapping 4 s windows in one call. Cutting it ourselves would mean many calls, each with a 20-credit minimum: about 5× the cost for the same information.</div></div>
+    <div class="qa"><div class="q">How do you turn windows into “AI part: 10–14 s”?</div><div class="a">Seconds covered by at least two overlapping fake windows. A real fake sentence of 2 s or more lands in two windows; one stray window is “unclear”.</div></div>
+    <div class="qa"><div class="q">Why not a score threshold like 0.62?</div><div class="a">A real Hindi window scored 0.883 and Aletheia still called it real: windows use their own threshold. We read each window's verdict field.</div></div>
+    <div class="qa"><div class="q">Do you give anything back to DetectifAI?</div><div class="a">Yes: every 👍/👎 goes to their feedback API with the operation id, including Hindi and Kannada examples.</div></div>
+    <div class="qa"><div class="q">REST or MCP?</div><div class="a">REST in the product (multipart upload, retries, idempotency). The MCP server we used only to explore the API inside Claude Code.</div></div>
+
+    <h3>Accuracy and honesty</h3>
+    <div class="qa"><div class="q">How accurate is it on Indian voices?</div><div class="a">On our own voice notes in English, Hindi and Kannada: 0 / 12 false alarms; clones 6 / 6 caught; splices 6 / 6 flagged. Small set, male voices only, so we present it as a sanity check, not a benchmark.</div></div>
+    <div class="qa"><div class="q">What happens with a false alarm?</div><div class="a">We avoid strong claims: four bands including “unclear”, “a score is evidence, not proof” on every card, and 👎 to report it. The live rule was made stricter after we saw speaker false alarms.</div></div>
+    <div class="qa"><div class="q">Can a real person saying something false pass?</div><div class="a">Yes. We check whether the voice is AI-made, not whether the claim is true. The 🟢 answer says exactly that.</div></div>
+    <div class="qa"><div class="q">What can't it detect?</div><div class="a">AI pieces of 1–2 s often slip through; one-word swaps (~1 s) in a known clip can pass the diff; under 10 s of speech we say “unclear”.</div></div>
+    <div class="qa"><div class="q">Does it work in Kannada and Hindi?</div><div class="a">Replies, cards and pages are in all three languages, and Kannada was as clean as English on our voices. Hindi ran hottest but stayed correct. DetectifAI's docs say the model is strongest in English and Hindi.</div></div>
+
+    <h3>Credits and efficiency</h3>
+    <div class="qa"><div class="q">What does one check cost?</div><div class="a">2 credits per second, minimum 20. A 20 s voice note is about 41 credits. A repeat is 0.</div></div>
+    <div class="qa"><div class="q">What if the same fake is forwarded again, re-encoded or sped up?</div><div class="a">Five gates recognise it for free: file id, exact bytes, decoded audio, fingerprint + diff, speed/pitch undo. 9 / 9 speed and pitch copies matched on the server.</div></div>
+    <div class="qa"><div class="q">Could the cache give a fake the verdict of a real clip?</div><div class="a">That is why every fuzzy match must pass the diff: any stretch of ~2 s or more that differs makes it an edited copy, never a repeat. 0 wrong hits in 612 pairs; 69 / 69 edits caught.</div></div>
+    <div class="qa"><div class="q">And an edited copy, do you pay the full price again?</div><div class="a">No. One changed stretch or one cut is a 10 s excerpt (21 credits); a copy of a 🔴 clip is free. Only when the match is clean; otherwise the whole clip. 4 copies: 84 instead of 198 credits, same answers.</div></div>
+    <div class="qa"><div class="q">Is silence billed?</div><div class="a">Yes, we measured it. So edge silence is cut from the copy we send, in 2 s steps so the windows don't move, and only if it is truly quiet. Live listen is billed only for speech.</div></div>
+    <div class="qa"><div class="q">Doesn't a 10 s excerpt change the answer?</div><div class="a">We tested it: on 4 edited copies the answers matched the full check or were better, and 6 excerpts of real voices gave 0 false alarms. The rest of the clip keeps the original's result, which was the same audio.</div></div>
+  </div>
+  <div class="foot"><span>Check Before Share</span><span>12</span></div>
+</section>
+
+<section class="page">
+  <div class="eyebrow">14 · Questions judges may ask (continued)</div>
+  <div class="qcols">
+    <h3>Credits (continued)</h3>
+    <div class="qa"><div class="q">How do you show the savings?</div><div class="a">The radar shows credits saved by repeats and edited copies, using DetectifAI's pricing.</div></div>
+    <h3>Usefulness and design</h3>
+    <div class="qa"><div class="q">Why Telegram and not WhatsApp?</div><div class="a">WhatsApp has no bot API for groups. Telegram lets a bot sit in a group and answer in the thread. WhatsApp users reach us through Android's share sheet: one tap from the voice note.</div></div>
+    <div class="qa"><div class="q">Why a card image?</div><div class="a">People forward images more readily than links. The card is the thing you forward instead of the fake, and it reads correctly in Kannada and Hindi.</div></div>
+    <div class="qa"><div class="q">Who is this for, really?</div><div class="a">Family and college groups where “official” voice notes spread, the admins of those groups, and anyone who gets a “it's me, send money” call.</div></div>
+    <div class="qa"><div class="q">What is the AI-clip radar for?</div><div class="a">It shows which flagged clips are going round right now (seen in ≥ 2 chats or checked ≥ 3 times this week), so a group admin can warn people early.</div></div>
+    <div class="qa"><div class="q">How fast is it?</div><div class="a">A new clip takes about as long as the Aletheia call; a repeat is answered in under a second; a card renders in ~90 ms.</div></div>
+
+    <h3>Live calls</h3>
+    <div class="qa"><div class="q">Does it work on live calls?</div><div class="a">Yes, with the call on speaker next to the /live page, through Aletheia's live stream. Phones don't let apps capture call audio directly.</div></div>
+    <div class="qa"><div class="q">Why is the live rule so strict?</div><div class="a">Through a speaker, 2–4 s of real speech can look fake (0.65–0.97). A cloned caller is fake for much longer, so we need ≈ 8 s of confident windows before saying AI. 5 real calls: never red.</div></div>
+    <div class="qa"><div class="q">Is the other person's consent needed?</div><div class="a">Yes. The page asks the user to get everyone's agreement before Start; live checks are private and never on the radar.</div></div>
+
+    <h3>Privacy and safety</h3>
+    <div class="qa"><div class="q">What do you store?</div><div class="a">The result, the audio file (for the timeline), a fingerprint, and chats only as salted hashes for the radar. No names, phone numbers or message text. The bot deletes its download right after the check. For real use we'd add an expiry for stored audio.</div></div>
+    <div class="qa"><div class="q">Where is the API key?</div><div class="a">Only on our server, in .env. Live listen goes through our relay, so the key is never in the browser or a URL.</div></div>
+    <div class="qa"><div class="q">Whose voices did you clone?</div><div class="a">Only our own, with consent, for testing. No public figures.</div></div>
+
+    <h3>Engineering</h3>
+    <div class="qa"><div class="q">How do you test without spending credits?</div><div class="a">150 automated tests on recorded real Aletheia replies. Real calls only for a step's final check, on a separate database, with the cost said first.</div></div>
+    <div class="qa"><div class="q">What happens if Aletheia is down or slow?</div><div class="a">Retries with backoff reuse the same Idempotency-Key, so a retry is never charged twice; errors become a clear “couldn't check” reply, never a crash.</div></div>
+    <div class="qa"><div class="q">Can it scale?</div><div class="a">Viral audio is mostly repeats, which are free and fast, so cost grows with new clips, not with forwards. SQLite and one process are enough for a demo; a hosted DB and a queue are the next step.</div></div>
+    <div class="qa"><div class="q">What would you build next?</div><div class="a">Check only the changed seconds in more edit shapes, an English transcript check for one-word swaps, a larger test set with women's voices, audio expiry, and early stop for long fully-cloned clips.</div></div>
+    <div class="qa"><div class="q">What was the hardest part?</div><div class="a">Not trusting averages: the overall verdict hid splices, the fingerprint score hid edits, and a 1.84 s trim moved the windows. Each time the fix was to look at the pieces.</div></div>
+  </div>
+  <div class="foot"><span>Check Before Share</span><span>13</span></div>
+</section>
+</body>
+</html>

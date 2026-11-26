@@ -33,7 +33,8 @@ FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 # shifted back, so every time shown is the original clip's.
 EDGE_KEEP = 0.3          # seconds of silence left before the first / after the last sound
 EDGE_MIN_SAVE = 1.0      # trim only if this many seconds go (2 credits)
-EDGE_DROP_DB = 35.0      # "silence" = this far below the clip's loud level (95th percentile, 20 ms frames)
+EDGE_DROP_DB = 35.0      # "silence" = this far below the clip's loud level (95th percentile, 20 ms frames)...
+EDGE_ABS_DB = -45.0      # ...AND below this absolute level (dBFS), so quiet or distant speech is never cut
 EDGE_GRID = 2.0          # Aletheia's window step
 EDGE_MIN_LEFT = 10.5     # never trim below this: Aletheia bills >= 10 s anyway, and < 10 s is "unclear"
 PASSTHROUGH_MAX_BYTES = 20 * 1024 * 1024   # bigger files get compressed (API needs >= 64 KB/s upload)
@@ -122,7 +123,7 @@ def edge_silence(pcm: bytes) -> tuple[float, float]:
     if n < 50:
         return 0.0, 0.0
     e = 20 * np.log10(np.sqrt((x[:n * 320].reshape(n, 320) ** 2).mean(1)) + 1e-9)
-    loud = np.flatnonzero(e >= np.percentile(e, 95) - EDGE_DROP_DB)
+    loud = np.flatnonzero((e >= np.percentile(e, 95) - EDGE_DROP_DB) | (e >= EDGE_ABS_DB))
     if not len(loud):
         return 0.0, 0.0
     return loud[0] * 0.02, (n - 1 - loud[-1]) * 0.02

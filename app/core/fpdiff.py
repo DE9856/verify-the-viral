@@ -56,6 +56,7 @@ class Diff:
     typical: float = 0.0                          # median frame score along the alignment
     changed: list[list[float]] = field(default_factory=list)   # [start, end] s in the new clip
     removed: list[list[float]] = field(default_factory=list)   # [start, end] s in the stored clip
+    stray: float = 0.0                            # s of unmatched frames inside the clip too short to be a change
 
     @property
     def same(self) -> bool:
@@ -143,9 +144,11 @@ def diff(new_fp, stored_fp, mode: Mode = DEFAULT) -> Diff:
     if shared < MIN_SHARED:
         return Diff("different", round(float(shared), 3), round(float(typical), 3))
 
-    changed = []
+    changed, stray = [], 0
     for a, b in _runs(~matched):
         if b - a < mode.min_run:
+            if 0 < a and b < len(q):                         # not codec padding at either end
+                stray += b - a
             continue
         if (a == 0 or b == len(q)) and b - a <= EDGE:        # padding / codec edge at either end
             continue
@@ -164,5 +167,6 @@ def diff(new_fp, stored_fp, mode: Mode = DEFAULT) -> Diff:
     if not changed and not removed and typical < TYPICAL_MIN:
         # nothing stands out because nothing matches well: when half a clip is replaced, the median
         # itself sinks into the fake's range. Not the same clip, whatever the runs say.
-        return Diff("edited", round(float(shared), 3), round(float(typical), 3), [[0.0, _sec(len(q))]], [])
-    return Diff("edited" if changed or removed else "same", round(float(shared), 3), round(float(typical), 3), changed, removed)
+        return Diff("edited", round(float(shared), 3), round(float(typical), 3), [[0.0, _sec(len(q))]], [], _sec(stray))
+    return Diff("edited" if changed or removed else "same", round(float(shared), 3), round(float(typical), 3),
+                changed, removed, _sec(stray))

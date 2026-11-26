@@ -43,3 +43,15 @@ def test_padded_clip_sends_less_but_keeps_original_times(fake, tmp_path):
 def test_clip_without_edge_silence_is_sent_unchanged(fake):
     norm = normalize.normalize_sync(str(AUDIO / "spliced_whatsapp.ogg"))
     assert norm.send_path is None and norm.method == "passthrough"
+
+
+def test_quiet_speech_at_the_edges_is_never_cut():
+    """A distant or whispered voice (-42 dBFS) is far below a loud clip's level but not silence."""
+    rng = np.random.default_rng(1)
+    loud = np.clip(rng.normal(0, 0.9, 16000 * 12), -1, 1)
+    quiet = rng.normal(0, 0.008, 16000 * 3)                 # ~-42 dBFS: under the relative bar, over -45
+    pcm = (np.concatenate([quiet, loud, quiet]) * 32767).astype(np.int16).tobytes()
+    assert normalize.trim_plan(pcm, 18.0) is None
+    hush = rng.normal(0, 0.002, 16000 * 3)                  # ~-54 dBFS: real silence, trimmed
+    pcm = (np.concatenate([hush, loud, hush]) * 32767).astype(np.int16).tobytes()
+    assert normalize.trim_plan(pcm, 18.0) is not None

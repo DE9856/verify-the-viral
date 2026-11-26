@@ -9,7 +9,8 @@ Pipeline, cheapest step first (layers of "have we checked this clip before?"):
   4. a stored clip of similar length? fingerprint it   → cached result if similarity >= 0.80 AND
      the fingerprint diff (fpdiff.py) finds no changed or cut seconds; if it does, the clip is an
      edited copy, result["edited_copy_of"] says which; only its new seconds are paid for (edits.py:
-     a cut copy or a copy of a 🔴 clip is free, one changed stretch = ~10 s excerpt, else whole clip)
+     a copy of a 🔴 clip is free, one changed stretch or one cut = ~10 s excerpt, a messy diff or
+     anything else = whole clip)
      (lossy re-encodes: WhatsApp Opus, MP3, AAC; needs fpcalc)
   5. a copy at another speed or pitch of a stored clip? → cached result, cache.variant says how
      (variants.py: undo the change with ffmpeg, fingerprint again; only runs when 1-4 missed)
@@ -173,21 +174,19 @@ async def _check_edited(norm: normalize.Normalized, edited, source: dict, fp) ->
     original = store.get(cid)
     if not original:
         return None
-    p = edits.plan(original, d.changed, d.removed, norm.duration)
+    p = edits.plan(original, d.changed, d.removed, norm.duration, typical=d.typical, stray=d.stray)
     if p.mode == "full":
         return None
     raw = None
     if p.mode == "free":
         merged = {"segments": [], "band": "likely_fake", "core_regions": []}
-    elif p.mode == "cut":
-        merged = edits.merge_cut(original, d.removed)
     else:
         part = str(Path(norm.path).with_name(Path(norm.path).stem + f"_edit_{p.start:.1f}-{p.end:.1f}.wav"))
         await asyncio.to_thread(normalize._ffmpeg, ["-ss", f"{p.start:.3f}", "-t", f"{p.end - p.start:.3f}",
                                                     "-i", norm.path, "-ac", "1", "-ar", "16000", part])
         key = "edit-" + hashlib.sha256(Path(part).read_bytes()).hexdigest()
         raw = await aletheia.detect(part, idempotency_key=key)
-        merged = edits.merge_excerpt(original, p, raw["result"], d.changed)
+        merged = edits.merge_excerpt(original, p, raw["result"], d.changed, d.removed)
     overall = original.get("overall") or {}
     shaped = {"result": {"verdict": overall.get("verdict"), "score": overall.get("score"),
                          "segments": merged["segments"], "duration_seconds": norm.duration,

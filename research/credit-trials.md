@@ -4,7 +4,7 @@ Goal (user): make the product credit-efficient. Safe savings get built; risky id
 error with a hard budget (1,500 credits, balance never below 800). Script with the guard + ledger:
 `spikes/credit_trials.py`; real-pipeline check: `spikes/edit_copy_e2e.py`; every call is logged in
 `results/credit_trials.jsonl`. Audio = our own consented voices (`real-audio/`, not in git).
-**Spent: 476 credits** (balance 12,023 → ~11,547).
+**Spent: 787 credits** (incl. safety-fix tests; balance 12,023 → ~11,236).
 
 ## What we learned about billing (from the replies, 0 extra credits)
 - Charge = `ceil(2 × duration)`, minimum 20 (10 s). 14.28 s → 29, 20.447 s → 41, 50.688 s → 102.
@@ -52,12 +52,25 @@ the end can be cut freely (only the last window changes). Our recorded clips hav
 edges, so they are sent unchanged; the saving is for voice notes with dead air at either end.
 **Trial spend total: 476 credits.**
 
+## Safety fixes (2026-11-26, after a review of what the cheap paths could miss)
+| Risk in the first version | Fix |
+|---|---|
+| A cut-only copy was free: a tiny AI piece slipped in at the cut (< ~2 s, below the diff's resolution) was never heard | A cut is checked as a ~10 s excerpt around the cut point (21 credits) |
+| A hidden second edit (~1 s) elsewhere would keep the original's result | Cheap paths only on a CLEAN diff: median match >= 0.90 and <= 0.3 s of stray unmatched frames (`fpdiff` now reports `stray`). Clean edits and true re-encodes: 0.0 s. In our tests a hidden 0.6–1.5 s second edit always showed up as its own change → whole-clip check |
+| A false 🔴 was inherited by every edited copy | Free only on a clean diff |
+| Short excerpts might false-alarm on real voices | Tested: 6 excerpts of real voices (hi/kn/en, aimed at the hottest windows) → 0 fake windows, all real (top 0.78 vs 0.67 on the full Hindi clip: a little hotter, never fake). 126 credits |
+| An original AI region inside the excerpt was cut at the excerpt's edge (10–14 → 10–12.8) | The original's regions are dropped only where the audio changed; copies now keep 10–14 exactly |
+| Edge trim could cut quiet or distant speech | "Silence" must also be below −45 dBFS, not just 35 dB under the loud parts |
+
+Re-run on the real API: 4 edited copies → **84 credits instead of 198** (4 × 21), same answers as the
+full check or better (insert caught; regions 2–6 + 10–14, 10–14 + 16.6–22.8, 10–14.3, 10–14). Edge
+trim unchanged (46 vs 49, 12–16 s). **Trial spend total: 787 credits.**
+
 ## Decisions
 - **Built (`app/core/edits.py`, `check._check_edited`):** an edited copy of a known clip pays
-  only for its new seconds. Cut-only copy → 0 credits (original's result on the new timeline,
-  never 🟢). Copy of a 🔴 clip → 0 credits (at least half of it is that AI audio). One changed
-  stretch (insert or in-place replacement) → ~10 s excerpt (21 credits). Anything else → whole
-  clip, as before. Every edited copy still says which seconds differ.
+  only for its new seconds, on a clean diff. Copy of a 🔴 clip → 0 credits. One changed stretch
+  (insert or in-place replacement) or one cut → ~10 s excerpt (21 credits). A messy diff or
+  anything else → whole clip, as before. Every edited copy still says which seconds differ.
 - **Not built: cutting pauses.** Our real voice notes have little silence: pauses ≥ 0.7 s are
   0–6 % of a clip, 0–10 % even at 0.25 s pauses (with 2–12 extra joins each, which could look like
   splices). Not worth the false-alarm risk or the timeline remapping. Leading/trailing silence was
